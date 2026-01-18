@@ -269,14 +269,13 @@ st.markdown("""
     }
     
     .metric-value {
-        font-size: 1.5rem;
+        font-size: 1.2rem;
         font-weight: 800;
         color: #000000 !important;
         font-family: 'Space Grotesk', sans-serif;
-        line-height: 1.3;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-        hyphens: auto;
+        line-height: 1.4;
+        word-break: normal;
+        overflow-wrap: normal;
     }
     
     /* Description cards */
@@ -900,42 +899,48 @@ Respond ONLY with valid JSON (no markdown, no extra text):
                              style: str, features: str) -> ProductDescription:
         """High-quality fallback if LLM API fails"""
         
+        # Get first material name without "Premium" prefix
+        material1 = analysis.materials[0].replace("Premium ", "").replace("premium ", "")
+        material2 = analysis.materials[1].replace("Durable ", "").replace("durable ", "") if len(analysis.materials) > 1 else "quality materials"
+        
         if style == "Storytelling (Emotional)":
-            title = f"{analysis.style} {product_name} - Experience Premium Quality"
+            title = f"{analysis.style} {product_name} - Premium Quality"
             description = f"""Discover the perfect harmony of form and function with this exceptional {product_name.lower()}.
 
-Every detail has been thoughtfully designed to elevate your experience. Crafted from premium {', '.join(analysis.materials).lower()}, this {product_name.lower()} combines {analysis.style.lower()} aesthetics with uncompromising quality.
+Every detail has been thoughtfully designed to elevate your experience. Crafted from {material1.lower()} and {material2.lower()}, this {product_name.lower()} combines {analysis.style.lower()} aesthetics with uncompromising quality.
 
 From the moment you first use it, you'll feel the difference. The meticulous attention to detail ensures not just functionality, but a genuine sense of pride in ownership.
 
-Whether enhancing your daily routine or seeking that perfect gift, this {product_name.lower()} delivers an experience that exceeds expectations. It's more than a product - it's a statement of quality and style."""
+{features if features else f'Whether for everyday use or special occasions, this {product_name.lower()} delivers an experience that exceeds expectations.'}
+
+It's more than a product - it's a statement of quality and style."""
 
             bullet_points = [
-                f"Premium {analysis.materials[0].lower()} construction ensures lasting durability and elegance",
-                f"Sophisticated {analysis.style.lower()} design complements any setting beautifully",
-                "Exceptional attention to detail in every aspect of craftsmanship",
-                "Versatile enough for daily use while special enough for occasions",
-                "Creates memorable moments and makes an unforgettable gift"
+                f"{material1} construction ensures lasting durability and elegance",
+                f"Sophisticated {analysis.style.lower()} design complements any setting",
+                "Exceptional attention to detail in every aspect",
+                "Versatile enough for daily use yet special for occasions",
+                "Makes a thoughtful and memorable gift"
             ]
             
         elif style == "Feature-Benefit (Practical)":
             title = f"{product_name} - {analysis.style} Design | Professional Quality"
             description = f"""Experience the perfect balance of quality and value with this professional-grade {product_name.lower()}.
 
-SUPERIOR CONSTRUCTION: Built with premium {' and '.join(analysis.materials).lower()}, which means exceptional durability you can count on. This translates directly to better long-term value and reliable performance day after day.
+SUPERIOR CONSTRUCTION: Built with {material1.lower()} and {material2.lower()}, ensuring exceptional durability you can count on. This translates to better long-term value and reliable performance.
 
-INTELLIGENT DESIGN: The {analysis.style.lower()} aesthetic isn't just visually appealing - it's engineered for optimal functionality. Every element serves a purpose, ensuring seamless integration into your life.
+INTELLIGENT DESIGN: The {analysis.style.lower()} aesthetic isn't just visually appealing - it's engineered for optimal functionality. Every element serves a purpose.
 
-PROVEN PERFORMANCE: {features if features else 'Versatile functionality adapts to your needs, whether for professional use or personal enjoyment.'}
+{features if features else f'PROVEN PERFORMANCE: Versatile design adapts to your needs, whether for professional or personal use.'}
 
-QUALITY ASSURANCE: Rigorous standards ensure consistent excellence, giving you confidence in every use."""
+QUALITY ASSURANCE: Rigorous standards ensure consistent excellence in every detail."""
 
             bullet_points = [
-                f"Professional-grade {analysis.materials[0].lower()} provides superior strength and longevity",
-                "Ergonomic design maximizes comfort and ease of use in daily applications",
-                "Durable construction withstands regular use while maintaining performance",
-                "Versatile functionality adapts to multiple use cases and situations",
-                "Quality craftsmanship backed by attention to detail and standards"
+                f"{material1} provides superior strength and longevity",
+                "Ergonomic design maximizes comfort and ease of use",
+                "Durable construction maintains performance over time",
+                "Versatile functionality for multiple applications",
+                "Quality craftsmanship backed by attention to detail"
             ]
             
         else:  # Minimalist
@@ -944,21 +949,21 @@ QUALITY ASSURANCE: Rigorous standards ensure consistent excellence, giving you c
 
 This {product_name.lower()} represents essentials, perfected. No unnecessary complexity. No compromises on quality.
 
-Crafted from {' and '.join(analysis.materials).lower()}. Designed with {analysis.style.lower()} principles. Built for those who value substance over excess.
+Crafted from {material1.lower()} and {material2.lower()}. Designed with {analysis.style.lower()} principles.
 
 {features if features else 'Functional. Reliable. Timeless.'}
 
-Simple. Effective. Enduring."""
+Built for those who value substance over excess."""
 
             bullet_points = [
-                f"Premium {analysis.materials[0]} construction",
+                f"{material1} construction",
                 f"{analysis.style} design aesthetic",
                 "Essential functionality without excess",
                 "Superior craftsmanship standards",
                 "Timeless quality and appeal"
             ]
         
-        meta_description = f"{product_name} - {analysis.style} {analysis.category.lower()}. {bullet_points[0][:80]}. Premium quality."[:160]
+        meta_description = f"{product_name} - {analysis.style} {analysis.category.lower()}. {bullet_points[0]}. Premium quality."[:160]
         
         return ProductDescription(
             title=title,
@@ -1498,8 +1503,7 @@ def main():
                     export_style = st.selectbox(
                         "📝 Choose Description Style:",
                         list(descriptions.keys()),
-                        help="Select which AI-generated description to use for your platform export",
-                        key="export_style_selector"
+                        help="Select which AI-generated description to use for your platform export"
                     )
                     
                     formatted_listing = format_for_platform(
