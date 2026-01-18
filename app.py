@@ -269,11 +269,14 @@ st.markdown("""
     }
     
     .metric-value {
-        font-size: 2rem;
+        font-size: 1.5rem;
         font-weight: 800;
         color: #000000 !important;
         font-family: 'Space Grotesk', sans-serif;
-        line-height: 1.2;
+        line-height: 1.3;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
     }
     
     /* Description cards */
@@ -522,15 +525,49 @@ st.markdown("""
     [data-baseweb="menu"] {
         background: #ffffff !important;
         border: 1px solid #e5e5e5 !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+    }
+    
+    [data-baseweb="menu"] ul {
+        background: #ffffff !important;
     }
     
     [data-baseweb="menu"] li {
         background: #ffffff !important;
         color: #000000 !important;
+        padding: 0.75rem 1rem !important;
     }
     
     [data-baseweb="menu"] li:hover {
         background: #f0f0f0 !important;
+        color: #000000 !important;
+    }
+    
+    /* Force all text in menu options to be black */
+    [data-baseweb="menu"] li div,
+    [data-baseweb="menu"] li span,
+    [data-baseweb="menu"] li p {
+        color: #000000 !important;
+        background: transparent !important;
+    }
+    
+    /* Listbox options */
+    [role="listbox"] {
+        background: #ffffff !important;
+    }
+    
+    [role="option"] {
+        background: #ffffff !important;
+        color: #000000 !important;
+    }
+    
+    [role="option"]:hover {
+        background: #f0f0f0 !important;
+        color: #000000 !important;
+    }
+    
+    /* Force all children of options to be black text */
+    [role="option"] * {
         color: #000000 !important;
     }
     
@@ -1026,8 +1063,8 @@ Respond ONLY with valid JSON:
         """REAL Gen AI #4: Generate lifestyle images using Pollinations.ai (FREE)"""
         
         contexts = [
-            f"{product_name} on elegant modern desk workspace, professional office setting, soft natural window light, minimalist aesthetic, high-end commercial product photography",
-            f"{product_name} in beautiful outdoor lifestyle scene, natural environment background, golden hour lighting, professional advertising photography style"
+            f"{product_name}, professional studio product photography, clean white background, soft professional lighting, high-end commercial product shot, crisp focus, minimalist aesthetic, 8k quality",
+            f"{product_name}, lifestyle product photography, natural setting, soft ambient lighting, professional commercial advertising style, lifestyle context, high-end photography"
         ]
         
         generated_images = []
@@ -1423,9 +1460,9 @@ def main():
                         
                         for i in range(100):
                             if i < 50:
-                                status_text.text("Creating workspace photo...")
+                                status_text.text("Creating studio photo...")
                             else:
-                                status_text.text("Creating outdoor photo...")
+                                status_text.text("Creating lifestyle photo...")
                             
                             time.sleep(0.06)
                             progress_bar.progress(i + 1)
@@ -1442,7 +1479,7 @@ def main():
                     """, unsafe_allow_html=True)
                     
                     cols = st.columns(2)
-                    contexts = ["Workspace Scene", "Lifestyle Scene"]
+                    contexts = ["Studio Photo", "Lifestyle Photo"]
                     
                     for idx, (col, img, context) in enumerate(zip(cols, lifestyle_images, contexts)):
                         with col:
