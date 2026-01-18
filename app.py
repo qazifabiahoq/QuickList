@@ -1192,7 +1192,7 @@ def main():
         - Instant product analysis
         - Professional descriptions
         - Search keywords
-        - Beautiful product photos
+        - Platform-ready formatting
         
         **Works With:**
         - Shopify
@@ -1209,10 +1209,9 @@ def main():
         2. Our system analyzes it
         3. Creates 3 description styles
         4. Generates search keywords
-        5. Creates 2 lifestyle photos
-        6. Download and list
+        5. Download and list
         
-        Ready in 90 seconds
+        Ready in 30 seconds
         """)
         
         st.markdown("---")
@@ -1224,7 +1223,6 @@ def main():
         • Image recognition
         • Smart copywriting
         • Keyword optimization
-        • Photo generation
         
         100% free to use
         """)
@@ -1454,44 +1452,6 @@ def main():
                     
                     st.markdown('</div>', unsafe_allow_html=True)
                     
-                    # Phase 4: Generate lifestyle images
-                    st.markdown('<div class="status-badge status-processing">Creating professional product photos...</div>', unsafe_allow_html=True)
-                    
-                    with st.spinner('Creating lifestyle photos...'):
-                        progress_bar = st.progress(0)
-                        status_text = st.empty()
-                        
-                        lifestyle_images = gen_ai.generate_lifestyle_images(image, product_name, num_images=2)
-                        
-                        for i in range(100):
-                            if i < 50:
-                                status_text.text("Creating studio photo...")
-                            else:
-                                status_text.text("Creating lifestyle photo...")
-                            
-                            time.sleep(0.06)
-                            progress_bar.progress(i + 1)
-                        
-                        status_text.empty()
-                        progress_bar.empty()
-                    
-                    st.markdown('<div class="status-badge status-complete">Photos Ready</div>', unsafe_allow_html=True)
-                    
-                    # Display images
-                    st.markdown("""
-                    <div class="image-gallery">
-                        <div class="gallery-title">Professional Product Photos</div>
-                    """, unsafe_allow_html=True)
-                    
-                    cols = st.columns(2)
-                    contexts = ["Studio Photo", "Lifestyle Photo"]
-                    
-                    for idx, (col, img, context) in enumerate(zip(cols, lifestyle_images, contexts)):
-                        with col:
-                            st.image(img, caption=context, use_container_width=True)
-                    
-                    st.markdown('</div>', unsafe_allow_html=True)
-                    
                     # Platform export
                     st.markdown("""
                     <div class="section-header">
@@ -1527,7 +1487,7 @@ def main():
                     </div>
                     """, unsafe_allow_html=True)
                     
-                    col1, col2, col3 = st.columns([1, 1, 1])
+                    col1, col2 = st.columns([1, 1])
                     
                     with col1:
                         st.download_button(
@@ -1555,19 +1515,6 @@ def main():
                             data=all_listings,
                             file_name=f"{product_name.lower().replace(' ', '_')}_all.txt",
                             mime="text/plain",
-                            use_container_width=True
-                        )
-                    
-                    with col3:
-                        buf = io.BytesIO()
-                        lifestyle_images[0].save(buf, format='PNG')
-                        byte_im = buf.getvalue()
-                        
-                        st.download_button(
-                            label="Download Image",
-                            data=byte_im,
-                            file_name=f"{product_name.lower().replace(' ', '_')}_photo.png",
-                            mime="image/png",
                             use_container_width=True
                         )
                     
@@ -1640,9 +1587,8 @@ def main():
                 • Smart product analysis from your image<br>
                 • 3 professionally written description styles<br>
                 • Search-optimized keywords<br>
-                • 2 professional lifestyle product photos<br>
                 • Platform-ready formatting<br>
-                • Complete listing in under 2 minutes
+                • Complete listing in under 30 seconds
             </p>
         </div>
         """, unsafe_allow_html=True)
