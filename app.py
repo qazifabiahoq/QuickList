@@ -108,17 +108,32 @@ st.markdown("""
         font-family: 'Inter', sans-serif;
     }
     
-    /* Force all text to be visible */
-    * {
+    /* Force all text to be visible - EXCEPT header elements */
+    body *:not(.main-header):not(.main-header *):not(.logo):not(.tagline):not(.ai-badge):not(.status-processing):not(.status-processing *):not(.status-complete):not(.status-complete *):not(.style-badge):not(button):not(button *) {
         color: #000000 !important;
     }
     
-    /* Override for white backgrounds */
-    .main-header *, 
-    .status-processing *,
-    .status-complete *,
+    /* Header must be white text */
+    .main-header,
+    .main-header *,
+    .header-content,
+    .header-content *,
+    .logo,
+    .logo *,
+    .tagline,
+    .tagline *,
     .ai-badge,
-    .style-badge {
+    .ai-badge * {
+        color: #ffffff !important;
+    }
+    
+    /* Status badges white text */
+    .status-processing,
+    .status-processing *,
+    .status-complete,
+    .status-complete *,
+    .style-badge,
+    .style-badge * {
         color: #ffffff !important;
     }
     
