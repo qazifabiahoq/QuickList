@@ -214,8 +214,16 @@ st.markdown("""
     
     .stButton > button:hover {
         background: #0066cc !important;
+        color: #ffffff !important;
         transform: translateY(-2px);
         box-shadow: 0 6px 24px rgba(0,102,204,0.3) !important;
+    }
+    
+    /* Force button text to always be white */
+    .stButton > button p,
+    .stButton > button span,
+    .stButton > button div {
+        color: #ffffff !important;
     }
     
     /* Download buttons */
@@ -470,6 +478,24 @@ st.markdown("""
         box-shadow: 0 0 0 3px rgba(0,102,204,0.1) !important;
     }
     
+    /* Code/Pre elements - force white background and black text */
+    pre, code {
+        background: #f8f8f8 !important;
+        color: #000000 !important;
+        border: 1px solid #e5e5e5 !important;
+        border-radius: 8px !important;
+        padding: 1rem !important;
+    }
+    
+    .stCode, [data-testid="stCode"] {
+        background: #f8f8f8 !important;
+    }
+    
+    .stCode pre, [data-testid="stCode"] pre {
+        background: #f8f8f8 !important;
+        color: #000000 !important;
+    }
+    
     /* Selectbox */
     .stSelectbox div[data-baseweb="select"] {
         background: #ffffff !important;
@@ -486,9 +512,16 @@ st.markdown("""
         color: #000000 !important;
     }
     
-    /* Selectbox options in dropdown */
+    /* Selectbox selected value */
+    .stSelectbox div[data-baseweb="select"] div[data-baseweb="input"] {
+        color: #000000 !important;
+        background: #ffffff !important;
+    }
+    
+    /* Selectbox options in dropdown menu */
     [data-baseweb="menu"] {
         background: #ffffff !important;
+        border: 1px solid #e5e5e5 !important;
     }
     
     [data-baseweb="menu"] li {
@@ -501,9 +534,17 @@ st.markdown("""
         color: #000000 !important;
     }
     
-    /* Selected value in selectbox */
-    .stSelectbox div[data-baseweb="select"] div {
+    /* Force all selectbox text to be black */
+    .stSelectbox div[data-baseweb="select"] div,
+    .stSelectbox div[data-baseweb="select"] span,
+    .stSelectbox div[data-baseweb="select"] p {
         color: #000000 !important;
+        background: transparent !important;
+    }
+    
+    /* Dropdown arrow */
+    .stSelectbox svg {
+        fill: #000000 !important;
     }
     
     /* Mobile responsive */
@@ -981,14 +1022,12 @@ Respond ONLY with valid JSON:
             }
     
     @staticmethod
-    def generate_lifestyle_images(image: Image.Image, product_name: str, num_images: int = 4) -> List[Image.Image]:
+    def generate_lifestyle_images(image: Image.Image, product_name: str, num_images: int = 2) -> List[Image.Image]:
         """REAL Gen AI #4: Generate lifestyle images using Pollinations.ai (FREE)"""
         
         contexts = [
             f"{product_name} on elegant modern desk workspace, professional office setting, soft natural window light, minimalist aesthetic, high-end commercial product photography",
-            f"{product_name} in beautiful outdoor lifestyle scene, natural environment background, golden hour lighting, professional advertising photography style",
-            f"{product_name} styled as premium gift presentation, luxury wrapping paper and elegant ribbons, celebration setting, high-end product photography",
-            f"{product_name} size comparison on white studio background, placed next to common everyday objects for scale reference, clean professional product photography"
+            f"{product_name} in beautiful outdoor lifestyle scene, natural environment background, golden hour lighting, professional advertising photography style"
         ]
         
         generated_images = []
@@ -1128,7 +1167,7 @@ def main():
         2. Our system analyzes it
         3. Creates 3 description styles
         4. Generates search keywords
-        5. Creates lifestyle photos
+        5. Creates 2 lifestyle photos
         6. Download and list
         
         Ready in 90 seconds
@@ -1380,17 +1419,13 @@ def main():
                         progress_bar = st.progress(0)
                         status_text = st.empty()
                         
-                        lifestyle_images = gen_ai.generate_lifestyle_images(image, product_name, num_images=4)
+                        lifestyle_images = gen_ai.generate_lifestyle_images(image, product_name, num_images=2)
                         
                         for i in range(100):
-                            if i < 25:
+                            if i < 50:
                                 status_text.text("Creating workspace photo...")
-                            elif i < 50:
-                                status_text.text("Creating outdoor photo...")
-                            elif i < 75:
-                                status_text.text("Creating gift photo...")
                             else:
-                                status_text.text("Creating comparison photo...")
+                                status_text.text("Creating outdoor photo...")
                             
                             time.sleep(0.06)
                             progress_bar.progress(i + 1)
@@ -1406,8 +1441,8 @@ def main():
                         <div class="gallery-title">Professional Product Photos</div>
                     """, unsafe_allow_html=True)
                     
-                    cols = st.columns(4)
-                    contexts = ["Workspace", "Outdoor", "Gift", "Size Comparison"]
+                    cols = st.columns(2)
+                    contexts = ["Workspace Scene", "Lifestyle Scene"]
                     
                     for idx, (col, img, context) in enumerate(zip(cols, lifestyle_images, contexts)):
                         with col:
@@ -1424,9 +1459,10 @@ def main():
                     """.format(target_platform), unsafe_allow_html=True)
                     
                     export_style = st.selectbox(
-                        "Select description style for export",
+                        "📝 Choose Description Style:",
                         list(descriptions.keys()),
-                        help="Choose which AI-generated description to use"
+                        help="Select which AI-generated description to use for your platform export",
+                        key="export_style_selector"
                     )
                     
                     formatted_listing = format_for_platform(
@@ -1435,13 +1471,12 @@ def main():
                         target_platform
                     )
                     
+                    # Display in a white box with black text
                     st.markdown("""
-                    <div class="description-card">
-                    """, unsafe_allow_html=True)
-                    
-                    st.code(formatted_listing, language=None)
-                    
-                    st.markdown('</div>', unsafe_allow_html=True)
+                    <div style="background: #ffffff; border: 2px solid #e5e5e5; border-radius: 12px; padding: 2rem; margin: 1.5rem 0;">
+                        <pre style="color: #000000; background: #f8f8f8; padding: 1.5rem; border-radius: 8px; overflow-x: auto; white-space: pre-wrap; font-family: monospace; font-size: 0.9rem; line-height: 1.6;">{}</pre>
+                    </div>
+                    """.format(formatted_listing), unsafe_allow_html=True)
                     
                     # Download options
                     st.markdown("""
@@ -1564,7 +1599,7 @@ def main():
                 • Smart product analysis from your image<br>
                 • 3 professionally written description styles<br>
                 • Search-optimized keywords<br>
-                • 4 professional lifestyle product photos<br>
+                • 2 professional lifestyle product photos<br>
                 • Platform-ready formatting<br>
                 • Complete listing in under 2 minutes
             </p>
