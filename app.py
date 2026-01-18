@@ -257,6 +257,30 @@ st.markdown("""
         text-align: center;
     }
     
+    /* Uploaded image styling */
+    [data-testid="stImage"] {
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+    
+    [data-testid="stImage"] img {
+        border-radius: 12px;
+    }
+    
+    [data-testid="stImage"] > div {
+        text-align: center;
+    }
+    
+    /* Image captions */
+    [data-testid="stImage"] + div,
+    [data-testid="stImage"] figcaption,
+    [data-testid="stImage"] p {
+        color: #000000 !important;
+        text-align: center;
+        margin-top: 0.5rem;
+    }
+    
     /* Progress bar */
     .stProgress > div > div > div > div {
         background: linear-gradient(90deg, #000000 0%, #0066cc 100%);
@@ -359,6 +383,32 @@ st.markdown("""
     
     .stSelectbox div[data-baseweb="select"]:hover {
         border-color: #0066cc !important;
+    }
+    
+    /* Selectbox dropdown menu */
+    .stSelectbox div[data-baseweb="select"] > div {
+        background: #ffffff !important;
+        color: #000000 !important;
+    }
+    
+    /* Selectbox options in dropdown */
+    [data-baseweb="menu"] {
+        background: #ffffff !important;
+    }
+    
+    [data-baseweb="menu"] li {
+        background: #ffffff !important;
+        color: #000000 !important;
+    }
+    
+    [data-baseweb="menu"] li:hover {
+        background: #f0f0f0 !important;
+        color: #000000 !important;
+    }
+    
+    /* Selected value in selectbox */
+    .stSelectbox div[data-baseweb="select"] div {
+        color: #000000 !important;
     }
     
     /* Mobile responsive */
@@ -1025,8 +1075,10 @@ def main():
     if uploaded_file is not None:
         image = Image.open(uploaded_file)
         
-        # Show uploaded image
-        st.image(image, caption="Uploaded Product Image", use_container_width=True, width=400)
+        # Show uploaded image - centered and limited width
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            st.image(image, caption="Uploaded Product Image", width=500)
         
         # Product details input
         st.markdown("""
