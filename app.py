@@ -104,8 +104,31 @@ st.markdown("""
     }
     
     p, div, span, label {
-        color: #1a1a1a !important;
+        color: #000000 !important;
         font-family: 'Inter', sans-serif;
+    }
+    
+    /* Force all text to be visible */
+    * {
+        color: #000000 !important;
+    }
+    
+    /* Override for white backgrounds */
+    .main-header *, 
+    .status-processing *,
+    .status-complete *,
+    .ai-badge,
+    .style-badge {
+        color: #ffffff !important;
+    }
+    
+    /* Ensure buttons have proper text color */
+    button, button * {
+        color: #ffffff !important;
+    }
+    
+    button:hover, button:hover * {
+        color: #000000 !important;
     }
     
     /* Sidebar */
@@ -269,11 +292,11 @@ st.markdown("""
     
     .metric-label {
         font-size: 0.75rem;
-        color: #666666 !important;
+        color: #000000 !important;
         text-transform: uppercase;
         letter-spacing: 0.1em;
         margin-bottom: 0.75rem;
-        font-weight: 600;
+        font-weight: 700;
     }
     
     .metric-value {
@@ -282,6 +305,10 @@ st.markdown("""
         color: #000000 !important;
         font-family: 'Space Grotesk', sans-serif;
         line-height: 1.2;
+    }
+    
+    .metric-value * {
+        color: #000000 !important;
     }
     
     /* Description cards */
@@ -297,6 +324,10 @@ st.markdown("""
     .description-card:hover {
         border-color: #000000;
         box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+    
+    .description-card * {
+        color: #000000 !important;
     }
     
     .description-title {
@@ -322,9 +353,13 @@ st.markdown("""
     }
     
     .description-text {
-        color: #1a1a1a !important;
+        color: #000000 !important;
         line-height: 1.8;
         font-size: 1.05rem;
+    }
+    
+    .description-text * {
+        color: #000000 !important;
     }
     
     /* SEO section */
@@ -426,7 +461,7 @@ st.markdown("""
     
     .section-subtitle {
         font-size: 1.1rem;
-        color: #666666 !important;
+        color: #000000 !important;
         margin-top: 0.5rem;
     }
     
@@ -440,9 +475,14 @@ st.markdown("""
     }
     
     .info-box p {
-        color: #1a1a1a !important;
+        color: #000000 !important;
         line-height: 1.7;
         margin: 0;
+    }
+    
+    .info-box * {
+        color: #000000 !important;
+    }
     }
     
     /* Selectbox styling */
@@ -481,6 +521,26 @@ st.markdown("""
     .stTextArea textarea:focus {
         border-color: #0066cc !important;
         box-shadow: 0 0 0 3px rgba(0,102,204,0.1) !important;
+    }
+    
+    /* Force Streamlit markdown to be black */
+    [data-testid="stMarkdownContainer"] {
+        color: #000000 !important;
+    }
+    
+    [data-testid="stMarkdownContainer"] * {
+        color: #000000 !important;
+    }
+    
+    [data-testid="stMarkdownContainer"] p,
+    [data-testid="stMarkdownContainer"] li,
+    [data-testid="stMarkdownContainer"] strong {
+        color: #000000 !important;
+    }
+    
+    /* Streamlit text elements */
+    .stText, .stCaption {
+        color: #000000 !important;
     }
     
     /* Mobile responsive */
