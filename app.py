@@ -23,8 +23,24 @@ st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700;800&display=swap');
     
+    /* Force light theme at root level */
+    :root {
+        --background-color: #ffffff;
+        --text-color: #000000;
+    }
+    
     /* Main app background - WHITE */
     .stApp {
+        background: #ffffff !important;
+        color: #000000 !important;
+    }
+    
+    /* Force all Streamlit elements to white background */
+    .stApp > div {
+        background: #ffffff !important;
+    }
+    
+    .main {
         background: #ffffff !important;
     }
     
@@ -62,6 +78,16 @@ st.markdown("""
         font-family: 'Inter', sans-serif;
     }
     
+    /* Force white backgrounds on all interactive elements */
+    section, div[class*="st"], div[data-testid] {
+        background-color: transparent;
+    }
+    
+    /* Main container white background */
+    .main .block-container {
+        background: #ffffff !important;
+    }
+    
     /* Headings */
     h1, h2, h3, h4 {
         font-family: 'Space Grotesk', sans-serif !important;
@@ -76,7 +102,7 @@ st.markdown("""
     
     /* Upload section */
     .upload-section {
-        background: #ffffff;
+        background: #ffffff !important;
         border: 2px solid #e5e5e5;
         border-radius: 16px;
         padding: 3rem;
@@ -84,7 +110,12 @@ st.markdown("""
         text-align: center;
     }
     
-    /* File uploader */
+    .upload-section h2,
+    .upload-section p {
+        color: #000000 !important;
+    }
+    
+    /* File uploader - FIXED FOR CONTRAST */
     [data-testid="stFileUploader"] {
         background: #ffffff !important;
         border: 3px dashed #0066cc !important;
@@ -96,6 +127,70 @@ st.markdown("""
         color: #000000 !important;
         font-weight: 600 !important;
         font-size: 1.1rem !important;
+    }
+    
+    /* File uploader inner sections - WHITE background */
+    [data-testid="stFileUploader"] section {
+        background: #ffffff !important;
+    }
+    
+    [data-testid="stFileUploader"] section > div {
+        background: #ffffff !important;
+    }
+    
+    /* All divs inside file uploader - WHITE background, BLACK text */
+    [data-testid="stFileUploader"] div {
+        background: #ffffff !important;
+        color: #000000 !important;
+    }
+    
+    /* All text in file uploader - BLACK */
+    [data-testid="stFileUploader"] p,
+    [data-testid="stFileUploader"] span,
+    [data-testid="stFileUploader"] small,
+    [data-testid="stFileUploader"] label {
+        color: #000000 !important;
+        background: transparent !important;
+    }
+    
+    /* Drag and drop zone - WHITE background */
+    [data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"] {
+        background: #ffffff !important;
+        border: 2px dashed #cccccc !important;
+        border-radius: 8px !important;
+    }
+    
+    [data-testid="stFileUploader"] [data-testid="stFileUploaderDropzoneInput"] {
+        background: #ffffff !important;
+    }
+    
+    /* Browse button */
+    [data-testid="stFileUploader"] button {
+        background: #ffffff !important;
+        color: #0066cc !important;
+        border: 2px solid #0066cc !important;
+        font-weight: 600 !important;
+    }
+    
+    [data-testid="stFileUploader"] button:hover {
+        background: #0066cc !important;
+        color: #ffffff !important;
+    }
+    
+    /* File uploader markdown text */
+    [data-testid="stFileUploader"] [data-testid="stMarkdownContainer"] {
+        color: #000000 !important;
+        background: transparent !important;
+    }
+    
+    [data-testid="stFileUploader"] [data-testid="stMarkdownContainer"] p {
+        color: #000000 !important;
+        background: transparent !important;
+    }
+    
+    [data-testid="stFileUploader"] [data-testid="stMarkdownContainer"] * {
+        color: #000000 !important;
+        background: transparent !important;
     }
     
     /* Buttons */
