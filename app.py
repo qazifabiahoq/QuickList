@@ -18,14 +18,14 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS - Minimal Professional Design
+# Custom CSS - Fixed Version
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700;800&display=swap');
     
-    /* Main app background */
+    /* Main app background - WHITE */
     .stApp {
-        background: #ffffff;
+        background: #ffffff !important;
     }
     
     /* Hide Streamlit branding */
@@ -33,10 +33,10 @@ st.markdown("""
     footer {visibility: hidden;}
     header {visibility: hidden;}
     
-    /* Main header */
+    /* Main header - BLACK background */
     .main-header {
         text-align: center;
-        background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+        background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%) !important;
         padding: 3rem 3rem;
         border-radius: 0 0 24px 24px;
         margin: -6rem -5rem 3rem -5rem;
@@ -60,43 +60,46 @@ st.markdown("""
         z-index: 1;
     }
     
-    .logo {
+    /* CRITICAL: Force header text to be WHITE */
+    .logo,
+    .logo *,
+    h1.logo {
         color: #ffffff !important;
-        font-family: 'Space Grotesk', sans-serif;
-        font-size: 3.5rem;
-        font-weight: 800;
-        margin: 0;
-        letter-spacing: -0.02em;
+        font-family: 'Space Grotesk', sans-serif !important;
+        font-size: 3.5rem !important;
+        font-weight: 800 !important;
+        margin: 0 !important;
+        letter-spacing: -0.02em !important;
     }
     
-    .logo::before {
+    .tagline,
+    .tagline *,
+    p.tagline {
         color: #ffffff !important;
+        font-family: 'Inter', sans-serif !important;
+        font-size: 1.25rem !important;
+        margin-top: 0.75rem !important;
+        font-weight: 400 !important;
+        letter-spacing: 0.01em !important;
     }
     
-    .tagline {
+    .ai-badge,
+    .ai-badge *,
+    span.ai-badge {
+        background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%) !important;
         color: #ffffff !important;
-        font-family: 'Inter', sans-serif;
-        font-size: 1.25rem;
-        margin-top: 0.75rem;
-        font-weight: 400;
-        letter-spacing: 0.01em;
+        display: inline-block !important;
+        padding: 0.6rem 1.5rem !important;
+        border-radius: 24px !important;
+        font-size: 0.85rem !important;
+        font-weight: 700 !important;
+        margin-top: 1.25rem !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.1em !important;
+        box-shadow: 0 4px 16px rgba(0,102,204,0.3) !important;
     }
     
-    .ai-badge {
-        background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%);
-        color: #ffffff !important;
-        display: inline-block;
-        padding: 0.6rem 1.5rem;
-        border-radius: 24px;
-        font-size: 0.85rem;
-        font-weight: 700;
-        margin-top: 1.25rem;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        box-shadow: 0 4px 16px rgba(0,102,204,0.3);
-    }
-    
-    /* Typography */
+    /* Typography - BLACK text for rest of page */
     h1, h2, h3, h4 {
         color: #000000 !important;
         font-family: 'Space Grotesk', sans-serif;
@@ -106,25 +109,6 @@ st.markdown("""
     p, div, span, label {
         color: #000000 !important;
         font-family: 'Inter', sans-serif;
-    }
-    
-    /* Force all text to be visible - EXCEPT header elements */
-    body *:not(.main-header):not(.main-header *):not(.logo):not(.tagline):not(.ai-badge):not(.status-processing):not(.status-processing *):not(.status-complete):not(.status-complete *):not(.style-badge):not(button):not(button *) {
-        color: #000000 !important;
-    }
-    
-    /* Header must be white text */
-    .main-header,
-    .main-header *,
-    .header-content,
-    .header-content *,
-    .logo,
-    .logo *,
-    .tagline,
-    .tagline *,
-    .ai-badge,
-    .ai-badge * {
-        color: #ffffff !important;
     }
     
     /* Status badges white text */
@@ -497,7 +481,6 @@ st.markdown("""
     
     .info-box * {
         color: #000000 !important;
-    }
     }
     
     /* Selectbox styling */
