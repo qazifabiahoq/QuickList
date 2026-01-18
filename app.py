@@ -61,7 +61,7 @@ st.markdown("""
     }
     
     .logo {
-        color: #ffffff;
+        color: #ffffff !important;
         font-family: 'Space Grotesk', sans-serif;
         font-size: 3.5rem;
         font-weight: 800;
@@ -74,7 +74,7 @@ st.markdown("""
     }
     
     .tagline {
-        color: #e5e5e5 !important;
+        color: #ffffff !important;
         font-family: 'Inter', sans-serif;
         font-size: 1.25rem;
         margin-top: 0.75rem;
