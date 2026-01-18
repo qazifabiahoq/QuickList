@@ -18,7 +18,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS - Fixed Version
+# Custom CSS - Simplified and Fixed
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700;800&display=swap');
@@ -33,16 +33,11 @@ st.markdown("""
     footer {visibility: hidden;}
     header {visibility: hidden;}
     
-    /* Main header - BLACK background */
+    /* Main header styling */
     .main-header {
-        text-align: center;
-        background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%) !important;
-        padding: 3rem 3rem;
-        border-radius: 0 0 24px 24px;
-        margin: -6rem -5rem 3rem -5rem;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
         position: relative;
         overflow: hidden;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
     }
     
     .main-header::before {
@@ -53,6 +48,7 @@ st.markdown("""
         right: 0;
         bottom: 0;
         background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        z-index: 0;
     }
     
     .header-content {
@@ -60,92 +56,22 @@ st.markdown("""
         z-index: 1;
     }
     
-    /* CRITICAL: Force header text to be WHITE */
-    .logo,
-    .logo *,
-    h1.logo {
-        color: #ffffff !important;
-        font-family: 'Space Grotesk', sans-serif !important;
-        font-size: 3.5rem !important;
-        font-weight: 800 !important;
-        margin: 0 !important;
-        letter-spacing: -0.02em !important;
-    }
-    
-    .tagline,
-    .tagline *,
-    p.tagline {
-        color: #ffffff !important;
-        font-family: 'Inter', sans-serif !important;
-        font-size: 1.25rem !important;
-        margin-top: 0.75rem !important;
-        font-weight: 400 !important;
-        letter-spacing: 0.01em !important;
-    }
-    
-    .ai-badge,
-    .ai-badge *,
-    span.ai-badge {
-        background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%) !important;
-        color: #ffffff !important;
-        display: inline-block !important;
-        padding: 0.6rem 1.5rem !important;
-        border-radius: 24px !important;
-        font-size: 0.85rem !important;
-        font-weight: 700 !important;
-        margin-top: 1.25rem !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.1em !important;
-        box-shadow: 0 4px 16px rgba(0,102,204,0.3) !important;
-    }
-    
-    /* Typography - BLACK text for rest of page */
-    h1, h2, h3, h4 {
-        color: #000000 !important;
-        font-family: 'Space Grotesk', sans-serif;
-        font-weight: 700;
-    }
-    
-    p, div, span, label {
+    /* All page text should be black except header */
+    body, p, div, span, label, h1, h2, h3, h4, h5, h6 {
         color: #000000 !important;
         font-family: 'Inter', sans-serif;
     }
     
-    /* Status badges white text */
-    .status-processing,
-    .status-processing *,
-    .status-complete,
-    .status-complete *,
-    .style-badge,
-    .style-badge * {
-        color: #ffffff !important;
-    }
-    
-    /* Ensure buttons have proper text color */
-    button, button * {
-        color: #ffffff !important;
-    }
-    
-    button:hover, button:hover * {
-        color: #000000 !important;
+    /* Headings */
+    h1, h2, h3, h4 {
+        font-family: 'Space Grotesk', sans-serif !important;
+        font-weight: 700 !important;
     }
     
     /* Sidebar */
     [data-testid="stSidebar"] {
         background: #f8f8f8;
         border-right: 1px solid #e5e5e5;
-    }
-    
-    [data-testid="stSidebar"] h1,
-    [data-testid="stSidebar"] h2,
-    [data-testid="stSidebar"] h3 {
-        color: #000000 !important;
-        font-weight: 600;
-    }
-    
-    [data-testid="stSidebar"] label {
-        color: #000000 !important;
-        font-weight: 500;
     }
     
     /* Upload section */
@@ -170,53 +96,6 @@ st.markdown("""
         color: #000000 !important;
         font-weight: 600 !important;
         font-size: 1.1rem !important;
-    }
-    
-    /* File uploader inner elements */
-    [data-testid="stFileUploader"] section {
-        background: #ffffff !important;
-    }
-    
-    [data-testid="stFileUploader"] div {
-        background: #ffffff !important;
-        color: #000000 !important;
-    }
-    
-    [data-testid="stFileUploader"] p,
-    [data-testid="stFileUploader"] span,
-    [data-testid="stFileUploader"] small {
-        color: #000000 !important;
-        background: transparent !important;
-    }
-    
-    [data-testid="stFileUploader"] button {
-        background: #ffffff !important;
-        color: #0066cc !important;
-        border: 2px solid #0066cc !important;
-        font-weight: 600 !important;
-    }
-    
-    [data-testid="stFileUploader"] button:hover {
-        background: #0066cc !important;
-        color: #ffffff !important;
-    }
-    
-    /* Drag and drop area */
-    [data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"] {
-        background: #ffffff !important;
-    }
-    
-    [data-testid="stFileUploader"] [data-testid="stFileUploaderDropzoneInput"] {
-        background: #ffffff !important;
-    }
-    
-    /* File uploader text */
-    [data-testid="stFileUploader"] [data-testid="stMarkdownContainer"] {
-        color: #000000 !important;
-    }
-    
-    [data-testid="stFileUploader"] [data-testid="stMarkdownContainer"] p {
-        color: #000000 !important;
     }
     
     /* Buttons */
@@ -244,11 +123,7 @@ st.markdown("""
         box-shadow: 0 6px 24px rgba(0,102,204,0.3) !important;
     }
     
-    .stButton > button p {
-        color: #ffffff !important;
-    }
-    
-    /* Download button */
+    /* Download buttons */
     .stDownloadButton > button {
         background: #ffffff !important;
         color: #000000 !important;
@@ -260,14 +135,6 @@ st.markdown("""
     
     .stDownloadButton > button:hover {
         background: #000000 !important;
-        color: #ffffff !important;
-    }
-    
-    .stDownloadButton > button p {
-        color: #000000 !important;
-    }
-    
-    .stDownloadButton > button:hover p {
         color: #ffffff !important;
     }
     
@@ -306,10 +173,6 @@ st.markdown("""
         line-height: 1.2;
     }
     
-    .metric-value * {
-        color: #000000 !important;
-    }
-    
     /* Description cards */
     .description-card {
         background: #f8f8f8;
@@ -323,10 +186,6 @@ st.markdown("""
     .description-card:hover {
         border-color: #000000;
         box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-    }
-    
-    .description-card * {
-        color: #000000 !important;
     }
     
     .description-title {
@@ -349,16 +208,6 @@ st.markdown("""
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.1em;
-    }
-    
-    .description-text {
-        color: #000000 !important;
-        line-height: 1.8;
-        font-size: 1.05rem;
-    }
-    
-    .description-text * {
-        color: #000000 !important;
     }
     
     /* SEO section */
@@ -479,29 +328,10 @@ st.markdown("""
         margin: 0;
     }
     
-    .info-box * {
-        color: #000000 !important;
-    }
-    
-    /* Selectbox styling */
-    .stSelectbox label {
-        color: #000000 !important;
-        font-weight: 600 !important;
-        font-size: 1rem !important;
-    }
-    
-    .stSelectbox div[data-baseweb="select"] {
-        background: #ffffff !important;
-        border: 2px solid #e5e5e5 !important;
-    }
-    
-    .stSelectbox div[data-baseweb="select"]:hover {
-        border-color: #0066cc !important;
-    }
-    
-    /* Text input styling */
+    /* Text inputs */
     .stTextInput label,
-    .stTextArea label {
+    .stTextArea label,
+    .stSelectbox label {
         color: #000000 !important;
         font-weight: 600 !important;
         font-size: 1rem !important;
@@ -521,24 +351,14 @@ st.markdown("""
         box-shadow: 0 0 0 3px rgba(0,102,204,0.1) !important;
     }
     
-    /* Force Streamlit markdown to be black */
-    [data-testid="stMarkdownContainer"] {
-        color: #000000 !important;
+    /* Selectbox */
+    .stSelectbox div[data-baseweb="select"] {
+        background: #ffffff !important;
+        border: 2px solid #e5e5e5 !important;
     }
     
-    [data-testid="stMarkdownContainer"] * {
-        color: #000000 !important;
-    }
-    
-    [data-testid="stMarkdownContainer"] p,
-    [data-testid="stMarkdownContainer"] li,
-    [data-testid="stMarkdownContainer"] strong {
-        color: #000000 !important;
-    }
-    
-    /* Streamlit text elements */
-    .stText, .stCaption {
-        color: #000000 !important;
+    .stSelectbox div[data-baseweb="select"]:hover {
+        border-color: #0066cc !important;
     }
     
     /* Mobile responsive */
@@ -546,14 +366,6 @@ st.markdown("""
         .main-header {
             padding: 2rem 1.5rem;
             margin: -6rem -1rem 2rem -1rem;
-        }
-        
-        .logo {
-            font-size: 2.5rem;
-        }
-        
-        .tagline {
-            font-size: 1rem;
         }
         
         .metric-box {
@@ -568,13 +380,13 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Header
+# Header - Force inline styles to override Streamlit
 st.markdown("""
-<div class="main-header">
+<div class="main-header" style="background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%) !important; text-align: center; padding: 3rem; border-radius: 0 0 24px 24px; margin: -6rem -5rem 3rem -5rem;">
     <div class="header-content">
-        <h1 class="logo">QuickList</h1>
-        <p class="tagline">Professional Product Listings in Minutes</p>
-        <span class="ai-badge">AI-Powered</span>
+        <h1 style="color: #ffffff !important; font-size: 3.5rem !important; font-weight: 800 !important; margin: 0 !important; font-family: 'Space Grotesk', sans-serif !important;">QuickList</h1>
+        <p style="color: #ffffff !important; font-size: 1.25rem !important; margin-top: 0.75rem !important; font-family: 'Inter', sans-serif !important;">Professional Product Listings in Minutes</p>
+        <span style="background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%) !important; color: #ffffff !important; display: inline-block !important; padding: 0.6rem 1.5rem !important; border-radius: 24px !important; font-size: 0.85rem !important; font-weight: 700 !important; margin-top: 1.25rem !important; text-transform: uppercase !important;">AI-Powered</span>
     </div>
 </div>
 """, unsafe_allow_html=True)
