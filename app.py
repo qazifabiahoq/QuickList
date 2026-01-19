@@ -1334,6 +1334,7 @@ def main():
                     
                     # Store in session state so results persist
                     st.session_state.show_results = True
+                    st.session_state.just_generated = True
                     st.session_state.product_name = product_name
                     st.session_state.target_platform = target_platform
                     
@@ -1633,9 +1634,9 @@ def main():
                         </p>
                     </div>
                     """, unsafe_allow_html=True)
-            
-            # Display results if they exist in session state (after dropdown changes)
-            elif 'show_results' in st.session_state and st.session_state.show_results:
+        
+        # Display results if they exist in session state (persists after dropdown/download)
+        if 'show_results' in st.session_state and st.session_state.show_results:
                 # Use stored results
                 analysis = st.session_state.analysis
                 descriptions = st.session_state.descriptions
