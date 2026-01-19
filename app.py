@@ -512,39 +512,6 @@ st.markdown("""
         border-color: #0066cc !important;
     }
     
-    /* Tabs styling */
-    .stTabs {
-        background: transparent;
-    }
-    
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 8px;
-        background: #f8f8f8;
-        padding: 0.5rem;
-        border-radius: 12px;
-    }
-    
-    .stTabs [data-baseweb="tab"] {
-        background: #ffffff;
-        border-radius: 8px;
-        padding: 1rem 2rem;
-        color: #4a5568;
-        font-weight: 600;
-        border: 2px solid #e5e5e5;
-    }
-    
-    .stTabs [data-baseweb="tab"]:hover {
-        background: #f0f7ff;
-        border-color: #0066cc;
-        color: #0066cc;
-    }
-    
-    .stTabs [aria-selected="true"] {
-        background: #0066cc !important;
-        color: #ffffff !important;
-        border-color: #0066cc !important;
-    }
-    
     /* Selectbox dropdown menu */
     .stSelectbox div[data-baseweb="select"] > div {
         background: #ffffff !important;
@@ -937,15 +904,28 @@ Respond ONLY with valid JSON (no markdown, no extra text):
                              style: str, features: str) -> ProductDescription:
         """High-quality fallback if LLM API fails"""
         
-        # Get first material name without "Premium" prefix
-        material1 = analysis.materials[0].replace("Premium ", "").replace("premium ", "")
-        material2 = analysis.materials[1].replace("Durable ", "").replace("durable ", "") if len(analysis.materials) > 1 else "quality materials"
+        # Handle materials - replace generic with better text
+        material_text = ""
+        if len(analysis.materials) >= 2:
+            mat1 = analysis.materials[0].lower()
+            mat2 = analysis.materials[1].lower()
+            
+            # If materials are generic, use better phrasing
+            if "material" in mat1 and "construction" in mat2:
+                material_text = "premium materials with durable construction"
+            else:
+                # Remove generic prefixes
+                mat1 = mat1.replace("premium ", "").replace("durable ", "")
+                mat2 = mat2.replace("premium ", "").replace("durable ", "")
+                material_text = f"{mat1} and {mat2}"
+        else:
+            material_text = "premium quality materials"
         
         if style == "Storytelling (Emotional)":
             title = f"{analysis.style} {product_name} - Premium Quality"
             description = f"""Discover the perfect harmony of form and function with this exceptional {product_name.lower()}.
 
-Every detail has been thoughtfully designed to elevate your experience. Crafted from {material1.lower()} and {material2.lower()}, this {product_name.lower()} combines {analysis.style.lower()} aesthetics with uncompromising quality.
+Every detail has been thoughtfully designed to elevate your experience. Crafted from {material_text}, this {product_name.lower()} combines {analysis.style.lower()} aesthetics with uncompromising quality.
 
 From the moment you first use it, you'll feel the difference. The meticulous attention to detail ensures not just functionality, but a genuine sense of pride in ownership.
 
@@ -954,7 +934,7 @@ From the moment you first use it, you'll feel the difference. The meticulous att
 It's more than a product - it's a statement of quality and style."""
 
             bullet_points = [
-                f"{material1} construction ensures lasting durability and elegance",
+                f"{material_text.capitalize()} ensures lasting durability and elegance",
                 f"Sophisticated {analysis.style.lower()} design complements any setting",
                 "Exceptional attention to detail in every aspect",
                 "Versatile enough for daily use yet special for occasions",
@@ -965,7 +945,7 @@ It's more than a product - it's a statement of quality and style."""
             title = f"{product_name} - {analysis.style} Design | Professional Quality"
             description = f"""Experience the perfect balance of quality and value with this professional-grade {product_name.lower()}.
 
-SUPERIOR CONSTRUCTION: Built with {material1.lower()} and {material2.lower()}, ensuring exceptional durability you can count on. This translates to better long-term value and reliable performance.
+SUPERIOR CONSTRUCTION: Built with {material_text}, ensuring exceptional durability you can count on. This translates to better long-term value and reliable performance.
 
 INTELLIGENT DESIGN: The {analysis.style.lower()} aesthetic isn't just visually appealing - it's engineered for optimal functionality. Every element serves a purpose.
 
@@ -974,7 +954,7 @@ INTELLIGENT DESIGN: The {analysis.style.lower()} aesthetic isn't just visually a
 QUALITY ASSURANCE: Rigorous standards ensure consistent excellence in every detail."""
 
             bullet_points = [
-                f"{material1} provides superior strength and longevity",
+                f"{material_text.capitalize()} provides superior strength and longevity",
                 "Ergonomic design maximizes comfort and ease of use",
                 "Durable construction maintains performance over time",
                 "Versatile functionality for multiple applications",
@@ -987,14 +967,14 @@ QUALITY ASSURANCE: Rigorous standards ensure consistent excellence in every deta
 
 This {product_name.lower()} represents essentials, perfected. No unnecessary complexity. No compromises on quality.
 
-Crafted from {material1.lower()} and {material2.lower()}. Designed with {analysis.style.lower()} principles.
+Crafted from {material_text}. Designed with {analysis.style.lower()} principles.
 
 {features if features else 'Functional. Reliable. Timeless.'}
 
 Built for those who value substance over excess."""
 
             bullet_points = [
-                f"{material1} construction",
+                f"{material_text.capitalize()} construction",
                 f"{analysis.style} design aesthetic",
                 "Essential functionality without excess",
                 "Superior craftsmanship standards",
@@ -1419,18 +1399,18 @@ def main():
                     
                     st.markdown('<div class="status-badge status-complete">Descriptions Ready</div>', unsafe_allow_html=True)
                     
-                    # Display descriptions in tabs for easy comparison
+                    # Display descriptions side-by-side
                     st.markdown("""
                     <div class="section-header">
                         <h2 class="section-title">Your Product Descriptions</h2>
-                        <p class="section-subtitle">Three professionally written styles - click tabs to compare</p>
+                        <p class="section-subtitle">Three professionally written styles - compare side-by-side</p>
                     </div>
                     """, unsafe_allow_html=True)
                     
-                    # Create tabs for descriptions
-                    tab1, tab2, tab3 = st.tabs(["📖 Storytelling", "⚡ Feature-Benefit", "✨ Minimalist"])
+                    # Display descriptions side-by-side
+                    col1, col2, col3 = st.columns(3)
                     
-                    with tab1:
+                    with col1:
                         desc = descriptions["Storytelling (Emotional)"]
                         st.markdown(f"""
                         <div class="description-card">
@@ -1455,7 +1435,7 @@ def main():
                         
                         st.markdown('</div>', unsafe_allow_html=True)
                     
-                    with tab2:
+                    with col2:
                         desc = descriptions["Feature-Benefit (Practical)"]
                         st.markdown(f"""
                         <div class="description-card">
@@ -1480,7 +1460,7 @@ def main():
                         
                         st.markdown('</div>', unsafe_allow_html=True)
                     
-                    with tab3:
+                    with col3:
                         desc = descriptions["Minimalist (Clean)"]
                         st.markdown(f"""
                         <div class="description-card">
@@ -1562,7 +1542,7 @@ def main():
                             "📝 Choose Description Style:",
                             list(descriptions.keys()),
                             help="Select which AI-generated description to use for your platform export",
-                            key="style_selector"
+                            key="style_selector_main"
                         )
                         
                         formatted_listing = format_for_platform(
@@ -1675,13 +1655,14 @@ def main():
                 st.markdown("""
                 <div class="section-header">
                     <h2 class="section-title">Your Product Descriptions</h2>
-                    <p class="section-subtitle">Three professionally written styles - click tabs to compare</p>
+                    <p class="section-subtitle">Three professionally written styles - compare side-by-side</p>
                 </div>
                 """, unsafe_allow_html=True)
                 
-                tab1, tab2, tab3 = st.tabs(["📖 Storytelling", "⚡ Feature-Benefit", "✨ Minimalist"])
+                # Display descriptions side-by-side
+                col1, col2, col3 = st.columns(3)
                 
-                with tab1:
+                with col1:
                     desc = descriptions["Storytelling (Emotional)"]
                     st.markdown(f"""
                     <div class="description-card">
@@ -1706,7 +1687,7 @@ def main():
                     
                     st.markdown('</div>', unsafe_allow_html=True)
                 
-                with tab2:
+                with col2:
                     desc = descriptions["Feature-Benefit (Practical)"]
                     st.markdown(f"""
                     <div class="description-card">
@@ -1731,7 +1712,7 @@ def main():
                     
                     st.markdown('</div>', unsafe_allow_html=True)
                 
-                with tab3:
+                with col3:
                     desc = descriptions["Minimalist (Clean)"]
                     st.markdown(f"""
                     <div class="description-card">
