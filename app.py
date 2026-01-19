@@ -261,7 +261,7 @@ st.markdown("""
     }
     
     .metric-label {
-        font-size: 0.75rem;
+        font-size: 0.85rem;
         color: #4a5568 !important;
         text-transform: uppercase;
         letter-spacing: 0.1em;
@@ -270,7 +270,7 @@ st.markdown("""
     }
     
     .metric-value {
-        font-size: 0.95rem;
+        font-size: 1.3rem;
         font-weight: 700;
         color: #000000 !important;
         font-family: 'Space Grotesk', sans-serif;
@@ -1368,13 +1368,13 @@ def main():
                     </div>
                     """, unsafe_allow_html=True)
                     
-                    col1, col2, col3, col4 = st.columns(4)
+                    col1, col2, col3 = st.columns(3)
                     
                     with col1:
                         st.markdown(f"""
                         <div class="metric-box">
                             <div class="metric-label">Category</div>
-                            <div class="metric-value" style="font-size: 1.3rem;">{analysis.category}</div>
+                            <div class="metric-value" style="font-size: 1.5rem;">{analysis.category}</div>
                         </div>
                         """, unsafe_allow_html=True)
                     
@@ -1390,15 +1390,7 @@ def main():
                         st.markdown(f"""
                         <div class="metric-box">
                             <div class="metric-label">Materials</div>
-                            <div class="metric-value" style="font-size: 1.1rem;">{', '.join(analysis.materials)}</div>
-                        </div>
-                        """, unsafe_allow_html=True)
-                    
-                    with col4:
-                        st.markdown(f"""
-                        <div class="metric-box">
-                            <div class="metric-label">AI Confidence</div>
-                            <div class="metric-value" style="font-size: 1.5rem;">{int(analysis.confidence * 100)}%</div>
+                            <div class="metric-value" style="font-size: 1.2rem;">{', '.join(analysis.materials)}</div>
                         </div>
                         """, unsafe_allow_html=True)
                     
@@ -1653,13 +1645,13 @@ def main():
                 </div>
                 """, unsafe_allow_html=True)
                 
-                col1, col2, col3, col4 = st.columns(4)
+                col1, col2, col3 = st.columns(3)
                 
                 with col1:
                     st.markdown(f"""
                     <div class="metric-box">
                         <div class="metric-label">Category</div>
-                        <div class="metric-value" style="font-size: 1.3rem;">{analysis.category}</div>
+                        <div class="metric-value" style="font-size: 1.5rem;">{analysis.category}</div>
                     </div>
                     """, unsafe_allow_html=True)
                 
@@ -1675,15 +1667,7 @@ def main():
                     st.markdown(f"""
                     <div class="metric-box">
                         <div class="metric-label">Materials</div>
-                        <div class="metric-value" style="font-size: 1.1rem;">{', '.join(analysis.materials)}</div>
-                    </div>
-                    """, unsafe_allow_html=True)
-                
-                with col4:
-                    st.markdown(f"""
-                    <div class="metric-box">
-                        <div class="metric-label">AI Confidence</div>
-                        <div class="metric-value" style="font-size: 1.5rem;">{int(analysis.confidence * 100)}%</div>
+                        <div class="metric-value" style="font-size: 1.2rem;">{', '.join(analysis.materials)}</div>
                     </div>
                     """, unsafe_allow_html=True)
                 
