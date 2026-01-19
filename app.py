@@ -261,7 +261,7 @@ st.markdown("""
     
     .metric-label {
         font-size: 0.75rem;
-        color: #000000 !important;
+        color: #4a5568 !important;
         text-transform: uppercase;
         letter-spacing: 0.1em;
         margin-bottom: 0.75rem;
@@ -269,13 +269,12 @@ st.markdown("""
     }
     
     .metric-value {
-        font-size: 1.2rem;
-        font-weight: 800;
+        font-size: 1.1rem;
+        font-weight: 700;
         color: #000000 !important;
         font-family: 'Space Grotesk', sans-serif;
         line-height: 1.4;
-        word-break: normal;
-        overflow-wrap: normal;
+        padding: 0 0.5rem;
     }
     
     /* Description cards */
@@ -421,8 +420,8 @@ st.markdown("""
     
     /* Section headers */
     .section-header {
-        background: linear-gradient(135deg, #f8f8f8 0%, #ffffff 100%);
-        border-left: 4px solid #000000;
+        background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
+        border-left: 4px solid #0066cc;
         border-radius: 8px;
         padding: 2rem 2.5rem;
         margin: 3rem 0 2rem 0;
@@ -431,14 +430,14 @@ st.markdown("""
     .section-title {
         font-size: 2rem;
         font-weight: 800;
-        color: #000000 !important;
+        color: #0066cc !important;
         font-family: 'Space Grotesk', sans-serif;
         margin: 0;
     }
     
     .section-subtitle {
         font-size: 1.1rem;
-        color: #000000 !important;
+        color: #4a5568 !important;
         margin-top: 0.5rem;
     }
     
@@ -505,6 +504,39 @@ st.markdown("""
     }
     
     .stSelectbox div[data-baseweb="select"]:hover {
+        border-color: #0066cc !important;
+    }
+    
+    /* Tabs styling */
+    .stTabs {
+        background: transparent;
+    }
+    
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+        background: #f8f8f8;
+        padding: 0.5rem;
+        border-radius: 12px;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        background: #ffffff;
+        border-radius: 8px;
+        padding: 1rem 2rem;
+        color: #4a5568;
+        font-weight: 600;
+        border: 2px solid #e5e5e5;
+    }
+    
+    .stTabs [data-baseweb="tab"]:hover {
+        background: #f0f7ff;
+        border-color: #0066cc;
+        color: #0066cc;
+    }
+    
+    .stTabs [aria-selected="true"] {
+        background: #0066cc !important;
+        color: #ffffff !important;
         border-color: #0066cc !important;
     }
     
@@ -1380,20 +1412,74 @@ def main():
                     
                     st.markdown('<div class="status-badge status-complete">Descriptions Ready</div>', unsafe_allow_html=True)
                     
-                    # Display descriptions
+                    # Display descriptions in tabs for easy comparison
                     st.markdown("""
                     <div class="section-header">
                         <h2 class="section-title">Your Product Descriptions</h2>
-                        <p class="section-subtitle">Three professionally written styles</p>
+                        <p class="section-subtitle">Three professionally written styles - click tabs to compare</p>
                     </div>
                     """, unsafe_allow_html=True)
                     
-                    for style, desc in descriptions.items():
+                    # Create tabs for descriptions
+                    tab1, tab2, tab3 = st.tabs(["📖 Storytelling", "⚡ Feature-Benefit", "✨ Minimalist"])
+                    
+                    with tab1:
+                        desc = descriptions["Storytelling (Emotional)"]
                         st.markdown(f"""
                         <div class="description-card">
                             <div class="description-title">
-                                {style.split('(')[0].strip()}
-                                <span class="style-badge">{style.split('(')[1].replace(')', '')}</span>
+                                Storytelling
+                                <span class="style-badge">Emotional</span>
+                            </div>
+                        """, unsafe_allow_html=True)
+                        
+                        st.markdown(f"**Product Title:**")
+                        st.markdown(f"{desc.title}")
+                        
+                        st.markdown(f"**Description:**")
+                        st.markdown(f"{desc.description}")
+                        
+                        st.markdown("**Key Features:**")
+                        for bp in desc.bullet_points:
+                            st.markdown(f"• {bp}")
+                        
+                        st.markdown(f"**Meta Description:**")
+                        st.markdown(f"{desc.meta_description}")
+                        
+                        st.markdown('</div>', unsafe_allow_html=True)
+                    
+                    with tab2:
+                        desc = descriptions["Feature-Benefit (Practical)"]
+                        st.markdown(f"""
+                        <div class="description-card">
+                            <div class="description-title">
+                                Feature-Benefit
+                                <span class="style-badge">Practical</span>
+                            </div>
+                        """, unsafe_allow_html=True)
+                        
+                        st.markdown(f"**Product Title:**")
+                        st.markdown(f"{desc.title}")
+                        
+                        st.markdown(f"**Description:**")
+                        st.markdown(f"{desc.description}")
+                        
+                        st.markdown("**Key Features:**")
+                        for bp in desc.bullet_points:
+                            st.markdown(f"• {bp}")
+                        
+                        st.markdown(f"**Meta Description:**")
+                        st.markdown(f"{desc.meta_description}")
+                        
+                        st.markdown('</div>', unsafe_allow_html=True)
+                    
+                    with tab3:
+                        desc = descriptions["Minimalist (Clean)"]
+                        st.markdown(f"""
+                        <div class="description-card">
+                            <div class="description-title">
+                                Minimalist
+                                <span class="style-badge">Clean</span>
                             </div>
                         """, unsafe_allow_html=True)
                         
@@ -1454,7 +1540,7 @@ def main():
                     
                     # Platform export
                     st.markdown("""
-                    <div class="section-header">
+                    <div id="export-section" class="section-header">
                         <h2 class="section-title">Platform Export</h2>
                         <p class="section-subtitle">Formatted for {}</p>
                     </div>
@@ -1475,6 +1561,7 @@ def main():
                     # Display in a white box with black text
                     st.markdown("""
                     <div style="background: #ffffff; border: 2px solid #e5e5e5; border-radius: 12px; padding: 2rem; margin: 1.5rem 0;">
+                        <h3 style="color: #0066cc; margin-top: 0;">Your Platform Export</h3>
                         <pre style="color: #000000; background: #f8f8f8; padding: 1.5rem; border-radius: 8px; overflow-x: auto; white-space: pre-wrap; font-family: monospace; font-size: 0.9rem; line-height: 1.6;">{}</pre>
                     </div>
                     """.format(formatted_listing), unsafe_allow_html=True)
