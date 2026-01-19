@@ -786,6 +786,18 @@ Style options: Modern, Classic, Minimalist, Contemporary, Vintage, Industrial"""
         
         # Define prompts for each style
         if style == "Storytelling (Emotional)":
+            # Add category-specific guidance
+            category_hint = ""
+            cat_lower = analysis.category.lower()
+            prod_lower = product_name.lower()
+            
+            if any(word in cat_lower or word in prod_lower for word in ['clothing', 'dress', 'shirt', 'pants', 'jacket', 'apparel']):
+                category_hint = "For clothing: mention fabric texture, how it drapes/fits, styling versatility, occasions (casual/formal), confidence it brings."
+            elif any(word in cat_lower or word in prod_lower for word in ['electronic', 'tech', 'phone', 'laptop', 'speaker', 'headphone']):
+                category_hint = "For electronics: mention ease of use, performance, battery life, how it simplifies daily tasks, connectivity."
+            elif any(word in cat_lower or word in prod_lower for word in ['furniture', 'chair', 'table', 'desk', 'sofa', 'bed']):
+                category_hint = "For furniture: mention comfort, how it transforms space, durability, design aesthetic, craftsmanship quality."
+            
             system_prompt = f"""You are an expert e-commerce copywriter. Write a compelling emotional product description.
 
 Product: {product_name}
@@ -793,6 +805,8 @@ Category: {analysis.category}
 Style: {analysis.style}
 Materials: {', '.join(analysis.materials)}
 Features: {features if features else 'Premium quality product'}
+
+{category_hint}
 
 Write a storytelling description that creates emotional connection. Use sensory language. 150-200 words.
 
@@ -805,6 +819,17 @@ Respond ONLY with valid JSON (no markdown, no extra text):
 }}"""
 
         elif style == "Feature-Benefit (Practical)":
+            category_hint = ""
+            cat_lower = analysis.category.lower()
+            prod_lower = product_name.lower()
+            
+            if any(word in cat_lower or word in prod_lower for word in ['clothing', 'dress', 'shirt', 'pants', 'jacket', 'apparel']):
+                category_hint = "For clothing: Fabric quality → comfort & durability. Fit/cut → flattering appearance. Design → versatility for occasions."
+            elif any(word in cat_lower or word in prod_lower for word in ['electronic', 'tech', 'phone', 'laptop', 'speaker', 'headphone']):
+                category_hint = "For electronics: Battery life → all-day use. Performance → faster tasks. Connectivity → seamless integration."
+            elif any(word in cat_lower or word in prod_lower for word in ['furniture', 'chair', 'table', 'desk', 'sofa', 'bed']):
+                category_hint = "For furniture: Ergonomic design → comfort. Build quality → long-lasting. Style → enhances room aesthetic."
+            
             system_prompt = f"""You are an expert e-commerce copywriter. Write a practical feature-benefit description.
 
 Product: {product_name}
@@ -812,6 +837,8 @@ Category: {analysis.category}
 Style: {analysis.style}
 Materials: {', '.join(analysis.materials)}
 Features: {features if features else 'Premium quality product'}
+
+{category_hint}
 
 Write clear feature-benefit copy. Explain how each feature helps the customer. 150-200 words.
 
@@ -824,6 +851,17 @@ Respond ONLY with valid JSON (no markdown, no extra text):
 }}"""
 
         else:  # Minimalist
+            category_hint = ""
+            cat_lower = analysis.category.lower()
+            prod_lower = product_name.lower()
+            
+            if any(word in cat_lower or word in prod_lower for word in ['clothing', 'dress', 'shirt', 'pants', 'jacket', 'apparel']):
+                category_hint = "For clothing: fabric, fit, style. Essential details only."
+            elif any(word in cat_lower or word in prod_lower for word in ['electronic', 'tech', 'phone', 'laptop', 'speaker', 'headphone']):
+                category_hint = "For electronics: specs, battery, performance. Core features only."
+            elif any(word in cat_lower or word in prod_lower for word in ['furniture', 'chair', 'table', 'desk', 'sofa', 'bed']):
+                category_hint = "For furniture: materials, dimensions, comfort. Essentials only."
+            
             system_prompt = f"""You are an expert e-commerce copywriter. Write a clean minimalist description.
 
 Product: {product_name}
@@ -831,6 +869,8 @@ Category: {analysis.category}
 Style: {analysis.style}
 Materials: {', '.join(analysis.materials)}
 Features: {features if features else 'Premium quality product'}
+
+{category_hint}
 
 Write short, direct sentences. No fluff. Essentials only. 80-100 words.
 
@@ -904,6 +944,13 @@ Respond ONLY with valid JSON (no markdown, no extra text):
                              style: str, features: str) -> ProductDescription:
         """High-quality fallback if LLM API fails"""
         
+        # Detect product category
+        cat_lower = analysis.category.lower()
+        prod_lower = product_name.lower()
+        is_clothing = any(word in cat_lower or word in prod_lower for word in ['clothing', 'dress', 'shirt', 'pants', 'jacket', 'apparel'])
+        is_electronics = any(word in cat_lower or word in prod_lower for word in ['electronic', 'tech', 'phone', 'laptop', 'speaker', 'headphone'])
+        is_furniture = any(word in cat_lower or word in prod_lower for word in ['furniture', 'chair', 'table', 'desk', 'sofa', 'bed'])
+        
         # Handle materials - replace generic with better text
         material_text = ""
         if len(analysis.materials) >= 2:
@@ -912,7 +959,10 @@ Respond ONLY with valid JSON (no markdown, no extra text):
             
             # If materials are generic, use better phrasing
             if "material" in mat1 and "construction" in mat2:
-                material_text = "premium materials with durable construction"
+                if is_clothing:
+                    material_text = "premium fabric with quality stitching"
+                else:
+                    material_text = "premium materials with quality craftsmanship"
             else:
                 # Remove generic prefixes
                 mat1 = mat1.replace("premium ", "").replace("durable ", "")
@@ -921,13 +971,35 @@ Respond ONLY with valid JSON (no markdown, no extra text):
         else:
             material_text = "premium quality materials"
         
+        # Category-specific bullet points
+        if is_clothing:
+            design_bullet = "Flattering cut and comfortable fit for all-day wear"
+            versatile_bullet = "Versatile styling for multiple occasions and seasons"
+        elif is_electronics:
+            design_bullet = "Intuitive interface maximizes ease of use"
+            versatile_bullet = "Versatile functionality for multiple applications"
+        elif is_furniture:
+            design_bullet = "Ergonomic design maximizes comfort and ease of use"
+            versatile_bullet = "Versatile design adapts to any room aesthetic"
+        else:
+            design_bullet = "Thoughtful design maximizes functionality"
+            versatile_bullet = "Versatile use for multiple purposes"
+        
         if style == "Storytelling (Emotional)":
             title = f"{analysis.style} {product_name} - Premium Quality"
+            
+            if is_clothing:
+                action = "wear"
+                experience = "The meticulous attention to detail ensures not just style, but a genuine sense of confidence."
+            else:
+                action = "use"
+                experience = "The meticulous attention to detail ensures not just functionality, but a genuine sense of pride in ownership."
+            
             description = f"""Discover the perfect harmony of form and function with this exceptional {product_name.lower()}.
 
 Every detail has been thoughtfully designed to elevate your experience. Crafted from {material_text}, this {product_name.lower()} combines {analysis.style.lower()} aesthetics with uncompromising quality.
 
-From the moment you first use it, you'll feel the difference. The meticulous attention to detail ensures not just functionality, but a genuine sense of pride in ownership.
+From the moment you first {action} it, you'll feel the difference. {experience}
 
 {features if features else f'Whether for everyday use or special occasions, this {product_name.lower()} delivers an experience that exceeds expectations.'}
 
@@ -937,7 +1009,7 @@ It's more than a product - it's a statement of quality and style."""
                 f"{material_text.capitalize()} ensures lasting durability and elegance",
                 f"Sophisticated {analysis.style.lower()} design complements any setting",
                 "Exceptional attention to detail in every aspect",
-                "Versatile enough for daily use yet special for occasions",
+                versatile_bullet,
                 "Makes a thoughtful and memorable gift"
             ]
             
@@ -955,14 +1027,22 @@ QUALITY ASSURANCE: Rigorous standards ensure consistent excellence in every deta
 
             bullet_points = [
                 f"{material_text.capitalize()} provides superior strength and longevity",
-                "Ergonomic design maximizes comfort and ease of use",
-                "Durable construction maintains performance over time",
-                "Versatile functionality for multiple applications",
+                design_bullet,
+                "Premium construction maintains performance over time",
+                versatile_bullet,
                 "Quality craftsmanship backed by attention to detail"
             ]
             
         else:  # Minimalist
             title = f"{product_name} | {analysis.style}"
+            
+            if is_clothing:
+                focus_word = "Design"
+            elif is_electronics:
+                focus_word = "Performance"
+            else:
+                focus_word = "Quality"
+            
             description = f"""Clean design. Premium materials. Built to last.
 
 This {product_name.lower()} represents essentials, perfected. No unnecessary complexity. No compromises on quality.
@@ -973,8 +1053,11 @@ Crafted from {material_text}. Designed with {analysis.style.lower()} principles.
 
 Built for those who value substance over excess."""
 
+            # Smart bullet - don't duplicate "construction" if already in material_text
+            first_bullet = f"{material_text.capitalize()}" if "construction" in material_text or "stitching" in material_text else f"{material_text.capitalize()} construction"
+            
             bullet_points = [
-                f"{material_text.capitalize()} construction",
+                first_bullet,
                 f"{analysis.style} design aesthetic",
                 "Essential functionality without excess",
                 "Superior craftsmanship standards",
