@@ -270,14 +270,15 @@ st.markdown("""
     }
     
     .metric-value {
-        font-size: 1rem;
+        font-size: 0.95rem;
         font-weight: 700;
         color: #000000 !important;
         font-family: 'Space Grotesk', sans-serif;
         line-height: 1.4;
         padding: 0 0.25rem;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
         max-width: 100%;
     }
     
@@ -1331,6 +1332,11 @@ def main():
                     
                     gen_ai = RealGenAI()
                     
+                    # Store in session state so results persist
+                    st.session_state.show_results = True
+                    st.session_state.product_name = product_name
+                    st.session_state.target_platform = target_platform
+                    
                     # Phase 1: Image Analysis
                     st.markdown('<div class="status-badge status-processing">Analyzing your product...</div>', unsafe_allow_html=True)
                     
@@ -1343,6 +1349,7 @@ def main():
                         
                         # REAL CLIP ANALYSIS
                         analysis = gen_ai.analyze_product_with_clip(image)
+                        st.session_state.analysis = analysis
                         
                         for i in range(20, 40):
                             time.sleep(0.05)
@@ -1414,6 +1421,8 @@ def main():
                             time.sleep(0.5)
                         
                         progress_bar.empty()
+                    
+                    st.session_state.descriptions = descriptions
                     
                     st.markdown('<div class="status-badge status-complete">Descriptions Ready</div>', unsafe_allow_html=True)
                     
@@ -1525,6 +1534,8 @@ def main():
                         
                         progress_bar.empty()
                     
+                    st.session_state.keywords = keywords
+                    
                     st.markdown('<div class="status-badge status-complete">Keywords Ready</div>', unsafe_allow_html=True)
                     
                     # Display keywords
@@ -1543,33 +1554,37 @@ def main():
                     
                     st.markdown('</div>', unsafe_allow_html=True)
                     
-                    # Platform export
-                    st.markdown("""
-                    <div id="export-section" class="section-header">
-                        <h2 class="section-title">Platform Export</h2>
-                        <p class="section-subtitle">Formatted for {}</p>
-                    </div>
-                    """.format(target_platform), unsafe_allow_html=True)
+                    # Platform export - stays in place when dropdown changes
+                    export_container = st.container()
                     
-                    export_style = st.selectbox(
-                        "📝 Choose Description Style:",
-                        list(descriptions.keys()),
-                        help="Select which AI-generated description to use for your platform export"
-                    )
-                    
-                    formatted_listing = format_for_platform(
-                        descriptions[export_style],
-                        keywords,
-                        target_platform
-                    )
-                    
-                    # Display in a white box with black text
-                    st.markdown("""
-                    <div style="background: #ffffff; border: 2px solid #e5e5e5; border-radius: 12px; padding: 2rem; margin: 1.5rem 0;">
-                        <h3 style="color: #0066cc; margin-top: 0;">Your Platform Export</h3>
-                        <pre style="color: #000000; background: #f8f8f8; padding: 1.5rem; border-radius: 8px; overflow-x: auto; white-space: pre-wrap; font-family: monospace; font-size: 0.9rem; line-height: 1.6;">{}</pre>
-                    </div>
-                    """.format(formatted_listing), unsafe_allow_html=True)
+                    with export_container:
+                        st.markdown("""
+                        <div id="export-section" class="section-header">
+                            <h2 class="section-title">Platform Export</h2>
+                            <p class="section-subtitle">Formatted for {}</p>
+                        </div>
+                        """.format(target_platform), unsafe_allow_html=True)
+                        
+                        export_style = st.selectbox(
+                            "📝 Choose Description Style:",
+                            list(descriptions.keys()),
+                            help="Select which AI-generated description to use for your platform export",
+                            key="style_selector"
+                        )
+                        
+                        formatted_listing = format_for_platform(
+                            descriptions[export_style],
+                            keywords,
+                            target_platform
+                        )
+                        
+                        # Display in a white box with black text
+                        st.markdown("""
+                        <div style="background: #ffffff; border: 2px solid #e5e5e5; border-radius: 12px; padding: 2rem; margin: 1.5rem 0;">
+                            <h3 style="color: #0066cc; margin-top: 0;">Your Platform Export</h3>
+                            <pre style="color: #000000; background: #f8f8f8; padding: 1.5rem; border-radius: 8px; overflow-x: auto; white-space: pre-wrap; font-family: monospace; font-size: 0.9rem; line-height: 1.6;">{}</pre>
+                        </div>
+                        """.format(formatted_listing), unsafe_allow_html=True)
                     
                     # Download options
                     st.markdown("""
@@ -1618,6 +1633,239 @@ def main():
                         </p>
                     </div>
                     """, unsafe_allow_html=True)
+            
+            # Display results if they exist in session state (after dropdown changes)
+            elif 'show_results' in st.session_state and st.session_state.show_results:
+                # Use stored results
+                analysis = st.session_state.analysis
+                descriptions = st.session_state.descriptions
+                keywords = st.session_state.keywords
+                target_platform = st.session_state.target_platform
+                product_name = st.session_state.product_name
+                
+                # Display all the sections (analysis, descriptions, keywords, export)
+                # Display analysis
+                st.markdown("""
+                <div class="section-header">
+                    <h2 class="section-title">Product Analysis</h2>
+                    <p class="section-subtitle">AI-powered insights from your image</p>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                col1, col2, col3, col4 = st.columns(4)
+                
+                with col1:
+                    st.markdown(f"""
+                    <div class="metric-box">
+                        <div class="metric-label">Category</div>
+                        <div class="metric-value" style="font-size: 1.3rem;">{analysis.category}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                with col2:
+                    st.markdown(f"""
+                    <div class="metric-box">
+                        <div class="metric-label">Style</div>
+                        <div class="metric-value" style="font-size: 1.5rem;">{analysis.style}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                with col3:
+                    st.markdown(f"""
+                    <div class="metric-box">
+                        <div class="metric-label">Materials</div>
+                        <div class="metric-value" style="font-size: 1.1rem;">{', '.join(analysis.materials)}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                with col4:
+                    st.markdown(f"""
+                    <div class="metric-box">
+                        <div class="metric-label">AI Confidence</div>
+                        <div class="metric-value" style="font-size: 1.5rem;">{int(analysis.confidence * 100)}%</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                # Display descriptions in tabs
+                st.markdown("""
+                <div class="section-header">
+                    <h2 class="section-title">Your Product Descriptions</h2>
+                    <p class="section-subtitle">Three professionally written styles - click tabs to compare</p>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                tab1, tab2, tab3 = st.tabs(["📖 Storytelling", "⚡ Feature-Benefit", "✨ Minimalist"])
+                
+                with tab1:
+                    desc = descriptions["Storytelling (Emotional)"]
+                    st.markdown(f"""
+                    <div class="description-card">
+                        <div class="description-title">
+                            Storytelling
+                            <span class="style-badge">Emotional</span>
+                        </div>
+                    """, unsafe_allow_html=True)
+                    
+                    st.markdown(f"**Product Title:**")
+                    st.markdown(f"{desc.title}")
+                    
+                    st.markdown(f"**Description:**")
+                    st.markdown(f"{desc.description}")
+                    
+                    st.markdown("**Key Features:**")
+                    for bp in desc.bullet_points:
+                        st.markdown(f"• {bp}")
+                    
+                    st.markdown(f"**Meta Description:**")
+                    st.markdown(f"{desc.meta_description}")
+                    
+                    st.markdown('</div>', unsafe_allow_html=True)
+                
+                with tab2:
+                    desc = descriptions["Feature-Benefit (Practical)"]
+                    st.markdown(f"""
+                    <div class="description-card">
+                        <div class="description-title">
+                            Feature-Benefit
+                            <span class="style-badge">Practical</span>
+                        </div>
+                    """, unsafe_allow_html=True)
+                    
+                    st.markdown(f"**Product Title:**")
+                    st.markdown(f"{desc.title}")
+                    
+                    st.markdown(f"**Description:**")
+                    st.markdown(f"{desc.description}")
+                    
+                    st.markdown("**Key Features:**")
+                    for bp in desc.bullet_points:
+                        st.markdown(f"• {bp}")
+                    
+                    st.markdown(f"**Meta Description:**")
+                    st.markdown(f"{desc.meta_description}")
+                    
+                    st.markdown('</div>', unsafe_allow_html=True)
+                
+                with tab3:
+                    desc = descriptions["Minimalist (Clean)"]
+                    st.markdown(f"""
+                    <div class="description-card">
+                        <div class="description-title">
+                            Minimalist
+                            <span class="style-badge">Clean</span>
+                        </div>
+                    """, unsafe_allow_html=True)
+                    
+                    st.markdown(f"**Product Title:**")
+                    st.markdown(f"{desc.title}")
+                    
+                    st.markdown(f"**Description:**")
+                    st.markdown(f"{desc.description}")
+                    
+                    st.markdown("**Key Features:**")
+                    for bp in desc.bullet_points:
+                        st.markdown(f"• {bp}")
+                    
+                    st.markdown(f"**Meta Description:**")
+                    st.markdown(f"{desc.meta_description}")
+                    
+                    st.markdown('</div>', unsafe_allow_html=True)
+                
+                # Display keywords
+                st.markdown("""
+                <div class="seo-box">
+                    <div class="seo-title">Search Keywords</div>
+                """, unsafe_allow_html=True)
+                
+                st.markdown("**Primary Keywords:**")
+                keywords_html = " ".join([f'<span class="keyword-tag">{kw}</span>' for kw in keywords['primary']])
+                st.markdown(keywords_html, unsafe_allow_html=True)
+                
+                st.markdown("**Popular Searches:**")
+                longtail_html = " ".join([f'<span class="keyword-tag">{kw}</span>' for kw in keywords['long_tail'][:10]])
+                st.markdown(longtail_html, unsafe_allow_html=True)
+                
+                st.markdown('</div>', unsafe_allow_html=True)
+                
+                # Platform export
+                export_container = st.container()
+                
+                with export_container:
+                    st.markdown("""
+                    <div id="export-section" class="section-header">
+                        <h2 class="section-title">Platform Export</h2>
+                        <p class="section-subtitle">Formatted for {}</p>
+                    </div>
+                    """.format(target_platform), unsafe_allow_html=True)
+                    
+                    export_style = st.selectbox(
+                        "📝 Choose Description Style:",
+                        list(descriptions.keys()),
+                        help="Select which AI-generated description to use for your platform export",
+                        key="style_selector"
+                    )
+                    
+                    formatted_listing = format_for_platform(
+                        descriptions[export_style],
+                        keywords,
+                        target_platform
+                    )
+                    
+                    # Display in a white box with black text
+                    st.markdown("""
+                    <div style="background: #ffffff; border: 2px solid #e5e5e5; border-radius: 12px; padding: 2rem; margin: 1.5rem 0;">
+                        <h3 style="color: #0066cc; margin-top: 0;">Your Platform Export</h3>
+                        <pre style="color: #000000; background: #f8f8f8; padding: 1.5rem; border-radius: 8px; overflow-x: auto; white-space: pre-wrap; font-family: monospace; font-size: 0.9rem; line-height: 1.6;">{}</pre>
+                    </div>
+                    """.format(formatted_listing), unsafe_allow_html=True)
+                
+                # Download options
+                st.markdown("""
+                <div class="section-header">
+                    <h2 class="section-title">Download Your Listing</h2>
+                    <p class="section-subtitle">Export and deploy instantly</p>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                col1, col2 = st.columns([1, 1])
+                
+                with col1:
+                    st.download_button(
+                        label=f"Download {target_platform}",
+                        data=formatted_listing,
+                        file_name=f"{product_name.lower().replace(' ', '_')}_{target_platform.lower()}.txt",
+                        mime="text/plain",
+                        use_container_width=True
+                    )
+                
+                with col2:
+                    all_listings = f"=== {product_name.upper()} - ALL AI-GENERATED STYLES ===\n\n"
+                    all_listings += f"Created by QuickList AI\n"
+                    all_listings += f"Platform: {target_platform}\n"
+                    all_listings += f"Category: {analysis.category}\n\n"
+                    all_listings += "="*70 + "\n\n"
+                    
+                    for style, desc in descriptions.items():
+                        all_listings += f"\n{'='*70}\n{style}\n{'='*70}\n\n"
+                        all_listings += format_for_platform(desc, keywords, target_platform)
+                        all_listings += "\n\n"
+                    
+                    st.download_button(
+                        label="Download All Styles",
+                        data=all_listings,
+                        file_name=f"{product_name.lower().replace(' ', '_')}_all.txt",
+                        mime="text/plain",
+                        use_container_width=True
+                    )
+                
+                # Success
+                st.markdown(f"""
+                <div class="info-box">
+                    <p style="margin: 0; font-weight: 600;">
+                        Your professional listing is ready! Upload to {target_platform} and start selling.
+                    </p>
+                </div>
+                """, unsafe_allow_html=True)
         
         else:
             st.markdown("""
