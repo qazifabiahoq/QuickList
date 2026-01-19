@@ -251,6 +251,7 @@ st.markdown("""
         transition: all 0.3s ease;
         height: 100%;
         min-height: 140px;
+        overflow: hidden;
     }
     
     .metric-box:hover {
@@ -269,12 +270,15 @@ st.markdown("""
     }
     
     .metric-value {
-        font-size: 1.1rem;
+        font-size: 1rem;
         font-weight: 700;
         color: #000000 !important;
         font-family: 'Space Grotesk', sans-serif;
         line-height: 1.4;
-        padding: 0 0.5rem;
+        padding: 0 0.25rem;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        max-width: 100%;
     }
     
     /* Description cards */
@@ -638,6 +642,7 @@ st.markdown("""
 st.markdown("""
 <div class="main-header" style="background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%) !important; text-align: center; padding: 3rem; border-radius: 0 0 24px 24px; margin: -6rem -5rem 3rem -5rem;">
     <div class="header-content">
+        <div style="font-size: 4rem; margin-bottom: 1rem;">⚡</div>
         <h1 style="color: #ffffff !important; font-size: 3.5rem !important; font-weight: 800 !important; margin: 0 !important; font-family: 'Space Grotesk', sans-serif !important;">QuickList</h1>
         <p style="color: #ffffff !important; font-size: 1.25rem !important; margin-top: 0.75rem !important; font-family: 'Inter', sans-serif !important;">Professional Product Listings in Minutes</p>
         <span style="background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%) !important; color: #ffffff !important; display: inline-block !important; padding: 0.6rem 1.5rem !important; border-radius: 24px !important; font-size: 0.85rem !important; font-weight: 700 !important; margin-top: 1.25rem !important; text-transform: uppercase !important;">AI-Powered</span>
