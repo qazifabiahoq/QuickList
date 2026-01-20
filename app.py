@@ -11,20 +11,20 @@ import time
 import json
 import os
 
-# Try to import Groq for Gen AI
+# Try to import Gen AI libraries
 try:
     from groq import Groq
     HAS_GROQ = True
 except ImportError:
     HAS_GROQ = False
 
-# Get Groq API key from Streamlit secrets (NEVER hardcode in code!)
+# Get API keys from Streamlit secrets
 GROQ_API_KEY = None
 if HAS_GROQ:
     try:
         GROQ_API_KEY = st.secrets["groq"]["api_key"]
     except:
-        pass  # No key configured - will use templates
+        pass
 
 # Page configuration
 st.set_page_config(
@@ -799,31 +799,65 @@ class QuickListAI:
             )
     
     @staticmethod
-    @staticmethod
     def generate_with_llava(product_name: str, analysis: ProductAnalysis, 
                            style: str, features: str, image: Image.Image) -> ProductDescription:
-        """Generate with Groq Gen AI or industry templates"""
+        """Generate with AI - Full fallback chain: Groq → Mistral → Anthropic → Templates"""
         
-        # Try Groq if configured
+        color = analysis.colors[0] if analysis.colors[0] != "neutral" else ""
+        
+        # Build prompts for all styles
+        if style == "Storytelling (Emotional)":
+            prompt = f"""Write an emotional, storytelling e-commerce product description for this {product_name}.
+
+Product Details:
+- Category: {analysis.category}
+- Color: {color}
+- Style: {analysis.style}
+- Materials: {', '.join(analysis.materials)}
+- Features: {features if features else 'Premium quality'}
+
+Write 150-200 words that create emotional connection, use sensory language, focus on lifestyle benefits.
+
+Respond with JSON:
+{{"title": "emotional title", "description": "storytelling description", "bullet_points": ["benefit 1", "benefit 2", "benefit 3", "benefit 4", "benefit 5"], "meta_description": "SEO meta under 160 chars"}}"""
+
+        elif style == "Feature-Benefit (Practical)":
+            prompt = f"""Write a practical feature-benefit product description for this {product_name}.
+
+Product Details:
+- Category: {analysis.category}
+- Color: {color}
+- Style: {analysis.style}
+- Materials: {', '.join(analysis.materials)}
+- Features: {features if features else 'Professional quality'}
+
+Write 150-200 words with clear features and benefits, professional language.
+
+Respond with JSON:
+{{"title": "professional title", "description": "feature-benefit description", "bullet_points": ["feature 1", "feature 2", "feature 3", "feature 4", "feature 5"], "meta_description": "SEO meta under 160 chars"}}"""
+
+        else:  # Minimalist
+            prompt = f"""Write a minimalist product description for this {product_name}.
+
+Product Details:
+- Category: {analysis.category}
+- Color: {color}
+- Style: {analysis.style}
+
+Write 80-100 words, short sentences, essential details only, clean and direct.
+
+Respond with JSON:
+{{"title": "simple title", "description": "minimalist description", "bullet_points": ["detail 1", "detail 2", "detail 3", "detail 4", "detail 5"], "meta_description": "meta under 160"}}"""
+        
+        # TIER 1: Try Groq (fastest, best quality)
         if GROQ_API_KEY and HAS_GROQ:
             try:
                 client = Groq(api_key=GROQ_API_KEY)
-                color = analysis.colors[0] if analysis.colors[0] != "neutral" else ""
-                
-                prompts = {
-                    "Storytelling (Emotional)": f"""Product: {product_name}, Category: {analysis.category}, Color: {color}, Style: {analysis.style}
-Write emotional description (150-200 words) with JSON: {{"title": "...", "description": "...", "bullet_points": [...], "meta_description": "..."}}""",
-                    "Feature-Benefit (Practical)": f"""Product: {product_name}, Category: {analysis.category}, Color: {color}
-Write practical description (150-200 words) with JSON format""",
-                    "Minimalist (Clean)": f"""Product: {product_name}, Color: {color}
-Write minimalist (80-100 words) JSON format"""
-                }
-                
                 completion = client.chat.completions.create(
                     model="llama-3.3-70b-versatile",
-                    messages=[{"role": "user", "content": prompts.get(style, prompts["Feature-Benefit (Practical)"])}],
+                    messages=[{"role": "user", "content": prompt}],
                     temperature=0.7,
-                    max_tokens=500,
+                    max_tokens=600,
                     response_format={"type": "json_object"}
                 )
                 
@@ -835,11 +869,90 @@ Write minimalist (80-100 words) JSON format"""
                     meta_description=parsed.get('meta_description', '')[:160],
                     style_type=style
                 )
+            except Exception as e:
+                pass  # Fall through to Mistral
+        
+        # TIER 2: Try Mistral (free Hugging Face)
+        try:
+            API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2"
+            
+            headers = {"Content-Type": "application/json"}
+            payload = {
+                "inputs": prompt,
+                "parameters": {
+                    "max_new_tokens": 500,
+                    "temperature": 0.7,
+                    "return_full_text": False
+                }
+            }
+            
+            response = requests.post(API_URL, headers=headers, json=payload, timeout=30)
+            
+            if response.status_code == 200:
+                result = response.json()
+                generated = result[0].get('generated_text', '') if isinstance(result, list) else result.get('generated_text', '')
+                
+                if generated:
+                    # Clean and parse JSON
+                    generated = generated.replace('```json', '').replace('```', '').strip()
+                    start = generated.find('{')
+                    end = generated.rfind('}') + 1
+                    
+                    if start != -1 and end > start:
+                        json_str = generated[start:end]
+                        parsed = json.loads(json_str)
+                        
+                        return ProductDescription(
+                            title=parsed.get('title', product_name),
+                            description=parsed.get('description', ''),
+                            bullet_points=parsed.get('bullet_points', [])[:5],
+                            meta_description=parsed.get('meta_description', '')[:160],
+                            style_type=style
+                        )
+        except Exception as e:
+            pass  # Fall through to Anthropic
+        
+        # TIER 3: Try Anthropic Claude (if API key available)
+        try:
+            # Check for Anthropic API key
+            anthropic_key = None
+            try:
+                anthropic_key = st.secrets.get("anthropic", {}).get("api_key")
             except:
                 pass
+            
+            if anthropic_key:
+                import anthropic
+                client = anthropic.Anthropic(api_key=anthropic_key)
+                
+                message = client.messages.create(
+                    model="claude-3-5-sonnet-20241022",
+                    max_tokens=600,
+                    messages=[{"role": "user", "content": prompt}]
+                )
+                
+                content = message.content[0].text
+                # Parse JSON from response
+                start = content.find('{')
+                end = content.rfind('}') + 1
+                
+                if start != -1 and end > start:
+                    json_str = content[start:end]
+                    parsed = json.loads(json_str)
+                    
+                    return ProductDescription(
+                        title=parsed.get('title', product_name),
+                        description=parsed.get('description', ''),
+                        bullet_points=parsed.get('bullet_points', [])[:5],
+                        meta_description=parsed.get('meta_description', '')[:160],
+                        style_type=style
+                    )
+        except Exception as e:
+            pass  # Fall through to templates
         
-        # Use industry templates
+        # TIER 4: Industry-specific templates (always works)
         return QuickListAI._industry_templates(product_name, analysis, style, features)
+    
     @staticmethod
     def _industry_templates(product_name: str, analysis: ProductAnalysis, 
                           style: str, features: str) -> ProductDescription:
@@ -1249,6 +1362,13 @@ def main():
         """)
         
         st.markdown("---")
+        
+        # Show Gen AI status
+        if GROQ_API_KEY and HAS_GROQ:
+            st.success("✅ Groq Gen AI Active")
+        else:
+            st.info("💡 Using Smart Templates")
+            st.caption("To enable Gen AI: Install groq & add API key to secrets")
         
         st.markdown("""
         **100% Free**  
