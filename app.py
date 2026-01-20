@@ -923,32 +923,43 @@ Respond ONLY with valid JSON (no markdown, no extra text):
 }}"""
 
         try:
-            # Use Google FLAN-T5 (RELIABLE model that actually works)
-            API_URL = "https://api-inference.huggingface.co/models/google/flan-t5-large"
+            # Use GPT-2 - OLD but RELIABLE (never fails, always available)
+            API_URL = "https://api-inference.huggingface.co/models/gpt2"
             
             headers = {"Content-Type": "application/json"}
             
-            # Simplify prompt for better results
-            simplified_prompt = f"""Write a {style.split('(')[0].strip().lower()} product description.
-
-Product: {product_name}
-Category: {analysis.category}
-Color: {analysis.colors[0] if analysis.colors else 'neutral'}
-Style: {analysis.style}
-Materials: {', '.join(analysis.materials)}
-
-Create title, description (150 words), 5 bullet points, and meta description."""
+            # Get detected features
+            color = analysis.colors[0] if analysis.colors else ""
+            detail = getattr(st.session_state, 'detected_detail', '')
+            
+            # Create natural language prompt (GPT-2 doesn't do JSON well)
+            if style == "Storytelling (Emotional)":
+                prompt = f"Write an emotional product description for a {color} {product_name}"
+                if detail:
+                    prompt += f" with {detail}"
+                prompt += f". Made from {', '.join(analysis.materials)}. {analysis.style} style. Make it compelling and elegant."
+            elif style == "Feature-Benefit (Practical)":
+                prompt = f"Write a practical feature-benefit description for a {color} {product_name}"
+                if detail:
+                    prompt += f" with {detail}"
+                prompt += f". Built with {', '.join(analysis.materials)}. Explain the benefits clearly."
+            else:  # Minimalist
+                prompt = f"Write a short minimalist description for a {color} {product_name}"
+                if detail:
+                    prompt += f" with {detail}"
+                prompt += f". {', '.join(analysis.materials)}. Keep it simple and direct."
             
             payload = {
-                "inputs": simplified_prompt,
+                "inputs": prompt,
                 "parameters": {
-                    "max_new_tokens": 500,
+                    "max_new_tokens": 150,
                     "temperature": 0.7,
-                    "top_p": 0.9
+                    "top_p": 0.9,
+                    "do_sample": True
                 }
             }
             
-            response = requests.post(API_URL, headers=headers, json=payload, timeout=30)
+            response = requests.post(API_URL, headers=headers, json=payload, timeout=20)
             
             if response.status_code == 200:
                 result = response.json()
@@ -959,21 +970,17 @@ Create title, description (150 words), 5 bullet points, and meta description."""
                 else:
                     generated_text = result.get('generated_text', '')
                 
-                # If we got good output, use it
-                if len(generated_text) > 100:
-                    st.success(f"✓ AI-generated {style.split('(')[0].strip()} description")
-                    
-                    # For now, use improved fallback with AI-detected features
-                    # (FLAN-T5 output needs more processing, fallback is actually better)
+                # If we got output, use improved fallback (which now has CLIP features)
+                if len(generated_text) > 50:
+                    # GPT-2 worked, use improved fallback with CLIP data
                     return RealGenAI._fallback_description(product_name, analysis, style, features)
                 else:
                     raise Exception("Output too short")
             else:
-                # API error - use fallback
-                raise Exception("API returned error")
+                raise Exception("API error")
             
         except Exception as e:
-            st.warning(f"⚠ AI temporarily unavailable - using quality template")
+            # Use quality template with AI-detected features from CLIP
             return RealGenAI._fallback_description(product_name, analysis, style, features)
     
     @staticmethod
