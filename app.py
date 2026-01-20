@@ -9,6 +9,22 @@ from dataclasses import dataclass
 from typing import List, Dict
 import time
 import json
+import os
+
+# Try to import Groq for Gen AI
+try:
+    from groq import Groq
+    HAS_GROQ = True
+except ImportError:
+    HAS_GROQ = False
+
+# Get Groq API key from Streamlit secrets (NEVER hardcode in code!)
+GROQ_API_KEY = None
+if HAS_GROQ:
+    try:
+        GROQ_API_KEY = st.secrets["groq"]["api_key"]
+    except:
+        pass  # No key configured - will use templates
 
 # Page configuration
 st.set_page_config(
@@ -783,228 +799,268 @@ class QuickListAI:
             )
     
     @staticmethod
+    @staticmethod
     def generate_with_llava(product_name: str, analysis: ProductAnalysis, 
                            style: str, features: str, image: Image.Image) -> ProductDescription:
-        """Generate product description (Gen AI backend, silent to user)"""
+        """Generate with Groq Gen AI or industry templates"""
         
-        # Build style-specific prompt
-        if style == "Storytelling (Emotional)":
-            prompt = f"""Look carefully at this product image. This is a {product_name}.
-
-Write an emotional, storytelling e-commerce description (150-200 words) based on what you see:
-- Describe the visual details, colors, textures, design
-- Create emotional connection - how it makes people feel
-- Use sensory, evocative language
-- Focus on lifestyle benefits
-
-Additional info: {features if features else 'Premium quality'}
-
-Respond with JSON only:
-{{
-  "title": "emotional title with benefit",
-  "description": "storytelling description",
-  "bullet_points": ["benefit 1", "benefit 2", "benefit 3", "benefit 4", "benefit 5"],
-  "meta_description": "SEO meta under 160 chars"
-}}"""
-
-        elif style == "Feature-Benefit (Practical)":
-            prompt = f"""Look at this {product_name} image.
-
-Write a practical feature-benefit description (150-200 words) based on what you see:
-- List visual features you observe
-- Explain why each feature matters
-- Focus on functionality and value
-- Professional, clear language
-
-Info: {features if features else 'Professional quality'}
-
-JSON format:
-{{
-  "title": "professional title",
-  "description": "feature-benefit description",
-  "bullet_points": ["feature 1", "feature 2", "feature 3", "feature 4", "feature 5"],
-  "meta_description": "meta under 160 chars"
-}}"""
-
-        else:  # Minimalist
-            prompt = f"""Look at this {product_name}.
-
-Write a minimalist description (80-100 words) based on what you see:
-- Short sentences
-- Essential visual details only
-- No fluff
-- Clean and direct
-
-Info: {features if features else 'Quality product'}
-
-JSON:
-{{
-  "title": "simple title",
-  "description": "minimalist description",
-  "bullet_points": ["detail 1", "detail 2", "detail 3", "detail 4", "detail 5"],
-  "meta_description": "meta under 160"
-}}"""
-
-        try:
-            # Try LLaVA vision-language model
-            
-            # Convert image to base64
-            buffered = io.BytesIO()
-            image.save(buffered, format="PNG")
-            img_b64 = base64.b64encode(buffered.getvalue()).decode()
-            
-            # Call LLaVA API
-            API_URL = "https://api-inference.huggingface.co/models/llava-hf/llava-1.5-7b-hf"
-            
-            headers = {"Content-Type": "application/json"}
-            payload = {
-                "inputs": {
-                    "question": prompt,
-                    "image": img_b64
-                },
-                "parameters": {
-                    "max_new_tokens": 500,
-                    "temperature": 0.7
-                }
-            }
-            
-            response = requests.post(API_URL, headers=headers, json=payload, timeout=90)
-            
-            if response.status_code == 200:
-                result = response.json()
-                
-                # Extract generated text
-                generated_text = ""
-                if isinstance(result, dict):
-                    generated_text = result.get('generated_text', result.get('answer', result.get('text', '')))
-                elif isinstance(result, list) and len(result) > 0:
-                    generated_text = result[0].get('generated_text', result[0].get('answer', result[0].get('text', '')))
-                
-                if generated_text and len(generated_text) > 50:
-                    # Clean up response
-                    generated_text = generated_text.replace('```json', '').replace('```', '').strip()
-                    
-                    # Try to find JSON
-                    start = generated_text.find('{')
-                    end = generated_text.rfind('}') + 1
-                    
-                    if start != -1 and end > start:
-                        try:
-                            json_str = generated_text[start:end]
-                            parsed = json.loads(json_str)
-                            
-                            return ProductDescription(
-                                title=parsed.get('title', f"{product_name}"),
-                                description=parsed.get('description', ''),
-                                bullet_points=parsed.get('bullet_points', [])[:5],
-                                meta_description=parsed.get('meta_description', '')[:160],
-                                style_type=style
-                            )
-                        except json.JSONDecodeError:
-                            # Got text but not JSON - still use it
-                            return ProductDescription(
-                                title=f"{analysis.style} {product_name}",
-                                description=generated_text[:500],
-                                bullet_points=[
-                                    "Premium quality construction",
-                                    f"{analysis.style} design aesthetic", 
-                                    "Professional craftsmanship",
-                                    "Versatile use",
-                                    "Excellent value"
-                                ],
-                                meta_description=generated_text[:160],
-                                style_type=style
-                            )
-            
-            # Try Mistral as backup
-            raise Exception("Try Mistral")
-            
-        except Exception as e:
-            # Backup: Mistral
+        # Try Groq if configured
+        if GROQ_API_KEY and HAS_GROQ:
             try:
-                API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2"
+                client = Groq(api_key=GROQ_API_KEY)
+                color = analysis.colors[0] if analysis.colors[0] != "neutral" else ""
                 
-                context = f"""Product: {product_name}
-Category: {analysis.category}
-Color: {analysis.colors[0]}
-Style: {analysis.style}
-Materials: {', '.join(analysis.materials)}
-Features: {features if features else 'Premium quality'}
-
-{prompt}"""
-
-                headers = {"Content-Type": "application/json"}
-                payload = {
-                    "inputs": context,
-                    "parameters": {
-                        "max_new_tokens": 400,
-                        "temperature": 0.7,
-                        "return_full_text": False
-                    }
+                prompts = {
+                    "Storytelling (Emotional)": f"""Product: {product_name}, Category: {analysis.category}, Color: {color}, Style: {analysis.style}
+Write emotional description (150-200 words) with JSON: {{"title": "...", "description": "...", "bullet_points": [...], "meta_description": "..."}}""",
+                    "Feature-Benefit (Practical)": f"""Product: {product_name}, Category: {analysis.category}, Color: {color}
+Write practical description (150-200 words) with JSON format""",
+                    "Minimalist (Clean)": f"""Product: {product_name}, Color: {color}
+Write minimalist (80-100 words) JSON format"""
                 }
                 
-                response = requests.post(API_URL, headers=headers, json=payload, timeout=30)
+                completion = client.chat.completions.create(
+                    model="llama-3.3-70b-versatile",
+                    messages=[{"role": "user", "content": prompts.get(style, prompts["Feature-Benefit (Practical)"])}],
+                    temperature=0.7,
+                    max_tokens=500,
+                    response_format={"type": "json_object"}
+                )
                 
-                if response.status_code == 200:
-                    result = response.json()
-                    
-                    generated = result[0].get('generated_text', '') if isinstance(result, list) else result.get('generated_text', '')
-                    
-                    if generated:
-                        generated = generated.replace('```json', '').replace('```', '').strip()
-                        start = generated.find('{')
-                        end = generated.rfind('}') + 1
-                        
-                        if start != -1 and end > start:
-                            json_str = generated[start:end]
-                            parsed = json.loads(json_str)
-                            
-                            return ProductDescription(
-                                title=parsed.get('title', product_name),
-                                description=parsed.get('description', ''),
-                                bullet_points=parsed.get('bullet_points', [])[:5],
-                                meta_description=parsed.get('meta_description', '')[:160],
-                                style_type=style
-                            )
+                parsed = json.loads(completion.choices[0].message.content)
+                return ProductDescription(
+                    title=parsed.get('title', product_name),
+                    description=parsed.get('description', ''),
+                    bullet_points=parsed.get('bullet_points', [])[:5],
+                    meta_description=parsed.get('meta_description', '')[:160],
+                    style_type=style
+                )
             except:
                 pass
-            
-            # Final fallback
-            return QuickListAI._template_fallback(product_name, analysis, style, features)
-    
+        
+        # Use industry templates
+        return QuickListAI._industry_templates(product_name, analysis, style, features)
     @staticmethod
-    def _template_fallback(product_name: str, analysis: ProductAnalysis, 
+    def _industry_templates(product_name: str, analysis: ProductAnalysis, 
                           style: str, features: str) -> ProductDescription:
-        """Smart template fallback with CLIP features"""
+        """Industry-specific templates - way better than generic"""
         
+        cat_lower = analysis.category.lower()
+        prod_lower = product_name.lower()
+        
+        # Detect industry
+        is_clothing = any(word in cat_lower or word in prod_lower for word in ['apparel', 'clothing', 'dress', 'shirt', 'pants', 'jacket', 'sweater', 'coat', 'skirt', 'jeans', 'top', 'blouse'])
+        is_electronics = any(word in cat_lower or word in prod_lower for word in ['electronics', 'headphone', 'speaker', 'laptop', 'phone', 'tablet', 'camera', 'device', 'earbuds'])
+        is_furniture = any(word in cat_lower or word in prod_lower for word in ['furniture', 'chair', 'table', 'desk', 'sofa', 'bed', 'cabinet', 'shelf', 'couch'])
+        
+        # Get color
         color = analysis.colors[0] if analysis.colors[0] != "neutral" else ""
-        color_text = f" in {color}" if color else ""
+        color_text = f"{color} " if color else ""
+        color_cap = f" in {color}" if color else ""
         
-        material_text = f"{analysis.materials[0].lower()} and {analysis.materials[1].lower()}"
-        if "material" in material_text and "construction" in material_text:
-            material_text = "premium materials with quality craftsmanship"
+        # CLOTHING - talk about fit, fabric, style, occasions
+        if is_clothing:
+            if style == "Storytelling (Emotional)":
+                title = f"{analysis.style}{color_cap} {product_name} - Effortless Style"
+                description = f"""Step into effortless style with this {color_text}{product_name.lower()}.
+
+The soft, breathable fabric drapes beautifully, creating a flattering silhouette that moves with you. Whether heading to the office, meeting friends for brunch, or enjoying an evening out, this {product_name.lower()} adapts to your lifestyle with ease.
+
+{features if features else f'The {analysis.style.lower()} design pairs perfectly with your favorite accessories, giving you endless styling possibilities.'}
+
+More than just another piece in your wardrobe - it's the confidence you feel when you know you look your best."""
+                
+                bullet_points = [
+                    "Soft, breathable fabric for all-day comfort and lasting wear",
+                    f"Flattering {analysis.style.lower()} cut that complements any body type",
+                    "Versatile styling works for both casual and dressy occasions",
+                    "Easy care - maintains shape and color wash after wash",
+                    "Pairs effortlessly with wardrobe staples you already own"
+                ]
+                
+            elif style == "Feature-Benefit (Practical)":
+                title = f"{color_cap.strip() if color_cap else analysis.style} {product_name} - Comfortable & Versatile"
+                description = f"""Experience the perfect balance of style and comfort with this {color_text}{product_name.lower()}.
+
+PREMIUM FABRIC: Soft against your skin while maintaining its shape throughout the day. The breathable construction keeps you comfortable from morning to night.
+
+FLATTERING FIT: The {analysis.style.lower()} cut is designed to flatter - not too tight, not too loose. It skims your silhouette in all the right places while allowing freedom of movement.
+
+{features if features else 'VERSATILE STYLING: Dress it up with heels and jewelry or keep it casual with sneakers and a denim jacket. One piece, countless outfit possibilities.'}
+
+EASY CARE: Machine washable and wrinkle-resistant. Looks fresh wear after wear with minimal effort."""
+                
+                bullet_points = [
+                    "Soft, breathable fabric provides all-day comfort",
+                    "Flattering fit designed for real bodies",
+                    "Versatile enough for work, weekends, and everything between",
+                    "Easy care - machine washable, stays looking new",
+                    "Quality construction ensures long-lasting wear"
+                ]
+                
+            else:  # Minimalist
+                title = f"{color_cap.strip() if color_cap else ''} {product_name}".strip()
+                description = f"""Timeless {analysis.style.lower()} design.{color_cap.capitalize() + '.' if color_cap else ''}
+
+Soft fabric. Flattering fit. All-day comfort.
+
+Pairs with everything in your closet.
+
+{features if features else 'Machine washable. Built to last.'}
+
+Effortless style, simplified."""
+                
+                bullet_points = [
+                    "Soft, comfortable fabric",
+                    "Flattering fit",
+                    "Versatile styling",
+                    "Easy care",
+                    "Timeless design"
+                ]
         
-        if style == "Storytelling (Emotional)":
-            title = f"{analysis.style} {product_name}{color_text} - Premium Quality"
-            description = f"""Discover the perfect harmony of form and function with this exceptional {product_name.lower()}{color_text}.
+        # ELECTRONICS - talk about performance, features, reliability
+        elif is_electronics:
+            if style == "Storytelling (Emotional)":
+                title = f"{color_cap.strip() if color_cap else analysis.style} {product_name} - Premium Performance"
+                description = f"""Transform your technology experience with this {color_text}{product_name.lower()}.
+
+From the moment you first use it, you'll notice the difference. Crisp, responsive performance. Intuitive controls that feel natural in your hands. The {color_text}finish isn't just sleek - it's built to withstand daily use while looking showroom-new.
+
+{features if features else 'Whether you\'re working, creating, or simply enjoying your favorite content, this device delivers the reliability you need and the quality you deserve.'}
+
+Technology that gets out of your way and lets you focus on what matters."""
+                
+                bullet_points = [
+                    "Durable construction ensures long-lasting reliability",
+                    "High-performance components deliver fast, responsive operation",
+                    "Intuitive interface - easy to use right out of the box",
+                    "Sleek design that looks professional anywhere",
+                    "Built to handle daily demands without slowing down"
+                ]
+                
+            elif style == "Feature-Benefit (Practical)":
+                title = f"{product_name}{color_cap} - High Performance | Reliable"
+                description = f"""Get professional-grade performance with this {color_text}{product_name.lower()}.
+
+POWERFUL PERFORMANCE: Engineered with high-quality components that deliver fast, responsive operation. No lag, no waiting - just smooth, reliable performance when you need it.
+
+DURABLE BUILD: Built to stand up to daily use. The {color_text}finish resists scratches and fingerprints, maintaining that new look longer.
+
+{features if features else 'EASY TO USE: Intuitive controls and clear interface mean you\'ll be productive from day one. No steep learning curve.'}
+
+VERSATILE: Works seamlessly with your existing setup. Plug in and start using immediately."""
+                
+                bullet_points = [
+                    "High-performance components for fast, reliable operation",
+                    "Durable construction built for daily use",
+                    "Intuitive controls - easy to learn and use",
+                    "Broad compatibility with existing devices",
+                    "Quality engineering backed by rigorous testing"
+                ]
+                
+            else:  # Minimalist
+                title = f"{color_cap.strip() if color_cap else ''} {product_name}".strip()
+                description = f"""Performance. Reliability.{color_cap.capitalize() + '.' if color_cap else ''}
+
+Fast response. Intuitive controls.
+
+{features if features else 'Built for daily use.'}
+
+Works when you need it. No complications."""
+                
+                bullet_points = [
+                    "High-performance operation",
+                    "Durable construction",
+                    "Easy to use",
+                    "Reliable daily performance",
+                    "Professional quality"
+                ]
+        
+        # FURNITURE - talk about comfort, space, durability
+        elif is_furniture:
+            if style == "Storytelling (Emotional)":
+                title = f"{analysis.style}{color_cap} {product_name} - Transform Your Space"
+                description = f"""Reimagine your space with this beautifully crafted {color_text}{product_name.lower()}.
+
+The {color_text}finish adds warmth and character to any room, while the {analysis.style.lower()} design brings everything together with effortless sophistication.
+
+Sink into comfort that lasts - this isn't furniture that looks good but feels mediocre. It's built with solid construction that provides the support and durability you need, day after day.
+
+{features if features else 'Whether you\'re relaxing after a long day, hosting friends, or simply enjoying your morning coffee, this piece becomes the backdrop to your best moments at home.'}"""
+                
+                bullet_points = [
+                    "Solid construction ensures stability and long-lasting comfort",
+                    f"{analysis.style} design elevates any room aesthetic",
+                    "Ergonomic construction provides excellent support",
+                    "Versatile style complements both traditional and contemporary decor",
+                    "Built to become a cherished part of your home for years"
+                ]
+                
+            elif style == "Feature-Benefit (Practical)":
+                title = f"{color_cap.strip() if color_cap else analysis.style} {product_name} - Durable & Comfortable"
+                description = f"""Upgrade your space with this well-crafted {color_text}{product_name.lower()}.
+
+SOLID CONSTRUCTION: Built with quality materials that provide reliable support and exceptional durability. This isn't furniture you'll replace in a year - it's built to last.
+
+ERGONOMIC DESIGN: The {analysis.style.lower()} design isn't just visually appealing - it's engineered for comfort. Proper support where you need it, without sacrificing style.
+
+{features if features else 'VERSATILE STYLING: The clean lines work with any decor style, from traditional to contemporary.'}
+
+QUALITY CRAFTSMANSHIP: Precision assembly and quality materials ensure this piece stays sturdy and attractive through years of daily use."""
+                
+                bullet_points = [
+                    "Solid construction provides excellent durability",
+                    "Ergonomic design maximizes comfort during extended use",
+                    f"{analysis.style} aesthetic enhances any room",
+                    "Quality craftsmanship ensures long-term reliability",
+                    "Versatile design adapts to changing decor styles"
+                ]
+                
+            else:  # Minimalist
+                title = f"{color_cap.strip() if color_cap else ''} {product_name}".strip()
+                description = f"""Solid. Comfortable.{color_cap.capitalize() + '.' if color_cap else ''}
+
+Ergonomic support. Clean lines.
+
+{features if features else 'Quality construction.'}
+
+Furniture that works."""
+                
+                bullet_points = [
+                    "Solid construction",
+                    "Ergonomic design",
+                    "Durable build",
+                    f"{analysis.style} aesthetic",
+                    "Built for daily use"
+                ]
+        
+        # GENERAL FALLBACK - still better than before
+        else:
+            material_text = f"{analysis.materials[0].lower()} and {analysis.materials[1].lower()}"
+            if "material" in material_text and "construction" in material_text:
+                material_text = "premium materials with quality craftsmanship"
+            
+            if style == "Storytelling (Emotional)":
+                title = f"{analysis.style} {product_name}{color_cap} - Premium Quality"
+                description = f"""Discover the perfect harmony of form and function with this exceptional {color_text}{product_name.lower()}.
 
 Crafted from {material_text}, this {product_name.lower()} combines {analysis.style.lower()} aesthetics with uncompromising quality.
 
 {features if features else f'Whether for everyday use or special occasions, this {product_name.lower()} delivers an experience that exceeds expectations.'}
 
 It's more than a product - it's a statement of quality and style."""
-            
-            bullet_points = [
-                f"{material_text.capitalize()} ensures lasting durability",
-                f"Sophisticated {analysis.style.lower()} design",
-                "Exceptional attention to detail",
-                "Versatile styling for multiple uses",
-                "Makes a thoughtful gift"
-            ]
-            
-        elif style == "Feature-Benefit (Practical)":
-            title = f"{product_name}{color_text} - {analysis.style} Design | Professional Quality"
-            description = f"""Experience professional-grade quality with this {product_name.lower()}{color_text}.
+                
+                bullet_points = [
+                    f"{material_text.capitalize()} ensures lasting durability",
+                    f"Sophisticated {analysis.style.lower()} design",
+                    "Exceptional attention to detail",
+                    "Versatile styling for multiple uses",
+                    "Makes a thoughtful gift"
+                ]
+                
+            elif style == "Feature-Benefit (Practical)":
+                title = f"{product_name}{color_cap} - {analysis.style} Design | Professional Quality"
+                description = f"""Experience professional-grade quality with this {color_text}{product_name.lower()}.
 
 SUPERIOR CONSTRUCTION: Built with {material_text}, ensuring exceptional durability and reliable performance.
 
@@ -1013,36 +1069,34 @@ INTELLIGENT DESIGN: The {analysis.style.lower()} aesthetic is engineered for opt
 {features if features else 'PROVEN PERFORMANCE: Versatile design adapts to your needs.'}
 
 QUALITY ASSURANCE: Rigorous standards ensure consistent excellence."""
-            
-            bullet_points = [
-                f"{material_text.capitalize()} provides superior strength",
-                "Intelligent design maximizes functionality",
-                "Premium construction maintains performance",
-                "Versatile use for multiple applications",
-                "Quality craftsmanship guaranteed"
-            ]
-            
-        else:  # Minimalist
-            title = f"{product_name}{color_text} | {analysis.style}"
-            description = f"""Clean design. Premium materials. Built to last.{color_text.capitalize() + '.' if color_text else ''}
-
-This {product_name.lower()} represents essentials, perfected.
+                
+                bullet_points = [
+                    f"{material_text.capitalize()} provides superior strength",
+                    "Intelligent design maximizes functionality",
+                    "Premium construction maintains performance",
+                    "Versatile use for multiple applications",
+                    "Quality craftsmanship guaranteed"
+                ]
+                
+            else:  # Minimalist
+                title = f"{product_name}{color_cap} | {analysis.style}"
+                description = f"""Clean design. Premium materials.{color_cap.capitalize() + '.' if color_cap else ''}
 
 Crafted from {material_text}. {analysis.style} principles.
 
 {features if features else 'Functional. Reliable. Timeless.'}
 
 Built for those who value substance."""
-            
-            bullet_points = [
-                f"{material_text.capitalize()}",
-                f"{analysis.style} design aesthetic",
-                "Essential functionality",
-                "Superior craftsmanship",
-                "Timeless quality"
-            ]
+                
+                bullet_points = [
+                    f"{material_text.capitalize()}",
+                    f"{analysis.style} design aesthetic",
+                    "Essential functionality",
+                    "Superior craftsmanship",
+                    "Timeless quality"
+                ]
         
-        meta = f"{product_name} - {analysis.style} {analysis.category.lower()}. {bullet_points[0]}."[:160]
+        meta = f"{product_name} - {bullet_points[0]}."[:160]
         
         return ProductDescription(
             title=title,
