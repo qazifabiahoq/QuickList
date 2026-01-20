@@ -637,8 +637,8 @@ class ProductDescription:
     style_type: str
 
 
-class TrueGenAI:
-    """100% REAL Generative AI - LLaVA Vision-Language Model"""
+class QuickListAI:
+    """AI-powered product listing generator"""
     
     @staticmethod
     def analyze_product_with_clip(image: Image.Image) -> ProductAnalysis:
@@ -673,7 +673,6 @@ class TrueGenAI:
                 result = response1.json()
                 if isinstance(result, list) and len(result) > 0:
                     broad_cat = result[0].get('label', 'product')
-                    st.write(f"📦 Category: **{broad_cat}**")
                     
                     category_map = {
                         "clothing apparel": "Apparel",
@@ -709,7 +708,6 @@ class TrueGenAI:
                 result = response2.json()
                 if isinstance(result, list) and len(result) > 0:
                     detected_color = result[0].get('label', 'neutral')
-                    st.write(f"🎨 Color: **{detected_color}**")
             
             # Detect MATERIAL
             material_labels = [
@@ -735,7 +733,6 @@ class TrueGenAI:
                     mat2 = result[1].get('label', 'construction')
                     detected_material = mat1.capitalize()
                     material2 = mat2.capitalize()
-                    st.write(f"🔧 Materials: **{mat1}, {mat2}**")
             
             # Detect STYLE
             style_labels = [
@@ -788,7 +785,7 @@ class TrueGenAI:
     @staticmethod
     def generate_with_llava(product_name: str, analysis: ProductAnalysis, 
                            style: str, features: str, image: Image.Image) -> ProductDescription:
-        """TRUE GENERATIVE AI: LLaVA Vision-Language Model looks at image and writes description"""
+        """Generate product description (Gen AI backend, silent to user)"""
         
         # Build style-specific prompt
         if style == "Storytelling (Emotional)":
@@ -973,7 +970,7 @@ Features: {features if features else 'Premium quality'}
                 pass
             
             # Final fallback
-            return TrueGenAI._template_fallback(product_name, analysis, style, features)
+            return QuickListAI._template_fallback(product_name, analysis, style, features)
     
     @staticmethod
     def _template_fallback(product_name: str, analysis: ProductAnalysis, 
@@ -1169,16 +1166,16 @@ def main():
     with st.sidebar:
         st.markdown("### About QuickList")
         st.markdown("""
-        **QuickList** uses smart technology to create professional product listings in seconds.
+        Transform product photos into professional listings in 30 seconds.
         
         **What You Get:**
         
-        - Instant product analysis
-        - Professional descriptions
-        - Search keywords
-        - Platform-ready formatting
+        - Professional product descriptions
+        - 3 writing styles to choose from
+        - SEO keywords included
+        - Ready for your store
         
-        **Works With:**
+        **Supported Platforms:**
         - Shopify
         - Amazon
         - Etsy
@@ -1187,28 +1184,21 @@ def main():
         
         st.markdown("---")
         
-        st.markdown("### How It Works")
+        st.markdown("### Quick & Easy")
         st.markdown("""
-        1. Upload your product photo
-        2. Our system analyzes it
-        3. Creates 3 description styles
-        4. Generates search keywords
-        5. Download and list
+        1. Upload photo
+        2. Enter product name
+        3. Generate listing
+        4. Download
         
-        Ready in 30 seconds
+        Done in 30 seconds
         """)
         
         st.markdown("---")
         
-        st.markdown("### The Technology")
         st.markdown("""
-        Powered by advanced systems:
-        
-        • Image recognition
-        • Smart copywriting
-        • Keyword optimization
-        
-        100% free to use
+        **100% Free**  
+        No signup required
         """)
     
     # Main content
@@ -1275,45 +1265,37 @@ def main():
             with col2:
                 if st.button("Generate Listing", use_container_width=True):
                     
-                    ai = TrueGenAI()
+                    ai = QuickListAI()
                     
                     st.session_state.show_results = True
                     st.session_state.product_name = product_name
                     st.session_state.target_platform = target_platform
                     
-                    # Phase 1: Quick analysis
-                    st.markdown('<div class="status-badge status-processing">Analyzing your product...</div>', unsafe_allow_html=True)
-                    
-                    with st.spinner('AI analyzing your product...'):
+                    # Phase 1: Analysis
+                    with st.spinner('Analyzing product...'):
                         progress = st.progress(0)
                         
-                        for i in range(30):
-                            time.sleep(0.03)
+                        for i in range(40):
+                            time.sleep(0.02)
                             progress.progress(i + 1)
                         
                         analysis = ai.analyze_product_with_clip(image)
                         st.session_state.analysis = analysis
                         
-                        for i in range(30, 50):
+                        for i in range(40, 50):
                             time.sleep(0.02)
                             progress.progress(i + 1)
                         
                         progress.empty()
                     
-                    st.markdown('<div class="status-badge status-complete">Analysis Complete</div>', unsafe_allow_html=True)
-                    
-                    # Phase 2: Generate descriptions
-                    st.markdown('<div class="status-badge status-processing">Writing your product descriptions...</div>', unsafe_allow_html=True)
-                    
-                    with st.spinner('Creating professional copy...'):
+                    # Phase 2: Descriptions
+                    with st.spinner('Writing professional descriptions...'):
                         progress = st.progress(0)
                         
                         descriptions = {}
                         styles = ["Storytelling (Emotional)", "Feature-Benefit (Practical)", "Minimalist (Clean)"]
                         
                         for idx, style_name in enumerate(styles):
-                            st.text(f"Writing {style_name.split('(')[0].strip()}...")
-                            
                             desc = ai.generate_with_llava(
                                 product_name, 
                                 analysis, 
@@ -1325,22 +1307,17 @@ def main():
                             
                             prog = int((idx + 1) / len(styles) * 100)
                             progress.progress(prog)
-                            time.sleep(0.5)
                         
                         progress.empty()
                     
                     st.session_state.descriptions = descriptions
                     
-                    st.markdown('<div class="status-badge status-complete">Descriptions Ready</div>', unsafe_allow_html=True)
-                    
                     # Phase 3: Keywords
-                    st.markdown('<div class="status-badge status-processing">Creating search keywords...</div>', unsafe_allow_html=True)
-                    
-                    with st.spinner('Finding the best keywords...'):
+                    with st.spinner('Generating keywords...'):
                         progress = st.progress(0)
                         
                         for i in range(100):
-                            time.sleep(0.02)
+                            time.sleep(0.01)
                             progress.progress(i + 1)
                         
                         keywords = ai.extract_keywords(
@@ -1353,7 +1330,7 @@ def main():
                     
                     st.session_state.keywords = keywords
                     
-                    st.markdown('<div class="status-badge status-complete">Keywords Ready</div>', unsafe_allow_html=True)
+                    st.success("Your listing is ready!")
         
         # Display results
         if 'show_results' in st.session_state and st.session_state.show_results:
