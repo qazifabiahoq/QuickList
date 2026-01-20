@@ -654,17 +654,18 @@ class RealGenAI:
             headers = {"Content-Type": "application/octet-stream"}
             API_URL = "https://api-inference.huggingface.co/models/openai/clip-vit-base-patch32"
             
-            # STEP 1: Detect SPECIFIC product type
-            product_labels = [
-                "women's dress", "men's shirt", "pants", "jacket", "shoes", 
-                "bag", "watch", "phone", "laptop", "headphones", "chair", "table"
+            # STEP 1: Detect BROAD CATEGORY (works for ANYTHING)
+            broad_categories = [
+                "clothing apparel", "electronics device", "furniture", 
+                "beauty personal care product", "kitchen cookware",  "sports equipment",
+                "toy", "jewelry accessory", "tool", "home decor"
             ]
             
             response1 = requests.post(
                 API_URL,
                 headers=headers,
                 data=img_bytes,
-                params={"candidate_labels": ",".join(product_labels)},
+                params={"candidate_labels": ",".join(broad_categories)},
                 timeout=20
             )
             
@@ -673,26 +674,30 @@ class RealGenAI:
             if response1.status_code == 200:
                 result = response1.json()
                 if isinstance(result, list) and len(result) > 0:
-                    product_type = result[0].get('label', 'product')
-                    st.write(f"📦 Detected product: **{product_type}**")
-                    # Map to category
-                    if "dress" in product_type:
-                        category = "Women's Dress"
-                    elif "shirt" in product_type:
-                        category = "Men's Shirt"
-                    elif product_type in ["pants", "jacket"]:
-                        category = "Clothing"
-                    elif product_type in ["phone", "laptop", "headphones"]:
-                        category = "Electronics"
-                    elif product_type in ["chair", "table"]:
-                        category = "Furniture"
-                    else:
-                        category = "Fashion & Accessories"
+                    broad_cat = result[0].get('label', 'product')
+                    st.write(f"📦 Category: **{broad_cat}**")
+                    
+                    # Map to clean category
+                    category_map = {
+                        "clothing apparel": "Apparel",
+                        "electronics device": "Electronics",
+                        "furniture": "Furniture",
+                        "beauty personal care product": "Beauty & Personal Care",
+                        "kitchen cookware": "Kitchen & Home",
+                        "sports equipment": "Sports & Fitness",
+                        "toy": "Toys & Games",
+                        "jewelry accessory": "Accessories",
+                        "tool": "Tools & Hardware",
+                        "home decor": "Home Decor"
+                    }
+                    category = category_map.get(broad_cat, "General Product")
+                    product_type = broad_cat
             
-            # STEP 2: Detect COLOR
+            # STEP 2: Detect COLOR (universal for everything)
             color_labels = [
-                "black", "white", "red", "blue", "green", "yellow", 
-                "pink", "purple", "brown", "gray", "beige", "navy blue"
+                "black", "white", "silver", "gray", "red", "blue", 
+                "green", "yellow", "pink", "purple", "brown", "gold", 
+                "rose gold", "metallic", "transparent", "multicolor", "beige"
             ]
             
             response2 = requests.post(
@@ -710,34 +715,69 @@ class RealGenAI:
                     detected_color = result[0].get('label', 'neutral')
                     st.write(f"🎨 Color detected: **{detected_color}**")
             
-            # STEP 3: Detect DETAILS/EMBELLISHMENTS
-            detail_labels = [
-                "has pearls", "has buttons", "has zipper", "has lace", 
-                "has embroidery", "plain", "has sequins", "has ruffles"
+            # STEP 3: Detect MATERIAL (universal for everything)
+            material_labels = [
+                "metal", "plastic", "fabric", "leather", "wood", 
+                "glass", "ceramic", "silicone", "stainless steel",
+                "aluminum", "rubber", "synthetic"
             ]
             
             response3 = requests.post(
                 API_URL,
                 headers=headers,
                 data=img_bytes,
-                params={"candidate_labels": ",".join(detail_labels)},
+                params={"candidate_labels": ",".join(material_labels)},
+                timeout=20
+            )
+            
+            detected_material = "Premium Material"
+            material2 = "Quality Construction"
+            if response3.status_code == 200:
+                result = response3.json()
+                if isinstance(result, list) and len(result) >= 2:
+                    mat1 = result[0].get('label', 'material')
+                    mat2 = result[1].get('label', 'construction')
+                    detected_material = mat1.capitalize()
+                    material2 = mat2.capitalize()
+                    st.write(f"🔧 Materials: **{mat1}, {mat2}**")
+                elif isinstance(result, list) and len(result) == 1:
+                    mat1 = result[0].get('label', 'material')
+                    detected_material = mat1.capitalize()
+                    material2 = "Quality Construction"
+                    st.write(f"🔧 Material: **{mat1}**")
+            
+            materials = [detected_material, material2]
+            
+            # STEP 4: Detect VISUAL CHARACTERISTICS (universal)
+            characteristic_labels = [
+                "textured", "smooth glossy", "matte", 
+                "patterned design", "solid plain", "transparent clear",
+                "has buttons", "has display", "has blade", "has handle grip"
+            ]
+            
+            response4_char = requests.post(
+                API_URL,
+                headers=headers,
+                data=img_bytes,
+                params={"candidate_labels": ",".join(characteristic_labels)},
                 timeout=20
             )
             
             detected_detail = ""
-            if response3.status_code == 200:
-                result = response3.json()
+            if response4_char.status_code == 200:
+                result = response4_char.json()
                 if isinstance(result, list) and len(result) > 0:
-                    detail = result[0].get('label', 'plain')
-                    if detail != "plain":
-                        # Clean up the label
-                        detected_detail = detail.replace("has ", "")
+                    char = result[0].get('label', '')
+                    # Only keep if interesting (not plain/solid)
+                    if char and "plain" not in char and "solid" not in char:
+                        detected_detail = char.replace("has ", "")
                         st.write(f"✨ Details: **{detected_detail}**")
             
-            # STEP 4: Detect STYLE
+            # STEP 5: Detect STYLE
             style_labels = [
-                "elegant", "casual", "formal", "vintage", "modern", 
-                "classic", "minimalist", "sporty", "bohemian"
+                "modern sleek", "classic traditional", "minimalist", 
+                "vintage retro", "elegant luxury", "sporty",
+                "professional", "casual", "industrial rugged"
             ]
             
             response4 = requests.post(
@@ -752,35 +792,8 @@ class RealGenAI:
             if response4.status_code == 200:
                 result = response4.json()
                 if isinstance(result, list) and len(result) > 0:
-                    style = result[0].get('label', 'modern')
+                    style = result[0].get('label', 'modern').split()[0]  # Take first word only
                     detected_style = style.capitalize()
-            
-            # STEP 5: Detect FABRIC (only for clothing)
-            materials = ["Premium Material", "Quality Construction"]
-            if "dress" in product_type or "shirt" in product_type or product_type in ["pants", "jacket"]:
-                fabric_labels = [
-                    "cotton", "silk", "polyester", "satin", "chiffon", 
-                    "lace fabric", "velvet", "denim", "knit fabric"
-                ]
-                
-                response5 = requests.post(
-                    API_URL,
-                    headers=headers,
-                    data=img_bytes,
-                    params={"candidate_labels": ",".join(fabric_labels)},
-                    timeout=20
-                )
-                
-                if response5.status_code == 200:
-                    result = response5.json()
-                    if isinstance(result, list) and len(result) > 0:
-                        fabric = result[0].get('label', 'fabric').replace(" fabric", "")
-                        materials = [fabric.capitalize(), "Premium stitching"]
-                        st.write(f"🧵 Fabric: **{fabric}**")
-            elif category == "Electronics":
-                materials = ["Aluminum", "Plastic"]
-            elif category == "Furniture":
-                materials = ["Solid Wood", "Metal Frame"]
             
             # Extract actual hex color
             img_array = np.array(image.resize((100, 100)))
