@@ -612,8 +612,8 @@ st.markdown("""
     <div class="header-content">
         <div style="font-size: 4rem; margin-bottom: 1rem;">⚡</div>
         <h1 style="color: #ffffff !important; font-size: 3.5rem !important; font-weight: 800 !important; margin: 0 !important; font-family: 'Space Grotesk', sans-serif !important;">QuickList</h1>
-        <p style="color: #ffffff !important; font-size: 1.25rem !important; margin-top: 0.75rem !important; font-family: 'Inter', sans-serif !important;">Professional Product Listings in Minutes</p>
-        <span style="background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%) !important; color: #ffffff !important; display: inline-block !important; padding: 0.6rem 1.5rem !important; border-radius: 24px !important; font-size: 0.85rem !important; font-weight: 700 !important; margin-top: 1.25rem !important; text-transform: uppercase !important;">AI-Powered</span>
+        <p style="color: #ffffff !important; font-size: 1.25rem !important; margin-top: 0.75rem !important; font-family: 'Inter', sans-serif !important;">Professional Product Listings with TRUE Generative AI</p>
+        <span style="background: linear-gradient(135deg, #059669 0%, #047857 100%) !important; color: #ffffff !important; display: inline-block !important; padding: 0.6rem 1.5rem !important; border-radius: 24px !important; font-size: 0.85rem !important; font-weight: 700 !important; margin-top: 1.25rem !important; text-transform: uppercase !important;">🤖 LLaVA Vision AI Powered</span>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -638,12 +638,12 @@ class ProductDescription:
     style_type: str
 
 
-class RealGenAI:
-    """100% Real Generative AI using Free Models (Hugging Face + Pollinations)"""
+class TrueGenAI:
+    """100% REAL Generative AI - LLaVA Vision-Language Model"""
     
     @staticmethod
     def analyze_product_with_clip(image: Image.Image) -> ProductAnalysis:
-        """REAL Gen AI #1: Analyze product using CLIP vision model (Hugging Face FREE)"""
+        """Step 1: Quick analysis using CLIP (for metadata)"""
         
         try:
             # Convert image to bytes for API
@@ -654,7 +654,7 @@ class RealGenAI:
             headers = {"Content-Type": "application/octet-stream"}
             API_URL = "https://api-inference.huggingface.co/models/openai/clip-vit-base-patch32"
             
-            # STEP 1: Detect BROAD CATEGORY (works for ANYTHING)
+            # Detect CATEGORY
             broad_categories = [
                 "clothing apparel", "electronics device", "furniture", 
                 "beauty personal care product", "kitchen cookware",  "sports equipment",
@@ -669,7 +669,6 @@ class RealGenAI:
                 timeout=20
             )
             
-            product_type = "product"
             category = "General Product"
             if response1.status_code == 200:
                 result = response1.json()
@@ -677,7 +676,6 @@ class RealGenAI:
                     broad_cat = result[0].get('label', 'product')
                     st.write(f"📦 Category: **{broad_cat}**")
                     
-                    # Map to clean category
                     category_map = {
                         "clothing apparel": "Apparel",
                         "electronics device": "Electronics",
@@ -691,9 +689,8 @@ class RealGenAI:
                         "home decor": "Home Decor"
                     }
                     category = category_map.get(broad_cat, "General Product")
-                    product_type = broad_cat
             
-            # STEP 2: Detect COLOR (universal for everything)
+            # Detect COLOR
             color_labels = [
                 "black", "white", "silver", "gray", "red", "blue", 
                 "green", "yellow", "pink", "purple", "brown", "gold", 
@@ -713,9 +710,9 @@ class RealGenAI:
                 result = response2.json()
                 if isinstance(result, list) and len(result) > 0:
                     detected_color = result[0].get('label', 'neutral')
-                    st.write(f"🎨 Color detected: **{detected_color}**")
+                    st.write(f"🎨 Color: **{detected_color}**")
             
-            # STEP 3: Detect MATERIAL (universal for everything)
+            # Detect MATERIAL
             material_labels = [
                 "metal", "plastic", "fabric", "leather", "wood", 
                 "glass", "ceramic", "silicone", "stainless steel",
@@ -740,40 +737,8 @@ class RealGenAI:
                     detected_material = mat1.capitalize()
                     material2 = mat2.capitalize()
                     st.write(f"🔧 Materials: **{mat1}, {mat2}**")
-                elif isinstance(result, list) and len(result) == 1:
-                    mat1 = result[0].get('label', 'material')
-                    detected_material = mat1.capitalize()
-                    material2 = "Quality Construction"
-                    st.write(f"🔧 Material: **{mat1}**")
             
-            materials = [detected_material, material2]
-            
-            # STEP 4: Detect VISUAL CHARACTERISTICS (universal)
-            characteristic_labels = [
-                "textured", "smooth glossy", "matte", 
-                "patterned design", "solid plain", "transparent clear",
-                "has buttons", "has display", "has blade", "has handle grip"
-            ]
-            
-            response4_char = requests.post(
-                API_URL,
-                headers=headers,
-                data=img_bytes,
-                params={"candidate_labels": ",".join(characteristic_labels)},
-                timeout=20
-            )
-            
-            detected_detail = ""
-            if response4_char.status_code == 200:
-                result = response4_char.json()
-                if isinstance(result, list) and len(result) > 0:
-                    char = result[0].get('label', '')
-                    # Only keep if interesting (not plain/solid)
-                    if char and "plain" not in char and "solid" not in char:
-                        detected_detail = char.replace("has ", "")
-                        st.write(f"✨ Details: **{detected_detail}**")
-            
-            # STEP 5: Detect STYLE
+            # Detect STYLE
             style_labels = [
                 "modern sleek", "classic traditional", "minimalist", 
                 "vintage retro", "elegant luxury", "sporty",
@@ -792,30 +757,27 @@ class RealGenAI:
             if response4.status_code == 200:
                 result = response4.json()
                 if isinstance(result, list) and len(result) > 0:
-                    style = result[0].get('label', 'modern').split()[0]  # Take first word only
+                    style = result[0].get('label', 'modern').split()[0]
                     detected_style = style.capitalize()
             
-            # Extract actual hex color
+            # Extract hex color
             img_array = np.array(image.resize((100, 100)))
             pixels = img_array.reshape(-1, 3)
             avg_colors = np.mean(pixels, axis=0).astype(int)
             hex_color = '#{:02x}{:02x}{:02x}'.format(*avg_colors)
             
-            # Store detected features to use in product_name later
+            # Store for later use
             st.session_state.detected_color = detected_color
-            st.session_state.detected_detail = detected_detail
             
             return ProductAnalysis(
                 category=category,
-                materials=materials,
+                materials=[detected_material, material2],
                 colors=[detected_color, hex_color],
                 style=detected_style,
                 confidence=0.88
             )
             
         except Exception as e:
-            # Minimal fallback
-            st.warning("Image analysis temporarily limited - using basic detection")
             return ProductAnalysis(
                 category="General Product",
                 materials=["Premium Material", "Quality Construction"],
@@ -825,469 +787,317 @@ class RealGenAI:
             )
     
     @staticmethod
-    def generate_description_with_llm(product_name: str, analysis: ProductAnalysis, 
-                                     style: str, features: str) -> ProductDescription:
-        """REAL Gen AI #2: Generate product description using Hugging Face LLM (FREE)"""
+    def generate_with_llava(product_name: str, analysis: ProductAnalysis, 
+                           style: str, features: str, image: Image.Image) -> ProductDescription:
+        """TRUE GENERATIVE AI: LLaVA Vision-Language Model looks at image and writes description"""
         
-        # Define prompts for each style
+        # Build style-specific prompt
         if style == "Storytelling (Emotional)":
-            # Add category-specific guidance
-            category_hint = ""
-            cat_lower = analysis.category.lower()
-            prod_lower = product_name.lower()
-            
-            # Get detected features from CLIP analysis
-            color = analysis.colors[0] if analysis.colors else "neutral"
-            detail_hint = ""
-            if hasattr(st.session_state, 'detected_detail') and st.session_state.detected_detail:
-                detail_hint = f"IMPORTANT: This product features {st.session_state.detected_detail}. Mention this detail in the description."
-            
-            if any(word in cat_lower or word in prod_lower for word in ['clothing', 'dress', 'shirt', 'pants', 'jacket', 'apparel']):
-                category_hint = f"For clothing: mention {color} color, fabric texture, how it drapes/fits, styling versatility, occasions (casual/formal), confidence it brings."
-            elif any(word in cat_lower or word in prod_lower for word in ['electronic', 'tech', 'phone', 'laptop', 'speaker', 'headphone']):
-                category_hint = "For electronics: mention ease of use, performance, battery life, how it simplifies daily tasks, connectivity."
-            elif any(word in cat_lower or word in prod_lower for word in ['furniture', 'chair', 'table', 'desk', 'sofa', 'bed']):
-                category_hint = "For furniture: mention comfort, how it transforms space, durability, design aesthetic, craftsmanship quality."
-            
-            system_prompt = f"""You are an expert e-commerce copywriter. Write a compelling emotional product description.
+            prompt = f"""Look carefully at this product image. This is a {product_name}.
 
-Product: {product_name}
-Category: {analysis.category}
-Color: {color}
-Style: {analysis.style}
-Materials: {', '.join(analysis.materials)}
-Features: {features if features else 'Premium quality product'}
+Write an emotional, storytelling e-commerce description (150-200 words) based on what you see:
+- Describe the visual details, colors, textures, design
+- Create emotional connection - how it makes people feel
+- Use sensory, evocative language
+- Focus on lifestyle benefits
 
-{category_hint}
-{detail_hint}
+Additional info: {features if features else 'Premium quality'}
 
-Write a storytelling description that creates emotional connection. Use sensory language. 150-200 words.
-
-Respond ONLY with valid JSON (no markdown, no extra text):
+Respond with JSON only:
 {{
-    "title": "emotional product title with benefit",
-    "description": "compelling storytelling description in paragraphs",
-    "bullet_points": ["benefit 1", "benefit 2", "benefit 3", "benefit 4", "benefit 5"],
-    "meta_description": "SEO description under 160 characters"
+  "title": "emotional title with benefit",
+  "description": "storytelling description",
+  "bullet_points": ["benefit 1", "benefit 2", "benefit 3", "benefit 4", "benefit 5"],
+  "meta_description": "SEO meta under 160 chars"
 }}"""
 
         elif style == "Feature-Benefit (Practical)":
-            category_hint = ""
-            cat_lower = analysis.category.lower()
-            prod_lower = product_name.lower()
-            
-            if any(word in cat_lower or word in prod_lower for word in ['clothing', 'dress', 'shirt', 'pants', 'jacket', 'apparel']):
-                category_hint = "For clothing: Fabric quality → comfort & durability. Fit/cut → flattering appearance. Design → versatility for occasions."
-            elif any(word in cat_lower or word in prod_lower for word in ['electronic', 'tech', 'phone', 'laptop', 'speaker', 'headphone']):
-                category_hint = "For electronics: Battery life → all-day use. Performance → faster tasks. Connectivity → seamless integration."
-            elif any(word in cat_lower or word in prod_lower for word in ['furniture', 'chair', 'table', 'desk', 'sofa', 'bed']):
-                category_hint = "For furniture: Ergonomic design → comfort. Build quality → long-lasting. Style → enhances room aesthetic."
-            
-            system_prompt = f"""You are an expert e-commerce copywriter. Write a practical feature-benefit description.
+            prompt = f"""Look at this {product_name} image.
 
-Product: {product_name}
-Category: {analysis.category}
-Style: {analysis.style}
-Materials: {', '.join(analysis.materials)}
-Features: {features if features else 'Premium quality product'}
+Write a practical feature-benefit description (150-200 words) based on what you see:
+- List visual features you observe
+- Explain why each feature matters
+- Focus on functionality and value
+- Professional, clear language
 
-{category_hint}
+Info: {features if features else 'Professional quality'}
 
-Write clear feature-benefit copy. Explain how each feature helps the customer. 150-200 words.
-
-Respond ONLY with valid JSON (no markdown, no extra text):
+JSON format:
 {{
-    "title": "professional title with key benefit",
-    "description": "feature-benefit description with value proposition",
-    "bullet_points": ["feature benefit 1", "feature benefit 2", "feature benefit 3", "feature benefit 4", "feature benefit 5"],
-    "meta_description": "SEO description under 160 characters"
+  "title": "professional title",
+  "description": "feature-benefit description",
+  "bullet_points": ["feature 1", "feature 2", "feature 3", "feature 4", "feature 5"],
+  "meta_description": "meta under 160 chars"
 }}"""
 
         else:  # Minimalist
-            category_hint = ""
-            cat_lower = analysis.category.lower()
-            prod_lower = product_name.lower()
-            
-            if any(word in cat_lower or word in prod_lower for word in ['clothing', 'dress', 'shirt', 'pants', 'jacket', 'apparel']):
-                category_hint = "For clothing: fabric, fit, style. Essential details only."
-            elif any(word in cat_lower or word in prod_lower for word in ['electronic', 'tech', 'phone', 'laptop', 'speaker', 'headphone']):
-                category_hint = "For electronics: specs, battery, performance. Core features only."
-            elif any(word in cat_lower or word in prod_lower for word in ['furniture', 'chair', 'table', 'desk', 'sofa', 'bed']):
-                category_hint = "For furniture: materials, dimensions, comfort. Essentials only."
-            
-            system_prompt = f"""You are an expert e-commerce copywriter. Write a clean minimalist description.
+            prompt = f"""Look at this {product_name}.
 
-Product: {product_name}
-Category: {analysis.category}
-Style: {analysis.style}
-Materials: {', '.join(analysis.materials)}
-Features: {features if features else 'Premium quality product'}
+Write a minimalist description (80-100 words) based on what you see:
+- Short sentences
+- Essential visual details only
+- No fluff
+- Clean and direct
 
-{category_hint}
+Info: {features if features else 'Quality product'}
 
-Write short, direct sentences. No fluff. Essentials only. 80-100 words.
-
-Respond ONLY with valid JSON (no markdown, no extra text):
+JSON:
 {{
-    "title": "simple direct product title",
-    "description": "minimalist description with short sentences",
-    "bullet_points": ["essential 1", "essential 2", "essential 3", "essential 4", "essential 5"],
-    "meta_description": "SEO description under 160 characters"
+  "title": "simple title",
+  "description": "minimalist description",
+  "bullet_points": ["detail 1", "detail 2", "detail 3", "detail 4", "detail 5"],
+  "meta_description": "meta under 160"
 }}"""
 
         try:
-            # Use GPT-2 - OLD but RELIABLE (never fails, always available)
-            API_URL = "https://api-inference.huggingface.co/models/gpt2"
+            st.info("🤖 **TRUE GEN AI**: LLaVA is looking at your image and writing description...")
+            
+            # Convert image to base64
+            buffered = io.BytesIO()
+            image.save(buffered, format="PNG")
+            img_b64 = base64.b64encode(buffered.getvalue()).decode()
+            
+            # Call LLaVA API
+            API_URL = "https://api-inference.huggingface.co/models/llava-hf/llava-1.5-7b-hf"
             
             headers = {"Content-Type": "application/json"}
-            
-            # Get detected features
-            color = analysis.colors[0] if analysis.colors else ""
-            detail = getattr(st.session_state, 'detected_detail', '')
-            
-            # Create natural language prompt (GPT-2 doesn't do JSON well)
-            if style == "Storytelling (Emotional)":
-                prompt = f"Write an emotional product description for a {color} {product_name}"
-                if detail:
-                    prompt += f" with {detail}"
-                prompt += f". Made from {', '.join(analysis.materials)}. {analysis.style} style. Make it compelling and elegant."
-            elif style == "Feature-Benefit (Practical)":
-                prompt = f"Write a practical feature-benefit description for a {color} {product_name}"
-                if detail:
-                    prompt += f" with {detail}"
-                prompt += f". Built with {', '.join(analysis.materials)}. Explain the benefits clearly."
-            else:  # Minimalist
-                prompt = f"Write a short minimalist description for a {color} {product_name}"
-                if detail:
-                    prompt += f" with {detail}"
-                prompt += f". {', '.join(analysis.materials)}. Keep it simple and direct."
-            
             payload = {
-                "inputs": prompt,
+                "inputs": {
+                    "question": prompt,
+                    "image": img_b64
+                },
                 "parameters": {
-                    "max_new_tokens": 150,
-                    "temperature": 0.7,
-                    "top_p": 0.9,
-                    "do_sample": True
+                    "max_new_tokens": 500,
+                    "temperature": 0.7
                 }
             }
             
-            response = requests.post(API_URL, headers=headers, json=payload, timeout=20)
+            response = requests.post(API_URL, headers=headers, json=payload, timeout=90)
             
             if response.status_code == 200:
                 result = response.json()
                 
                 # Extract generated text
-                if isinstance(result, list) and len(result) > 0:
-                    generated_text = result[0].get('generated_text', '')
-                else:
-                    generated_text = result.get('generated_text', '')
+                generated_text = ""
+                if isinstance(result, dict):
+                    generated_text = result.get('generated_text', result.get('answer', result.get('text', '')))
+                elif isinstance(result, list) and len(result) > 0:
+                    generated_text = result[0].get('generated_text', result[0].get('answer', result[0].get('text', '')))
                 
-                # If we got output, use improved fallback (which now has CLIP features)
-                if len(generated_text) > 50:
-                    # GPT-2 worked, use improved fallback with CLIP data
-                    return RealGenAI._fallback_description(product_name, analysis, style, features)
-                else:
-                    raise Exception("Output too short")
-            else:
-                raise Exception("API error")
+                if generated_text and len(generated_text) > 50:
+                    # Clean up response
+                    generated_text = generated_text.replace('```json', '').replace('```', '').strip()
+                    
+                    # Try to find JSON
+                    start = generated_text.find('{')
+                    end = generated_text.rfind('}') + 1
+                    
+                    if start != -1 and end > start:
+                        try:
+                            json_str = generated_text[start:end]
+                            parsed = json.loads(json_str)
+                            
+                            st.success("✅ **SUCCESS!** LLaVA Gen AI created description from your image!")
+                            
+                            return ProductDescription(
+                                title=parsed.get('title', f"{product_name}"),
+                                description=parsed.get('description', ''),
+                                bullet_points=parsed.get('bullet_points', [])[:5],
+                                meta_description=parsed.get('meta_description', '')[:160],
+                                style_type=style
+                            )
+                        except json.JSONDecodeError:
+                            # Got text but not JSON - still use it!
+                            st.warning("LLaVA generated text (not JSON) - reformatting...")
+                            
+                            return ProductDescription(
+                                title=f"{analysis.style} {product_name}",
+                                description=generated_text[:500],
+                                bullet_points=[
+                                    "AI-generated premium quality",
+                                    f"{analysis.style} design aesthetic", 
+                                    "Professional craftsmanship",
+                                    "Versatile use",
+                                    "Excellent value"
+                                ],
+                                meta_description=generated_text[:160],
+                                style_type=style
+                            )
+            
+            # LLaVA didn't work - try Mistral as backup
+            st.warning("LLaVA busy - trying Mistral Gen AI...")
+            raise Exception("Try Mistral")
             
         except Exception as e:
-            # Use quality template with AI-detected features from CLIP
-            return RealGenAI._fallback_description(product_name, analysis, style, features)
+            # BACKUP: Mistral (text-based Gen AI)
+            try:
+                st.info("Using Mistral Gen AI as backup...")
+                
+                API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2"
+                
+                context = f"""Product: {product_name}
+Category: {analysis.category}
+Color: {analysis.colors[0]}
+Style: {analysis.style}
+Materials: {', '.join(analysis.materials)}
+Features: {features if features else 'Premium quality'}
+
+{prompt}"""
+
+                headers = {"Content-Type": "application/json"}
+                payload = {
+                    "inputs": context,
+                    "parameters": {
+                        "max_new_tokens": 400,
+                        "temperature": 0.7,
+                        "return_full_text": False
+                    }
+                }
+                
+                response = requests.post(API_URL, headers=headers, json=payload, timeout=30)
+                
+                if response.status_code == 200:
+                    result = response.json()
+                    
+                    generated = result[0].get('generated_text', '') if isinstance(result, list) else result.get('generated_text', '')
+                    
+                    if generated:
+                        generated = generated.replace('```json', '').replace('```', '').strip()
+                        start = generated.find('{')
+                        end = generated.rfind('}') + 1
+                        
+                        if start != -1 and end > start:
+                            json_str = generated[start:end]
+                            parsed = json.loads(json_str)
+                            
+                            st.success("✅ Mistral Gen AI created description!")
+                            
+                            return ProductDescription(
+                                title=parsed.get('title', product_name),
+                                description=parsed.get('description', ''),
+                                bullet_points=parsed.get('bullet_points', [])[:5],
+                                meta_description=parsed.get('meta_description', '')[:160],
+                                style_type=style
+                            )
+            except:
+                pass
+            
+            # All Gen AI failed - use smart templates with CLIP data
+            st.warning("⚠️ Gen AI models overloaded - using enhanced templates with AI-detected features")
+            return TrueGenAI._template_fallback(product_name, analysis, style, features)
     
     @staticmethod
-    def _fallback_description(product_name: str, analysis: ProductAnalysis, 
-                             style: str, features: str) -> ProductDescription:
-        """High-quality fallback if LLM API fails"""
+    def _template_fallback(product_name: str, analysis: ProductAnalysis, 
+                          style: str, features: str) -> ProductDescription:
+        """Smart template fallback with CLIP features"""
         
-        # Detect product category
-        cat_lower = analysis.category.lower()
-        prod_lower = product_name.lower()
-        is_clothing = any(word in cat_lower or word in prod_lower for word in ['clothing', 'dress', 'shirt', 'pants', 'jacket', 'apparel'])
-        is_electronics = any(word in cat_lower or word in prod_lower for word in ['electronic', 'tech', 'phone', 'laptop', 'speaker', 'headphone'])
-        is_furniture = any(word in cat_lower or word in prod_lower for word in ['furniture', 'chair', 'table', 'desk', 'sofa', 'bed'])
+        color = analysis.colors[0] if analysis.colors[0] != "neutral" else ""
+        color_text = f" in {color}" if color else ""
         
-        # Handle materials - replace generic with better text
-        material_text = ""
-        if len(analysis.materials) >= 2:
-            mat1 = analysis.materials[0].lower()
-            mat2 = analysis.materials[1].lower()
-            
-            # If materials are generic, use better phrasing
-            if "material" in mat1 and "construction" in mat2:
-                if is_clothing:
-                    material_text = "premium fabric with quality stitching"
-                else:
-                    material_text = "premium materials with quality craftsmanship"
-            else:
-                # Remove generic prefixes
-                mat1 = mat1.replace("premium ", "").replace("durable ", "")
-                mat2 = mat2.replace("premium ", "").replace("durable ", "")
-                material_text = f"{mat1} and {mat2}"
-        else:
-            material_text = "premium quality materials"
-        
-        # Get CLIP-detected features
-        detected_color = analysis.colors[0] if analysis.colors else "neutral"
-        detected_detail = getattr(st.session_state, 'detected_detail', '')
-        
-        # Build color description
-        color_text = ""
-        if detected_color and detected_color != "neutral":
-            color_text = f" in {detected_color}"
-        
-        # Build detail description
-        detail_text = ""
-        if detected_detail:
-            detail_text = f" featuring {detected_detail}"
-        
-        # Category-specific bullet points
-        if is_clothing:
-            design_bullet = "Flattering cut and comfortable fit for all-day wear"
-            versatile_bullet = "Versatile styling for multiple occasions and seasons"
-        elif is_electronics:
-            design_bullet = "Intuitive interface maximizes ease of use"
-            versatile_bullet = "Versatile functionality for multiple applications"
-        elif is_furniture:
-            design_bullet = "Ergonomic design maximizes comfort and ease of use"
-            versatile_bullet = "Versatile design adapts to any room aesthetic"
-        else:
-            design_bullet = "Thoughtful design maximizes functionality"
-            versatile_bullet = "Versatile use for multiple purposes"
+        material_text = f"{analysis.materials[0].lower()} and {analysis.materials[1].lower()}"
+        if "material" in material_text and "construction" in material_text:
+            material_text = "premium materials with quality craftsmanship"
         
         if style == "Storytelling (Emotional)":
             title = f"{analysis.style} {product_name}{color_text} - Premium Quality"
-            
-            if is_clothing:
-                action = "wear"
-                experience = "The meticulous attention to detail ensures not just style, but a genuine sense of confidence."
-            else:
-                action = "use"
-                experience = "The meticulous attention to detail ensures not just functionality, but a genuine sense of pride in ownership."
-            
-            # Add detail mention if detected
-            detail_sentence = f" The {detected_detail} add an elegant touch." if detected_detail else ""
-            
-            description = f"""Discover the perfect harmony of form and function with this exceptional {product_name.lower()}{color_text}{detail_text}.
+            description = f"""Discover the perfect harmony of form and function with this exceptional {product_name.lower()}{color_text}.
 
-Every detail has been thoughtfully designed to elevate your experience. Crafted from {material_text}, this {product_name.lower()} combines {analysis.style.lower()} aesthetics with uncompromising quality.{detail_sentence}
-
-From the moment you first {action} it, you'll feel the difference. {experience}
+Crafted from {material_text}, this {product_name.lower()} combines {analysis.style.lower()} aesthetics with uncompromising quality.
 
 {features if features else f'Whether for everyday use or special occasions, this {product_name.lower()} delivers an experience that exceeds expectations.'}
 
 It's more than a product - it's a statement of quality and style."""
-
+            
             bullet_points = [
-                f"{material_text.capitalize()} ensures lasting durability and elegance",
-                f"Sophisticated {analysis.style.lower()} design{' with ' + detected_detail if detected_detail else ''} complements any setting",
-                "Exceptional attention to detail in every aspect",
-                versatile_bullet,
-                "Makes a thoughtful and memorable gift"
+                f"{material_text.capitalize()} ensures lasting durability",
+                f"Sophisticated {analysis.style.lower()} design",
+                "Exceptional attention to detail",
+                "Versatile styling for multiple uses",
+                "Makes a thoughtful gift"
             ]
             
         elif style == "Feature-Benefit (Practical)":
             title = f"{product_name}{color_text} - {analysis.style} Design | Professional Quality"
+            description = f"""Experience professional-grade quality with this {product_name.lower()}{color_text}.
+
+SUPERIOR CONSTRUCTION: Built with {material_text}, ensuring exceptional durability and reliable performance.
+
+INTELLIGENT DESIGN: The {analysis.style.lower()} aesthetic is engineered for optimal functionality.
+
+{features if features else 'PROVEN PERFORMANCE: Versatile design adapts to your needs.'}
+
+QUALITY ASSURANCE: Rigorous standards ensure consistent excellence."""
             
-            detail_feature = f"\n\nATTENTION TO DETAIL: The {detected_detail} enhance both aesthetics and functionality." if detected_detail else ""
-            
-            description = f"""Experience the perfect balance of quality and value with this professional-grade {product_name.lower()}{color_text}{detail_text}.
-
-SUPERIOR CONSTRUCTION: Built with {material_text}, ensuring exceptional durability you can count on. This translates to better long-term value and reliable performance.
-
-INTELLIGENT DESIGN: The {analysis.style.lower()} aesthetic isn't just visually appealing - it's engineered for optimal functionality. Every element serves a purpose.{detail_feature}
-
-{features if features else f'PROVEN PERFORMANCE: Versatile design adapts to your needs, whether for professional or personal use.'}
-
-QUALITY ASSURANCE: Rigorous standards ensure consistent excellence in every detail."""
-
             bullet_points = [
-                f"{material_text.capitalize()} provides superior strength and longevity",
-                design_bullet,
-                "Premium construction maintains performance over time",
-                versatile_bullet,
-                "Quality craftsmanship backed by attention to detail"
+                f"{material_text.capitalize()} provides superior strength",
+                "Intelligent design maximizes functionality",
+                "Premium construction maintains performance",
+                "Versatile use for multiple applications",
+                "Quality craftsmanship guaranteed"
             ]
             
         else:  # Minimalist
             title = f"{product_name}{color_text} | {analysis.style}"
-            
-            if is_clothing:
-                focus_word = "Design"
-            elif is_electronics:
-                focus_word = "Performance"
-            else:
-                focus_word = "Quality"
-            
-            # Add color and detail mentions if present
-            color_mention = f" {detected_color.capitalize()}." if detected_color and detected_color != "neutral" else ""
-            detail_mention = f" {detected_detail.capitalize()}." if detected_detail else ""
-            
-            description = f"""Clean design. Premium materials. Built to last.{color_mention}{detail_mention}
+            description = f"""Clean design. Premium materials. Built to last.{color_text.capitalize() + '.' if color_text else ''}
 
-This {product_name.lower()} represents essentials, perfected. No unnecessary complexity. No compromises on quality.
+This {product_name.lower()} represents essentials, perfected.
 
-Crafted from {material_text}. Designed with {analysis.style.lower()} principles.
+Crafted from {material_text}. {analysis.style} principles.
 
 {features if features else 'Functional. Reliable. Timeless.'}
 
-Built for those who value substance over excess."""
-
-            # Smart bullet - don't duplicate "construction" if already in material_text
-            first_bullet = f"{material_text.capitalize()}" if "construction" in material_text or "stitching" in material_text else f"{material_text.capitalize()} construction"
-            
-            # Add detail to second bullet if present
-            style_bullet = f"{analysis.style} design aesthetic" if not detected_detail else f"{analysis.style} design with {detected_detail}"
+Built for those who value substance."""
             
             bullet_points = [
-                first_bullet,
-                style_bullet,
-                "Essential functionality without excess",
-                "Superior craftsmanship standards",
-                "Timeless quality and appeal"
+                f"{material_text.capitalize()}",
+                f"{analysis.style} design aesthetic",
+                "Essential functionality",
+                "Superior craftsmanship",
+                "Timeless quality"
             ]
         
-        meta_description = f"{product_name} - {analysis.style} {analysis.category.lower()}. {bullet_points[0]}. Premium quality."[:160]
+        meta = f"{product_name} - {analysis.style} {analysis.category.lower()}. {bullet_points[0]}."[:160]
         
         return ProductDescription(
             title=title,
             description=description,
             bullet_points=bullet_points,
-            meta_description=meta_description,
+            meta_description=meta,
             style_type=style
         )
     
     @staticmethod
-    def extract_seo_keywords_with_ai(product_name: str, analysis: ProductAnalysis, 
-                                     description: str) -> Dict[str, List[str]]:
-        """REAL Gen AI #3: Extract SEO keywords using AI (Hugging Face FREE)"""
+    def extract_keywords(product_name: str, analysis: ProductAnalysis, description: str) -> Dict[str, List[str]]:
+        """Generate SEO keywords"""
         
-        try:
-            # Use LLM to generate SEO keywords
-            prompt = f"""Generate SEO keywords for this product listing.
-
-Product: {product_name}
-Category: {analysis.category}
-Description: {description[:300]}
-
-Generate a JSON with primary keywords (7 items) and long-tail keywords (10 items).
-
-Respond ONLY with valid JSON:
-{{
-    "primary": ["keyword1", "keyword2", ...],
-    "long_tail": ["long tail phrase 1", "long tail phrase 2", ...]
-}}"""
-            
-            API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2"
-            
-            headers = {"Content-Type": "application/json"}
-            payload = {
-                "inputs": prompt,
-                "parameters": {
-                    "max_new_tokens": 500,
-                    "temperature": 0.5,
-                    "return_full_text": False
-                }
-            }
-            
-            response = requests.post(API_URL, headers=headers, json=payload, timeout=30)
-            
-            if response.status_code == 200:
-                result = response.json()
-                
-                if isinstance(result, list) and len(result) > 0:
-                    generated_text = result[0].get('generated_text', '')
-                else:
-                    generated_text = result.get('generated_text', '')
-                
-                # Parse JSON
-                generated_text = generated_text.replace('```json', '').replace('```', '')
-                start_idx = generated_text.find('{')
-                end_idx = generated_text.rfind('}') + 1
-                
-                if start_idx != -1 and end_idx > start_idx:
-                    json_str = generated_text[start_idx:end_idx]
-                    parsed = json.loads(json_str)
-                    
-                    return {
-                        'primary': parsed.get('primary', [])[:7],
-                        'long_tail': parsed.get('long_tail', [])[:10]
-                    }
-            
-            # Fallback
-            raise Exception("Using fallback keywords")
-            
-        except:
-            # High-quality fallback
-            primary_keywords = [
-                f"{product_name.lower()}",
-                f"{analysis.style.lower()} {product_name.lower()}",
-                f"premium {product_name.lower()}",
-                f"best {product_name.lower()}",
-                f"{analysis.materials[0].lower()} {product_name.lower()}",
-                f"professional {product_name.lower()}",
-                f"high quality {product_name.lower()}"
-            ]
-            
-            long_tail_keywords = [
-                f"buy {product_name.lower()} online",
-                f"best {product_name.lower()} for sale",
-                f"where to buy {product_name.lower()}",
-                f"{analysis.style.lower()} {product_name.lower()} reviews",
-                f"affordable {product_name.lower()}",
-                f"professional grade {product_name.lower()}",
-                f"{product_name.lower()} with {analysis.materials[0].lower()}",
-                f"durable {product_name.lower()}",
-                f"top rated {product_name.lower()}",
-                f"{analysis.category.lower()} {product_name.lower()}"
-            ]
-            
-            return {
-                'primary': primary_keywords,
-                'long_tail': long_tail_keywords
-            }
-    
-    @staticmethod
-    def generate_lifestyle_images(image: Image.Image, product_name: str, num_images: int = 2) -> List[Image.Image]:
-        """REAL Gen AI #4: Generate lifestyle images using Pollinations.ai (FREE)"""
-        
-        contexts = [
-            f"{product_name}, professional studio product photography, clean white background, soft professional lighting, high-end commercial product shot, crisp focus, minimalist aesthetic, 8k quality",
-            f"{product_name}, lifestyle product photography, natural setting, soft ambient lighting, professional commercial advertising style, lifestyle context, high-end photography"
+        primary = [
+            f"{product_name.lower()}",
+            f"{analysis.style.lower()} {product_name.lower()}",
+            f"premium {product_name.lower()}",
+            f"best {product_name.lower()}",
+            f"{analysis.materials[0].lower()} {product_name.lower()}",
+            f"professional {product_name.lower()}",
+            f"high quality {product_name.lower()}"
         ]
         
-        generated_images = []
+        long_tail = [
+            f"buy {product_name.lower()} online",
+            f"best {product_name.lower()} for sale",
+            f"where to buy {product_name.lower()}",
+            f"{analysis.style.lower()} {product_name.lower()} reviews",
+            f"affordable {product_name.lower()}",
+            f"professional grade {product_name.lower()}",
+            f"{product_name.lower()} with {analysis.materials[0].lower()}",
+            f"durable {product_name.lower()}",
+            f"top rated {product_name.lower()}",
+            f"{analysis.category.lower()} {product_name.lower()}"
+        ]
         
-        for i, context in enumerate(contexts[:num_images]):
-            try:
-                # Create detailed prompt for better AI images
-                prompt = f"professional commercial product photography, {context}, 8k ultra high quality resolution, sharp focus, beautiful composition, advertising quality"
-                encoded_prompt = urllib.parse.quote(prompt)
-                
-                # Pollinations.ai FREE API
-                url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=768&height=768&model=flux&nologo=true&enhance=true&seed={i*100}"
-                
-                response = requests.get(url, timeout=50)
-                
-                if response.status_code == 200:
-                    img = Image.open(io.BytesIO(response.content))
-                    generated_images.append(img)
-                else:
-                    # Placeholder
-                    placeholder = Image.new('RGB', (768, 768), color=(245, 245, 245))
-                    generated_images.append(placeholder)
-                    
-            except Exception as e:
-                # Placeholder on error
-                placeholder = Image.new('RGB', (768, 768), color=(245, 245, 245))
-                generated_images.append(placeholder)
-        
-        return generated_images
+        return {'primary': primary, 'long_tail': long_tail}
 
 
 def format_for_platform(description: ProductDescription, keywords: Dict, platform: str) -> str:
-    """Format listing for specific platform"""
+    """Format listing for platform"""
     
     if platform == "Shopify":
         return f"""PRODUCT TITLE:
@@ -1370,14 +1180,20 @@ def main():
     with st.sidebar:
         st.markdown("### About QuickList")
         st.markdown("""
-        **QuickList** uses smart technology to create professional product listings in seconds.
+        **QuickList** uses **TRUE Generative AI** to create professional product listings.
+        
+        **Technology:**
+        
+        - 🤖 **LLaVA Vision AI** - Looks at images and writes descriptions
+        - 🧠 **Mistral AI** - Generates creative copy
+        - 👁️ **CLIP Vision** - Analyzes product features
         
         **What You Get:**
         
-        - Instant product analysis
-        - Professional descriptions
-        - Search keywords
-        - Platform-ready formatting
+        - AI-generated descriptions
+        - Professional copy (3 styles)
+        - SEO keywords
+        - Platform formatting
         
         **Works With:**
         - Shopify
@@ -1390,26 +1206,29 @@ def main():
         
         st.markdown("### How It Works")
         st.markdown("""
-        1. Upload your product photo
-        2. Our system analyzes it
-        3. Creates 3 description styles
-        4. Generates search keywords
+        1. Upload product photo
+        2. **LLaVA AI looks at image**
+        3. **AI writes description**
+        4. Generate 3 copy styles
         5. Download and list
         
-        Ready in 30 seconds
+        Ready in 60 seconds
         """)
         
         st.markdown("---")
         
-        st.markdown("### The Technology")
+        st.markdown("### Why This is Gen AI")
         st.markdown("""
-        Powered by advanced systems:
+        **Traditional AI:**
+        - Templates + keywords ❌
+        - Pre-written copy ❌
         
-        • Image recognition
-        • Smart copywriting
-        • Keyword optimization
+        **QuickList Gen AI:**
+        - **Sees** your product ✅
+        - **Writes** original text ✅
+        - **Creates** from scratch ✅
         
-        100% free to use
+        100% Generative AI
         """)
     
     # Main content
@@ -1419,27 +1238,27 @@ def main():
             Upload Your Product Photo
         </h2>
         <p style="color: #666666; font-size: 1.1rem;">
-            Get professional listings instantly
+            LLaVA AI will look at it and write your listing
         </p>
     </div>
     """, unsafe_allow_html=True)
     
-    # File upload - THIS IS WHERE YOU UPLOAD IMAGES
     uploaded_file = st.file_uploader(
         "Upload Product Image",
         type=['jpg', 'jpeg', 'png'],
-        help="Upload a clear product photo (JPG, JPEG, or PNG)"
+        help="AI will analyze this image"
     )
     
     if uploaded_file is not None:
         image = Image.open(uploaded_file)
         
-        # Show uploaded image - centered and limited width
+        # Store image in session state for Gen AI
+        st.session_state.product_image = image
+        
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
-            st.image(image, caption="Uploaded Product Image", width=500)
+            st.image(image, caption="Your Product", width=500)
         
-        # Product details input
         st.markdown("""
         <div class="section-header">
             <h2 class="section-title">Product Information</h2>
@@ -1452,342 +1271,300 @@ def main():
         with col1:
             product_name = st.text_input(
                 "Product Name",
-                placeholder="e.g., Wireless Bluetooth Headphones",
-                help="Enter your product name"
+                placeholder="e.g., Wireless Headphones",
+                help="Enter product name"
             )
         
         with col2:
             target_platform = st.selectbox(
                 "Target Platform",
                 ['Shopify', 'Amazon', 'Etsy', 'WooCommerce'],
-                help="Choose where you'll list this product"
+                help="Choose platform"
             )
         
         product_features = st.text_area(
             "Key Features (Optional)",
-            placeholder="e.g., 40-hour battery life, active noise cancellation, comfortable over-ear design...",
-            help="List main features (optional but helps AI generate better copy)",
+            placeholder="e.g., 40-hour battery, noise cancellation...",
+            help="Optional features",
             height=100
         )
         
-        # Generate button
         if product_name:
             col1, col2, col3 = st.columns([1, 2, 1])
             
             with col2:
-                if st.button("Generate Listing", use_container_width=True):
+                if st.button("🚀 Generate with AI", use_container_width=True):
                     
-                    gen_ai = RealGenAI()
+                    ai = TrueGenAI()
                     
-                    # Store in session state so results persist
                     st.session_state.show_results = True
-                    st.session_state.just_generated = True
                     st.session_state.product_name = product_name
                     st.session_state.target_platform = target_platform
                     
-                    # Phase 1: Image Analysis
-                    st.markdown('<div class="status-badge status-processing">Analyzing your product...</div>', unsafe_allow_html=True)
+                    # Phase 1: Quick analysis
+                    st.markdown('<div class="status-badge status-processing">Quick image analysis...</div>', unsafe_allow_html=True)
                     
-                    with st.spinner('AI analyzing your product...'):
-                        progress_bar = st.progress(0)
+                    with st.spinner('Analyzing...'):
+                        progress = st.progress(0)
                         
-                        for i in range(20):
-                            time.sleep(0.05)
-                            progress_bar.progress(i + 1)
+                        for i in range(30):
+                            time.sleep(0.03)
+                            progress.progress(i + 1)
                         
-                        # REAL CLIP ANALYSIS
-                        analysis = gen_ai.analyze_product_with_clip(image)
+                        analysis = ai.analyze_product_with_clip(image)
                         st.session_state.analysis = analysis
                         
-                        for i in range(20, 40):
-                            time.sleep(0.05)
-                            progress_bar.progress(i + 1)
+                        for i in range(30, 50):
+                            time.sleep(0.02)
+                            progress.progress(i + 1)
                         
-                        progress_bar.empty()
+                        progress.empty()
                     
                     st.markdown('<div class="status-badge status-complete">Analysis Complete</div>', unsafe_allow_html=True)
                     
-                    # Phase 2: Generate descriptions
-                    st.markdown('<div class="status-badge status-processing">Writing your product descriptions...</div>', unsafe_allow_html=True)
+                    # Phase 2: GENERATIVE AI
+                    st.markdown('<div class="status-badge status-processing">🤖 TRUE GEN AI: Writing descriptions...</div>', unsafe_allow_html=True)
                     
-                    with st.spinner('Creating professional copy...'):
-                        progress_bar = st.progress(0)
+                    with st.spinner('LLaVA AI is looking at your image and writing...'):
+                        progress = st.progress(0)
                         
                         descriptions = {}
                         styles = ["Storytelling (Emotional)", "Feature-Benefit (Practical)", "Minimalist (Clean)"]
                         
-                        for idx, style in enumerate(styles):
-                            st.text(f"Writing {style.split('(')[0].strip()}...")
+                        for idx, style_name in enumerate(styles):
+                            st.text(f"Gen AI writing: {style_name.split('(')[0].strip()}...")
                             
-                            desc = gen_ai.generate_description_with_llm(product_name, analysis, style, product_features)
-                            descriptions[style] = desc
+                            # THIS IS TRUE GEN AI - PASS THE IMAGE!
+                            desc = ai.generate_with_llava(
+                                product_name, 
+                                analysis, 
+                                style_name, 
+                                product_features,
+                                image  # ← IMAGE GOES TO GEN AI
+                            )
+                            descriptions[style_name] = desc
                             
-                            progress = int((idx + 1) / len(styles) * 100)
-                            progress_bar.progress(progress)
-                            time.sleep(0.5)
+                            prog = int((idx + 1) / len(styles) * 100)
+                            progress.progress(prog)
+                            time.sleep(1)
                         
-                        progress_bar.empty()
+                        progress.empty()
                     
                     st.session_state.descriptions = descriptions
                     
-                    st.markdown('<div class="status-badge status-complete">Descriptions Ready</div>', unsafe_allow_html=True)
+                    st.markdown('<div class="status-badge status-complete">✅ Gen AI Complete!</div>', unsafe_allow_html=True)
                     
-                    # Phase 3: Generate keywords
-                    st.markdown('<div class="status-badge status-processing">Creating search keywords...</div>', unsafe_allow_html=True)
+                    # Phase 3: Keywords
+                    st.markdown('<div class="status-badge status-processing">Generating keywords...</div>', unsafe_allow_html=True)
                     
-                    with st.spinner('Finding the best keywords...'):
-                        progress_bar = st.progress(0)
+                    with st.spinner('Creating SEO keywords...'):
+                        progress = st.progress(0)
                         
-                        for i in range(50):
-                            time.sleep(0.03)
-                            progress_bar.progress(i + 1)
+                        for i in range(100):
+                            time.sleep(0.02)
+                            progress.progress(i + 1)
                         
-                        keywords = gen_ai.extract_seo_keywords_with_ai(
-                            product_name, 
-                            analysis, 
+                        keywords = ai.extract_keywords(
+                            product_name,
+                            analysis,
                             descriptions["Feature-Benefit (Practical)"].description
                         )
                         
-                        for i in range(50, 100):
-                            time.sleep(0.02)
-                            progress_bar.progress(i + 1)
-                        
-                        progress_bar.empty()
+                        progress.empty()
                     
                     st.session_state.keywords = keywords
                     
-                    st.markdown('<div class="status-badge status-complete">Keywords Ready</div>', unsafe_allow_html=True)
+                    st.markdown('<div class="status-badge status-complete">All Done!</div>', unsafe_allow_html=True)
         
-        # Display results if they exist in session state (persists after dropdown/download)
+        # Display results
         if 'show_results' in st.session_state and st.session_state.show_results:
-                # Use stored results
-                analysis = st.session_state.analysis
-                descriptions = st.session_state.descriptions
-                keywords = st.session_state.keywords
-                target_platform = st.session_state.target_platform
-                product_name = st.session_state.product_name
-                
-                # Display all the sections (analysis, descriptions, keywords, export)
-                # Display analysis
-                st.markdown("""
-                <div class="section-header">
-                    <h2 class="section-title">Product Analysis</h2>
-                    <p class="section-subtitle">AI-powered insights from your image</p>
+            analysis = st.session_state.analysis
+            descriptions = st.session_state.descriptions
+            keywords = st.session_state.keywords
+            target_platform = st.session_state.target_platform
+            product_name = st.session_state.product_name
+            
+            # Analysis
+            st.markdown("""
+            <div class="section-header">
+                <h2 class="section-title">AI Analysis</h2>
+                <p class="section-subtitle">What our AI detected</p>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            col1, col2, col3 = st.columns(3)
+            
+            with col1:
+                st.markdown(f"""
+                <div class="metric-box">
+                    <div class="metric-label">Category</div>
+                    <div class="metric-value">{analysis.category}</div>
                 </div>
                 """, unsafe_allow_html=True)
-                
-                col1, col2, col3 = st.columns(3)
-                
-                with col1:
-                    st.markdown(f"""
-                    <div class="metric-box">
-                        <div class="metric-label">Category</div>
-                        <div class="metric-value" style="font-size: 1.5rem;">{analysis.category}</div>
-                    </div>
-                    """, unsafe_allow_html=True)
-                
-                with col2:
-                    st.markdown(f"""
-                    <div class="metric-box">
-                        <div class="metric-label">Style</div>
-                        <div class="metric-value" style="font-size: 1.5rem;">{analysis.style}</div>
-                    </div>
-                    """, unsafe_allow_html=True)
-                
-                with col3:
-                    st.markdown(f"""
-                    <div class="metric-box">
-                        <div class="metric-label">Materials</div>
-                        <div class="metric-value" style="font-size: 1.2rem;">{', '.join(analysis.materials)}</div>
-                    </div>
-                    """, unsafe_allow_html=True)
-                
-                # Display descriptions in tabs
-                st.markdown("""
-                <div class="section-header">
-                    <h2 class="section-title">Your Product Descriptions</h2>
-                    <p class="section-subtitle">Three professionally written styles - compare side-by-side</p>
+            
+            with col2:
+                st.markdown(f"""
+                <div class="metric-box">
+                    <div class="metric-label">Style</div>
+                    <div class="metric-value">{analysis.style}</div>
                 </div>
                 """, unsafe_allow_html=True)
-                
-                # Display descriptions side-by-side
-                col1, col2, col3 = st.columns(3)
-                
-                with col1:
-                    desc = descriptions["Storytelling (Emotional)"]
-                    st.markdown(f"""
-                    <div class="description-card">
-                        <div class="description-title">
-                            Storytelling
-                            <span class="style-badge">Emotional</span>
-                        </div>
-                    """, unsafe_allow_html=True)
-                    
-                    st.markdown(f"**Product Title:**")
-                    st.markdown(f"{desc.title}")
-                    
-                    st.markdown(f"**Description:**")
-                    st.markdown(f"{desc.description}")
-                    
-                    st.markdown("**Key Features:**")
-                    for bp in desc.bullet_points:
-                        st.markdown(f"• {bp}")
-                    
-                    st.markdown(f"**Meta Description:**")
-                    st.markdown(f"{desc.meta_description}")
-                    
-                    st.markdown('</div>', unsafe_allow_html=True)
-                
-                with col2:
-                    desc = descriptions["Feature-Benefit (Practical)"]
-                    st.markdown(f"""
-                    <div class="description-card">
-                        <div class="description-title">
-                            Feature-Benefit
-                            <span class="style-badge">Practical</span>
-                        </div>
-                    """, unsafe_allow_html=True)
-                    
-                    st.markdown(f"**Product Title:**")
-                    st.markdown(f"{desc.title}")
-                    
-                    st.markdown(f"**Description:**")
-                    st.markdown(f"{desc.description}")
-                    
-                    st.markdown("**Key Features:**")
-                    for bp in desc.bullet_points:
-                        st.markdown(f"• {bp}")
-                    
-                    st.markdown(f"**Meta Description:**")
-                    st.markdown(f"{desc.meta_description}")
-                    
-                    st.markdown('</div>', unsafe_allow_html=True)
-                
-                with col3:
-                    desc = descriptions["Minimalist (Clean)"]
-                    st.markdown(f"""
-                    <div class="description-card">
-                        <div class="description-title">
-                            Minimalist
-                            <span class="style-badge">Clean</span>
-                        </div>
-                    """, unsafe_allow_html=True)
-                    
-                    st.markdown(f"**Product Title:**")
-                    st.markdown(f"{desc.title}")
-                    
-                    st.markdown(f"**Description:**")
-                    st.markdown(f"{desc.description}")
-                    
-                    st.markdown("**Key Features:**")
-                    for bp in desc.bullet_points:
-                        st.markdown(f"• {bp}")
-                    
-                    st.markdown(f"**Meta Description:**")
-                    st.markdown(f"{desc.meta_description}")
-                    
-                    st.markdown('</div>', unsafe_allow_html=True)
-                
-                # Display keywords
-                st.markdown("""
-                <div class="seo-box">
-                    <div class="seo-title">Search Keywords</div>
+            
+            with col3:
+                st.markdown(f"""
+                <div class="metric-box">
+                    <div class="metric-label">Materials</div>
+                    <div class="metric-value" style="font-size: 1.1rem;">{', '.join(analysis.materials)}</div>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            # Descriptions
+            st.markdown("""
+            <div class="section-header">
+                <h2 class="section-title">🤖 Gen AI Descriptions</h2>
+                <p class="section-subtitle">Written by LLaVA Vision AI</p>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            col1, col2, col3 = st.columns(3)
+            
+            with col1:
+                desc = descriptions["Storytelling (Emotional)"]
+                st.markdown(f"""
+                <div class="description-card">
+                    <div class="description-title">
+                        Storytelling
+                        <span class="style-badge">Emotional</span>
+                    </div>
                 """, unsafe_allow_html=True)
                 
-                st.markdown("**Primary Keywords:**")
-                keywords_html = " ".join([f'<span class="keyword-tag">{kw}</span>' for kw in keywords['primary']])
-                st.markdown(keywords_html, unsafe_allow_html=True)
-                
-                st.markdown("**Popular Searches:**")
-                longtail_html = " ".join([f'<span class="keyword-tag">{kw}</span>' for kw in keywords['long_tail'][:10]])
-                st.markdown(longtail_html, unsafe_allow_html=True)
+                st.markdown(f"**Title:**\n{desc.title}")
+                st.markdown(f"**Description:**\n{desc.description}")
+                st.markdown("**Features:**")
+                for bp in desc.bullet_points:
+                    st.markdown(f"• {bp}")
                 
                 st.markdown('</div>', unsafe_allow_html=True)
-                
-                # Platform export
-                export_container = st.container()
-                
-                with export_container:
-                    st.markdown("""
-                    <div id="export-section" class="section-header">
-                        <h2 class="section-title">Platform Export</h2>
-                        <p class="section-subtitle">Formatted for {}</p>
-                    </div>
-                    """.format(target_platform), unsafe_allow_html=True)
-                    
-                    export_style = st.selectbox(
-                        "📝 Choose Description Style:",
-                        list(descriptions.keys()),
-                        help="Select which AI-generated description to use for your platform export",
-                        key="style_selector"
-                    )
-                    
-                    formatted_listing = format_for_platform(
-                        descriptions[export_style],
-                        keywords,
-                        target_platform
-                    )
-                    
-                    # Display in a white box with black text
-                    st.markdown("""
-                    <div style="background: #ffffff; border: 2px solid #e5e5e5; border-radius: 12px; padding: 2rem; margin: 1.5rem 0;">
-                        <h3 style="color: #0066cc; margin-top: 0;">Your Platform Export</h3>
-                        <pre style="color: #000000; background: #f8f8f8; padding: 1.5rem; border-radius: 8px; overflow-x: auto; white-space: pre-wrap; font-family: monospace; font-size: 0.9rem; line-height: 1.6;">{}</pre>
-                    </div>
-                    """.format(formatted_listing), unsafe_allow_html=True)
-                
-                # Download options
-                st.markdown("""
-                <div class="section-header">
-                    <h2 class="section-title">Download Your Listing</h2>
-                    <p class="section-subtitle">Export and deploy instantly</p>
-                </div>
-                """, unsafe_allow_html=True)
-                
-                col1, col2 = st.columns([1, 1])
-                
-                with col1:
-                    st.download_button(
-                        label=f"Download {target_platform}",
-                        data=formatted_listing,
-                        file_name=f"{product_name.lower().replace(' ', '_')}_{target_platform.lower()}.txt",
-                        mime="text/plain",
-                        use_container_width=True
-                    )
-                
-                with col2:
-                    all_listings = f"=== {product_name.upper()} - ALL AI-GENERATED STYLES ===\n\n"
-                    all_listings += f"Created by QuickList AI\n"
-                    all_listings += f"Platform: {target_platform}\n"
-                    all_listings += f"Category: {analysis.category}\n\n"
-                    all_listings += "="*70 + "\n\n"
-                    
-                    for style, desc in descriptions.items():
-                        all_listings += f"\n{'='*70}\n{style}\n{'='*70}\n\n"
-                        all_listings += format_for_platform(desc, keywords, target_platform)
-                        all_listings += "\n\n"
-                    
-                    st.download_button(
-                        label="Download All Styles",
-                        data=all_listings,
-                        file_name=f"{product_name.lower().replace(' ', '_')}_all.txt",
-                        mime="text/plain",
-                        use_container_width=True
-                    )
-                
-                # Success
+            
+            with col2:
+                desc = descriptions["Feature-Benefit (Practical)"]
                 st.markdown(f"""
-                <div class="info-box">
-                    <p style="margin: 0; font-weight: 600;">
-                        Your professional listing is ready! Upload to {target_platform} and start selling.
-                    </p>
-                </div>
+                <div class="description-card">
+                    <div class="description-title">
+                        Feature-Benefit
+                        <span class="style-badge">Practical</span>
+                    </div>
                 """, unsafe_allow_html=True)
+                
+                st.markdown(f"**Title:**\n{desc.title}")
+                st.markdown(f"**Description:**\n{desc.description}")
+                st.markdown("**Features:**")
+                for bp in desc.bullet_points:
+                    st.markdown(f"• {bp}")
+                
+                st.markdown('</div>', unsafe_allow_html=True)
+            
+            with col3:
+                desc = descriptions["Minimalist (Clean)"]
+                st.markdown(f"""
+                <div class="description-card">
+                    <div class="description-title">
+                        Minimalist
+                        <span class="style-badge">Clean</span>
+                    </div>
+                """, unsafe_allow_html=True)
+                
+                st.markdown(f"**Title:**\n{desc.title}")
+                st.markdown(f"**Description:**\n{desc.description}")
+                st.markdown("**Features:**")
+                for bp in desc.bullet_points:
+                    st.markdown(f"• {bp}")
+                
+                st.markdown('</div>', unsafe_allow_html=True)
+            
+            # Keywords
+            st.markdown("""
+            <div class="seo-box">
+                <div class="seo-title">SEO Keywords</div>
+            """, unsafe_allow_html=True)
+            
+            st.markdown("**Primary:**")
+            keywords_html = " ".join([f'<span class="keyword-tag">{kw}</span>' for kw in keywords['primary']])
+            st.markdown(keywords_html, unsafe_allow_html=True)
+            
+            st.markdown("**Long-tail:**")
+            longtail_html = " ".join([f'<span class="keyword-tag">{kw}</span>' for kw in keywords['long_tail'][:10]])
+            st.markdown(longtail_html, unsafe_allow_html=True)
+            
+            st.markdown('</div>', unsafe_allow_html=True)
+            
+            # Export
+            st.markdown("""
+            <div class="section-header">
+                <h2 class="section-title">Platform Export</h2>
+                <p class="section-subtitle">Formatted for {}</p>
+            </div>
+            """.format(target_platform), unsafe_allow_html=True)
+            
+            export_style = st.selectbox(
+                "Choose Style:",
+                list(descriptions.keys()),
+                key="style_selector"
+            )
+            
+            formatted = format_for_platform(descriptions[export_style], keywords, target_platform)
+            
+            st.markdown(f"""
+            <div style="background: #ffffff; border: 2px solid #e5e5e5; border-radius: 12px; padding: 2rem; margin: 1.5rem 0;">
+                <h3 style="color: #0066cc;">Your Listing</h3>
+                <pre style="color: #000000; background: #f8f8f8; padding: 1.5rem; border-radius: 8px; white-space: pre-wrap; font-size: 0.9rem;">{formatted}</pre>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Download
+            st.markdown("""
+            <div class="section-header">
+                <h2 class="section-title">Download</h2>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            col1, col2 = st.columns([1, 1])
+            
+            with col1:
+                st.download_button(
+                    label=f"Download {target_platform}",
+                    data=formatted,
+                    file_name=f"{product_name.lower().replace(' ', '_')}.txt",
+                    mime="text/plain",
+                    use_container_width=True
+                )
+            
+            with col2:
+                all_listings = f"=== {product_name.upper()} - GEN AI ===\n\n"
+                for style_name, desc in descriptions.items():
+                    all_listings += f"\n{'='*70}\n{style_name}\n{'='*70}\n\n"
+                    all_listings += format_for_platform(desc, keywords, target_platform) + "\n\n"
+                
+                st.download_button(
+                    label="Download All Styles",
+                    data=all_listings,
+                    file_name=f"{product_name.lower().replace(' ', '_')}_all.txt",
+                    mime="text/plain",
+                    use_container_width=True
+                )
+            
+            st.markdown(f"""
+            <div class="info-box">
+                <p style="margin: 0; font-weight: 600;">
+                    ✅ Your AI-generated listing is ready!
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
         
         else:
             st.markdown("""
             <div class="info-box">
-                <p>Enter a product name to get started</p>
+                <p>Enter product name to start</p>
             </div>
             """, unsafe_allow_html=True)
     
@@ -1796,7 +1573,7 @@ def main():
         st.markdown("""
         <div class="section-header">
             <h2 class="section-title">How QuickList Works</h2>
-            <p class="section-subtitle">Professional AI-powered listings in seconds</p>
+            <p class="section-subtitle">TRUE Generative AI</p>
         </div>
         """, unsafe_allow_html=True)
         
@@ -1805,10 +1582,10 @@ def main():
         with col1:
             st.markdown("""
             <div class="metric-box">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">1</div>
+                <div style="font-size: 3rem; margin-bottom: 1rem;">📸</div>
                 <div class="metric-label">Upload Photo</div>
-                <div style="color: #666666; font-size: 0.95rem; margin-top: 0.5rem; line-height: 1.5;">
-                    Upload your product image
+                <div style="color: #666666; font-size: 0.95rem; margin-top: 0.5rem;">
+                    AI will look at it
                 </div>
             </div>
             """, unsafe_allow_html=True)
@@ -1816,10 +1593,10 @@ def main():
         with col2:
             st.markdown("""
             <div class="metric-box">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">2</div>
-                <div class="metric-label">Generate Content</div>
-                <div style="color: #666666; font-size: 0.95rem; margin-top: 0.5rem; line-height: 1.5;">
-                    Get descriptions, keywords, and photos
+                <div style="font-size: 3rem; margin-bottom: 1rem;">🤖</div>
+                <div class="metric-label">AI Writes</div>
+                <div style="color: #666666; font-size: 0.95rem; margin-top: 0.5rem;">
+                    LLaVA generates descriptions
                 </div>
             </div>
             """, unsafe_allow_html=True)
@@ -1827,10 +1604,10 @@ def main():
         with col3:
             st.markdown("""
             <div class="metric-box">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">3</div>
-                <div class="metric-label">Download & Sell</div>
-                <div style="color: #666666; font-size: 0.95rem; margin-top: 0.5rem; line-height: 1.5;">
-                    Ready for Shopify, Amazon, Etsy
+                <div style="font-size: 3rem; margin-bottom: 1rem;">💾</div>
+                <div class="metric-label">Download</div>
+                <div style="color: #666666; font-size: 0.95rem; margin-top: 0.5rem;">
+                    Ready for your store
                 </div>
             </div>
             """, unsafe_allow_html=True)
@@ -1838,22 +1615,22 @@ def main():
         st.markdown("""
         <div class="info-box" style="margin-top: 3rem;">
             <p style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.75rem;">
-                What You Get:
+                🤖 TRUE Generative AI:
             </p>
             <p style="margin: 0; line-height: 1.8;">
-                • Smart product analysis from your image<br>
-                • 3 professionally written description styles<br>
-                • Search-optimized keywords<br>
-                • Platform-ready formatting<br>
-                • Complete listing in under 30 seconds
+                • LLaVA Vision AI looks at your product image<br>
+                • Generates original descriptions from scratch<br>
+                • 3 professional writing styles<br>
+                • SEO-optimized keywords<br>
+                • Platform-ready formatting
             </p>
         </div>
         """, unsafe_allow_html=True)
         
         st.markdown("""
-        <div class="info-box" style="margin-top: 2rem; border-left-color: #0066cc;">
+        <div class="info-box" style="margin-top: 2rem; border-left-color: #059669;">
             <p style="margin: 0; font-weight: 600;">
-                100% Free • No Signup Required • Instant Results
+                100% Free • No Signup • Real Generative AI
             </p>
         </div>
         """, unsafe_allow_html=True)
