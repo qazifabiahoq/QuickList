@@ -11,20 +11,9 @@ import time
 import json
 import os
 
-# Try to import Gen AI libraries
-try:
-    from groq import Groq
-    HAS_GROQ = True
-except ImportError:
-    HAS_GROQ = False
-
-# Get API keys from Streamlit secrets
+# Groq is optional - disabled by default for Streamlit Cloud
+HAS_GROQ = False
 GROQ_API_KEY = None
-if HAS_GROQ:
-    try:
-        GROQ_API_KEY = st.secrets["groq"]["api_key"]
-    except:
-        pass
 
 # Page configuration
 st.set_page_config(
