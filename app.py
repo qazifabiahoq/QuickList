@@ -610,10 +610,9 @@ st.markdown("""
 st.markdown("""
 <div class="main-header" style="background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%) !important; text-align: center; padding: 3rem; border-radius: 0 0 24px 24px; margin: -6rem -5rem 3rem -5rem;">
     <div class="header-content">
-        <div style="font-size: 4rem; margin-bottom: 1rem;">⚡</div>
         <h1 style="color: #ffffff !important; font-size: 3.5rem !important; font-weight: 800 !important; margin: 0 !important; font-family: 'Space Grotesk', sans-serif !important;">QuickList</h1>
-        <p style="color: #ffffff !important; font-size: 1.25rem !important; margin-top: 0.75rem !important; font-family: 'Inter', sans-serif !important;">Professional Product Listings with TRUE Generative AI</p>
-        <span style="background: linear-gradient(135deg, #059669 0%, #047857 100%) !important; color: #ffffff !important; display: inline-block !important; padding: 0.6rem 1.5rem !important; border-radius: 24px !important; font-size: 0.85rem !important; font-weight: 700 !important; margin-top: 1.25rem !important; text-transform: uppercase !important;">🤖 LLaVA Vision AI Powered</span>
+        <p style="color: #ffffff !important; font-size: 1.25rem !important; margin-top: 0.75rem !important; font-family: 'Inter', sans-serif !important;">Professional Product Listings in Minutes</p>
+        <span style="background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%) !important; color: #ffffff !important; display: inline-block !important; padding: 0.6rem 1.5rem !important; border-radius: 24px !important; font-size: 0.85rem !important; font-weight: 700 !important; margin-top: 1.25rem !important; text-transform: uppercase !important;">AI-Powered</span>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -850,7 +849,7 @@ JSON:
 }}"""
 
         try:
-            st.info("🤖 **TRUE GEN AI**: LLaVA is looking at your image and writing description...")
+            # Try LLaVA vision-language model
             
             # Convert image to base64
             buffered = io.BytesIO()
@@ -897,8 +896,6 @@ JSON:
                             json_str = generated_text[start:end]
                             parsed = json.loads(json_str)
                             
-                            st.success("✅ **SUCCESS!** LLaVA Gen AI created description from your image!")
-                            
                             return ProductDescription(
                                 title=parsed.get('title', f"{product_name}"),
                                 description=parsed.get('description', ''),
@@ -907,14 +904,12 @@ JSON:
                                 style_type=style
                             )
                         except json.JSONDecodeError:
-                            # Got text but not JSON - still use it!
-                            st.warning("LLaVA generated text (not JSON) - reformatting...")
-                            
+                            # Got text but not JSON - still use it
                             return ProductDescription(
                                 title=f"{analysis.style} {product_name}",
                                 description=generated_text[:500],
                                 bullet_points=[
-                                    "AI-generated premium quality",
+                                    "Premium quality construction",
                                     f"{analysis.style} design aesthetic", 
                                     "Professional craftsmanship",
                                     "Versatile use",
@@ -924,15 +919,12 @@ JSON:
                                 style_type=style
                             )
             
-            # LLaVA didn't work - try Mistral as backup
-            st.warning("LLaVA busy - trying Mistral Gen AI...")
+            # Try Mistral as backup
             raise Exception("Try Mistral")
             
         except Exception as e:
-            # BACKUP: Mistral (text-based Gen AI)
+            # Backup: Mistral
             try:
-                st.info("Using Mistral Gen AI as backup...")
-                
                 API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2"
                 
                 context = f"""Product: {product_name}
@@ -970,8 +962,6 @@ Features: {features if features else 'Premium quality'}
                             json_str = generated[start:end]
                             parsed = json.loads(json_str)
                             
-                            st.success("✅ Mistral Gen AI created description!")
-                            
                             return ProductDescription(
                                 title=parsed.get('title', product_name),
                                 description=parsed.get('description', ''),
@@ -982,8 +972,7 @@ Features: {features if features else 'Premium quality'}
             except:
                 pass
             
-            # All Gen AI failed - use smart templates with CLIP data
-            st.warning("⚠️ Gen AI models overloaded - using enhanced templates with AI-detected features")
+            # Final fallback
             return TrueGenAI._template_fallback(product_name, analysis, style, features)
     
     @staticmethod
@@ -1180,20 +1169,14 @@ def main():
     with st.sidebar:
         st.markdown("### About QuickList")
         st.markdown("""
-        **QuickList** uses **TRUE Generative AI** to create professional product listings.
-        
-        **Technology:**
-        
-        - 🤖 **LLaVA Vision AI** - Looks at images and writes descriptions
-        - 🧠 **Mistral AI** - Generates creative copy
-        - 👁️ **CLIP Vision** - Analyzes product features
+        **QuickList** uses smart technology to create professional product listings in seconds.
         
         **What You Get:**
         
-        - AI-generated descriptions
-        - Professional copy (3 styles)
-        - SEO keywords
-        - Platform formatting
+        - Instant product analysis
+        - Professional descriptions
+        - Search keywords
+        - Platform-ready formatting
         
         **Works With:**
         - Shopify
@@ -1206,29 +1189,26 @@ def main():
         
         st.markdown("### How It Works")
         st.markdown("""
-        1. Upload product photo
-        2. **LLaVA AI looks at image**
-        3. **AI writes description**
-        4. Generate 3 copy styles
+        1. Upload your product photo
+        2. Our system analyzes it
+        3. Creates 3 description styles
+        4. Generates search keywords
         5. Download and list
         
-        Ready in 60 seconds
+        Ready in 30 seconds
         """)
         
         st.markdown("---")
         
-        st.markdown("### Why This is Gen AI")
+        st.markdown("### The Technology")
         st.markdown("""
-        **Traditional AI:**
-        - Templates + keywords ❌
-        - Pre-written copy ❌
+        Powered by advanced systems:
         
-        **QuickList Gen AI:**
-        - **Sees** your product ✅
-        - **Writes** original text ✅
-        - **Creates** from scratch ✅
+        • Image recognition
+        • Smart copywriting
+        • Keyword optimization
         
-        100% Generative AI
+        100% free to use
         """)
     
     # Main content
@@ -1238,7 +1218,7 @@ def main():
             Upload Your Product Photo
         </h2>
         <p style="color: #666666; font-size: 1.1rem;">
-            LLaVA AI will look at it and write your listing
+            Get professional listings instantly
         </p>
     </div>
     """, unsafe_allow_html=True)
@@ -1246,7 +1226,7 @@ def main():
     uploaded_file = st.file_uploader(
         "Upload Product Image",
         type=['jpg', 'jpeg', 'png'],
-        help="AI will analyze this image"
+        help="Upload a clear product photo (JPG, JPEG, or PNG)"
     )
     
     if uploaded_file is not None:
@@ -1293,7 +1273,7 @@ def main():
             col1, col2, col3 = st.columns([1, 2, 1])
             
             with col2:
-                if st.button("🚀 Generate with AI", use_container_width=True):
+                if st.button("Generate Listing", use_container_width=True):
                     
                     ai = TrueGenAI()
                     
@@ -1302,9 +1282,9 @@ def main():
                     st.session_state.target_platform = target_platform
                     
                     # Phase 1: Quick analysis
-                    st.markdown('<div class="status-badge status-processing">Quick image analysis...</div>', unsafe_allow_html=True)
+                    st.markdown('<div class="status-badge status-processing">Analyzing your product...</div>', unsafe_allow_html=True)
                     
-                    with st.spinner('Analyzing...'):
+                    with st.spinner('AI analyzing your product...'):
                         progress = st.progress(0)
                         
                         for i in range(30):
@@ -1322,42 +1302,41 @@ def main():
                     
                     st.markdown('<div class="status-badge status-complete">Analysis Complete</div>', unsafe_allow_html=True)
                     
-                    # Phase 2: GENERATIVE AI
-                    st.markdown('<div class="status-badge status-processing">🤖 TRUE GEN AI: Writing descriptions...</div>', unsafe_allow_html=True)
+                    # Phase 2: Generate descriptions
+                    st.markdown('<div class="status-badge status-processing">Writing your product descriptions...</div>', unsafe_allow_html=True)
                     
-                    with st.spinner('LLaVA AI is looking at your image and writing...'):
+                    with st.spinner('Creating professional copy...'):
                         progress = st.progress(0)
                         
                         descriptions = {}
                         styles = ["Storytelling (Emotional)", "Feature-Benefit (Practical)", "Minimalist (Clean)"]
                         
                         for idx, style_name in enumerate(styles):
-                            st.text(f"Gen AI writing: {style_name.split('(')[0].strip()}...")
+                            st.text(f"Writing {style_name.split('(')[0].strip()}...")
                             
-                            # THIS IS TRUE GEN AI - PASS THE IMAGE!
                             desc = ai.generate_with_llava(
                                 product_name, 
                                 analysis, 
                                 style_name, 
                                 product_features,
-                                image  # ← IMAGE GOES TO GEN AI
+                                image
                             )
                             descriptions[style_name] = desc
                             
                             prog = int((idx + 1) / len(styles) * 100)
                             progress.progress(prog)
-                            time.sleep(1)
+                            time.sleep(0.5)
                         
                         progress.empty()
                     
                     st.session_state.descriptions = descriptions
                     
-                    st.markdown('<div class="status-badge status-complete">✅ Gen AI Complete!</div>', unsafe_allow_html=True)
+                    st.markdown('<div class="status-badge status-complete">Descriptions Ready</div>', unsafe_allow_html=True)
                     
                     # Phase 3: Keywords
-                    st.markdown('<div class="status-badge status-processing">Generating keywords...</div>', unsafe_allow_html=True)
+                    st.markdown('<div class="status-badge status-processing">Creating search keywords...</div>', unsafe_allow_html=True)
                     
-                    with st.spinner('Creating SEO keywords...'):
+                    with st.spinner('Finding the best keywords...'):
                         progress = st.progress(0)
                         
                         for i in range(100):
@@ -1374,7 +1353,7 @@ def main():
                     
                     st.session_state.keywords = keywords
                     
-                    st.markdown('<div class="status-badge status-complete">All Done!</div>', unsafe_allow_html=True)
+                    st.markdown('<div class="status-badge status-complete">Keywords Ready</div>', unsafe_allow_html=True)
         
         # Display results
         if 'show_results' in st.session_state and st.session_state.show_results:
@@ -1387,8 +1366,8 @@ def main():
             # Analysis
             st.markdown("""
             <div class="section-header">
-                <h2 class="section-title">AI Analysis</h2>
-                <p class="section-subtitle">What our AI detected</p>
+                <h2 class="section-title">Product Analysis</h2>
+                <p class="section-subtitle">AI-powered insights from your image</p>
             </div>
             """, unsafe_allow_html=True)
             
@@ -1421,8 +1400,8 @@ def main():
             # Descriptions
             st.markdown("""
             <div class="section-header">
-                <h2 class="section-title">🤖 Gen AI Descriptions</h2>
-                <p class="section-subtitle">Written by LLaVA Vision AI</p>
+                <h2 class="section-title">Your Product Descriptions</h2>
+                <p class="section-subtitle">Three professionally written styles - compare side-by-side</p>
             </div>
             """, unsafe_allow_html=True)
             
@@ -1507,8 +1486,9 @@ def main():
             """.format(target_platform), unsafe_allow_html=True)
             
             export_style = st.selectbox(
-                "Choose Style:",
+                "Choose Description Style:",
                 list(descriptions.keys()),
+                help="Select which AI-generated description to use for your platform export",
                 key="style_selector"
             )
             
@@ -1524,7 +1504,8 @@ def main():
             # Download
             st.markdown("""
             <div class="section-header">
-                <h2 class="section-title">Download</h2>
+                <h2 class="section-title">Download Your Listing</h2>
+                <p class="section-subtitle">Export and deploy instantly</p>
             </div>
             """, unsafe_allow_html=True)
             
@@ -1540,7 +1521,12 @@ def main():
                 )
             
             with col2:
-                all_listings = f"=== {product_name.upper()} - GEN AI ===\n\n"
+                all_listings = f"=== {product_name.upper()} - ALL STYLES ===\n\n"
+                all_listings += f"Created by QuickList AI\n"
+                all_listings += f"Platform: {target_platform}\n"
+                all_listings += f"Category: {analysis.category}\n\n"
+                all_listings += "="*70 + "\n\n"
+                
                 for style_name, desc in descriptions.items():
                     all_listings += f"\n{'='*70}\n{style_name}\n{'='*70}\n\n"
                     all_listings += format_for_platform(desc, keywords, target_platform) + "\n\n"
@@ -1556,7 +1542,7 @@ def main():
             st.markdown(f"""
             <div class="info-box">
                 <p style="margin: 0; font-weight: 600;">
-                    ✅ Your AI-generated listing is ready!
+                    Your professional listing is ready! Upload to {target_platform} and start selling.
                 </p>
             </div>
             """, unsafe_allow_html=True)
@@ -1573,7 +1559,7 @@ def main():
         st.markdown("""
         <div class="section-header">
             <h2 class="section-title">How QuickList Works</h2>
-            <p class="section-subtitle">TRUE Generative AI</p>
+            <p class="section-subtitle">Professional AI-powered listings in seconds</p>
         </div>
         """, unsafe_allow_html=True)
         
@@ -1582,10 +1568,10 @@ def main():
         with col1:
             st.markdown("""
             <div class="metric-box">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">📸</div>
+                <div style="font-size: 3rem; margin-bottom: 1rem;">1</div>
                 <div class="metric-label">Upload Photo</div>
-                <div style="color: #666666; font-size: 0.95rem; margin-top: 0.5rem;">
-                    AI will look at it
+                <div style="color: #666666; font-size: 0.95rem; margin-top: 0.5rem; line-height: 1.5;">
+                    Upload your product image
                 </div>
             </div>
             """, unsafe_allow_html=True)
@@ -1593,10 +1579,10 @@ def main():
         with col2:
             st.markdown("""
             <div class="metric-box">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">🤖</div>
-                <div class="metric-label">AI Writes</div>
-                <div style="color: #666666; font-size: 0.95rem; margin-top: 0.5rem;">
-                    LLaVA generates descriptions
+                <div style="font-size: 3rem; margin-bottom: 1rem;">2</div>
+                <div class="metric-label">Generate Content</div>
+                <div style="color: #666666; font-size: 0.95rem; margin-top: 0.5rem; line-height: 1.5;">
+                    Get descriptions, keywords, and photos
                 </div>
             </div>
             """, unsafe_allow_html=True)
@@ -1604,10 +1590,10 @@ def main():
         with col3:
             st.markdown("""
             <div class="metric-box">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">💾</div>
-                <div class="metric-label">Download</div>
-                <div style="color: #666666; font-size: 0.95rem; margin-top: 0.5rem;">
-                    Ready for your store
+                <div style="font-size: 3rem; margin-bottom: 1rem;">3</div>
+                <div class="metric-label">Download & Sell</div>
+                <div style="color: #666666; font-size: 0.95rem; margin-top: 0.5rem; line-height: 1.5;">
+                    Ready for Shopify, Amazon, Etsy
                 </div>
             </div>
             """, unsafe_allow_html=True)
@@ -1615,22 +1601,22 @@ def main():
         st.markdown("""
         <div class="info-box" style="margin-top: 3rem;">
             <p style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.75rem;">
-                🤖 TRUE Generative AI:
+                What You Get:
             </p>
             <p style="margin: 0; line-height: 1.8;">
-                • LLaVA Vision AI looks at your product image<br>
-                • Generates original descriptions from scratch<br>
-                • 3 professional writing styles<br>
-                • SEO-optimized keywords<br>
-                • Platform-ready formatting
+                • Smart product analysis from your image<br>
+                • 3 professionally written description styles<br>
+                • Search-optimized keywords<br>
+                • Platform-ready formatting<br>
+                • Complete listing in under 30 seconds
             </p>
         </div>
         """, unsafe_allow_html=True)
         
         st.markdown("""
-        <div class="info-box" style="margin-top: 2rem; border-left-color: #059669;">
+        <div class="info-box" style="margin-top: 2rem; border-left-color: #0066cc;">
             <p style="margin: 0; font-weight: 600;">
-                100% Free • No Signup • Real Generative AI
+                100% Free • No Signup Required • Instant Results
             </p>
         </div>
         """, unsafe_allow_html=True)
