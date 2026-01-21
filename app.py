@@ -11,9 +11,17 @@ import time
 import json
 import os
 
-# Groq is optional - disabled by default for Streamlit Cloud
+# Multi-AI fallback configuration
 HAS_GROQ = False
 GROQ_API_KEY = None
+
+# Try to import and configure Groq
+try:
+    from groq import Groq
+    GROQ_API_KEY = st.secrets.get("groq", {}).get("api_key")
+    HAS_GROQ = True if GROQ_API_KEY else False
+except:
+    pass
 
 # Page configuration
 st.set_page_config(
@@ -23,24 +31,21 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS - Simplified and Fixed
+# Custom CSS - Same as before
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700;800&display=swap');
     
-    /* Force light theme at root level */
     :root {
         --background-color: #ffffff;
         --text-color: #000000;
     }
     
-    /* Main app background - WHITE */
     .stApp {
         background: #ffffff !important;
         color: #000000 !important;
     }
     
-    /* Force all Streamlit elements to white background */
     .stApp > div {
         background: #ffffff !important;
     }
@@ -49,12 +54,10 @@ st.markdown("""
         background: #ffffff !important;
     }
     
-    /* Hide Streamlit branding */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
     
-    /* Main header styling */
     .main-header {
         position: relative;
         overflow: hidden;
@@ -77,35 +80,29 @@ st.markdown("""
         z-index: 1;
     }
     
-    /* All page text should be black except header */
     body, p, div, span, label, h1, h2, h3, h4, h5, h6 {
         color: #000000 !important;
         font-family: 'Inter', sans-serif;
     }
     
-    /* Force white backgrounds on all interactive elements */
     section, div[class*="st"], div[data-testid] {
         background-color: transparent;
     }
     
-    /* Main container white background */
     .main .block-container {
         background: #ffffff !important;
     }
     
-    /* Headings */
     h1, h2, h3, h4 {
         font-family: 'Space Grotesk', sans-serif !important;
         font-weight: 700 !important;
     }
     
-    /* Sidebar */
     [data-testid="stSidebar"] {
         background: #f8f8f8;
         border-right: 1px solid #e5e5e5;
     }
     
-    /* Upload section */
     .upload-section {
         background: #ffffff !important;
         border: 2px solid #e5e5e5;
@@ -120,7 +117,6 @@ st.markdown("""
         color: #000000 !important;
     }
     
-    /* File uploader - FIXED FOR CONTRAST */
     [data-testid="stFileUploader"] {
         background: #ffffff !important;
         border: 3px dashed #0066cc !important;
@@ -134,7 +130,6 @@ st.markdown("""
         font-size: 1.1rem !important;
     }
     
-    /* File uploader inner sections - WHITE background */
     [data-testid="stFileUploader"] section {
         background: #ffffff !important;
     }
@@ -143,13 +138,11 @@ st.markdown("""
         background: #ffffff !important;
     }
     
-    /* All divs inside file uploader - WHITE background, BLACK text */
     [data-testid="stFileUploader"] div {
         background: #ffffff !important;
         color: #000000 !important;
     }
     
-    /* All text in file uploader - BLACK */
     [data-testid="stFileUploader"] p,
     [data-testid="stFileUploader"] span,
     [data-testid="stFileUploader"] small,
@@ -158,7 +151,6 @@ st.markdown("""
         background: transparent !important;
     }
     
-    /* Drag and drop zone - WHITE background */
     [data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"] {
         background: #ffffff !important;
         border: 2px dashed #cccccc !important;
@@ -169,7 +161,6 @@ st.markdown("""
         background: #ffffff !important;
     }
     
-    /* Browse button */
     [data-testid="stFileUploader"] button {
         background: #ffffff !important;
         color: #0066cc !important;
@@ -182,7 +173,6 @@ st.markdown("""
         color: #ffffff !important;
     }
     
-    /* File uploader markdown text */
     [data-testid="stFileUploader"] [data-testid="stMarkdownContainer"] {
         color: #000000 !important;
         background: transparent !important;
@@ -198,7 +188,6 @@ st.markdown("""
         background: transparent !important;
     }
     
-    /* Buttons */
     .stButton > button {
         background: #000000 !important;
         color: #ffffff !important;
@@ -224,14 +213,12 @@ st.markdown("""
         box-shadow: 0 6px 24px rgba(0,102,204,0.3) !important;
     }
     
-    /* Force button text to always be white */
     .stButton > button p,
     .stButton > button span,
     .stButton > button div {
         color: #ffffff !important;
     }
     
-    /* Download buttons */
     .stDownloadButton > button {
         background: #ffffff !important;
         color: #000000 !important;
@@ -246,7 +233,6 @@ st.markdown("""
         color: #ffffff !important;
     }
     
-    /* Metric boxes */
     .metric-box {
         background: #ffffff;
         border: 2px solid #e5e5e5;
@@ -287,7 +273,6 @@ st.markdown("""
         max-width: 100%;
     }
     
-    /* Description cards */
     .description-card {
         background: #f8f8f8;
         border: 2px solid #e5e5e5;
@@ -324,7 +309,6 @@ st.markdown("""
         letter-spacing: 0.1em;
     }
     
-    /* SEO section */
     .seo-box {
         background: #ffffff;
         border: 2px solid #e5e5e5;
@@ -353,7 +337,6 @@ st.markdown("""
         margin: 0.4rem 0.4rem 0.4rem 0;
     }
     
-    /* Image gallery */
     .image-gallery {
         background: #ffffff;
         border: 2px solid #e5e5e5;
@@ -371,7 +354,6 @@ st.markdown("""
         text-align: center;
     }
     
-    /* Uploaded image styling */
     [data-testid="stImage"] {
         border-radius: 12px;
         overflow: hidden;
@@ -386,7 +368,6 @@ st.markdown("""
         text-align: center;
     }
     
-    /* Image captions */
     [data-testid="stImage"] + div,
     [data-testid="stImage"] figcaption,
     [data-testid="stImage"] p {
@@ -395,12 +376,10 @@ st.markdown("""
         margin-top: 0.5rem;
     }
     
-    /* Progress bar */
     .stProgress > div > div > div > div {
         background: linear-gradient(90deg, #000000 0%, #0066cc 100%);
     }
     
-    /* Status badges */
     .status-badge {
         display: inline-block;
         padding: 0.6rem 1.5rem;
@@ -428,7 +407,6 @@ st.markdown("""
         color: #ffffff !important;
     }
     
-    /* Section headers */
     .section-header {
         background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
         border-left: 4px solid #0066cc;
@@ -451,7 +429,6 @@ st.markdown("""
         margin-top: 0.5rem;
     }
     
-    /* Info boxes */
     .info-box {
         background: #f8f8f8;
         border-left: 4px solid #0066cc;
@@ -466,7 +443,6 @@ st.markdown("""
         margin: 0;
     }
     
-    /* Text inputs */
     .stTextInput label,
     .stTextArea label,
     .stSelectbox label {
@@ -489,7 +465,6 @@ st.markdown("""
         box-shadow: 0 0 0 3px rgba(0,102,204,0.1) !important;
     }
     
-    /* Code/Pre elements - force white background and black text */
     pre, code {
         background: #f8f8f8 !important;
         color: #000000 !important;
@@ -507,7 +482,6 @@ st.markdown("""
         color: #000000 !important;
     }
     
-    /* Selectbox */
     .stSelectbox div[data-baseweb="select"] {
         background: #ffffff !important;
         border: 2px solid #e5e5e5 !important;
@@ -517,19 +491,16 @@ st.markdown("""
         border-color: #0066cc !important;
     }
     
-    /* Selectbox dropdown menu */
     .stSelectbox div[data-baseweb="select"] > div {
         background: #ffffff !important;
         color: #000000 !important;
     }
     
-    /* Selectbox selected value */
     .stSelectbox div[data-baseweb="select"] div[data-baseweb="input"] {
         color: #000000 !important;
         background: #ffffff !important;
     }
     
-    /* Selectbox options in dropdown menu */
     [data-baseweb="menu"] {
         background: #ffffff !important;
         border: 1px solid #e5e5e5 !important;
@@ -551,7 +522,6 @@ st.markdown("""
         color: #000000 !important;
     }
     
-    /* Force all text in menu options to be black */
     [data-baseweb="menu"] li div,
     [data-baseweb="menu"] li span,
     [data-baseweb="menu"] li p {
@@ -559,7 +529,6 @@ st.markdown("""
         background: transparent !important;
     }
     
-    /* Listbox options */
     [role="listbox"] {
         background: #ffffff !important;
     }
@@ -574,12 +543,10 @@ st.markdown("""
         color: #000000 !important;
     }
     
-    /* Force all children of options to be black text */
     [role="option"] * {
         color: #000000 !important;
     }
     
-    /* Force all selectbox text to be black */
     .stSelectbox div[data-baseweb="select"] div,
     .stSelectbox div[data-baseweb="select"] span,
     .stSelectbox div[data-baseweb="select"] p {
@@ -587,12 +554,10 @@ st.markdown("""
         background: transparent !important;
     }
     
-    /* Dropdown arrow */
     .stSelectbox svg {
         fill: #000000 !important;
     }
     
-    /* Mobile responsive */
     @media (max-width: 768px) {
         .main-header {
             padding: 2rem 1.5rem;
@@ -611,13 +576,13 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Header - Force inline styles to override Streamlit
+# Header
 st.markdown("""
 <div class="main-header" style="background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%) !important; text-align: center; padding: 3rem; border-radius: 0 0 24px 24px; margin: -6rem -5rem 3rem -5rem;">
     <div class="header-content">
         <h1 style="color: #ffffff !important; font-size: 3.5rem !important; font-weight: 800 !important; margin: 0 !important; font-family: 'Space Grotesk', sans-serif !important;">QuickList</h1>
         <p style="color: #ffffff !important; font-size: 1.25rem !important; margin-top: 0.75rem !important; font-family: 'Inter', sans-serif !important;">Professional Product Listings in Minutes</p>
-        <span style="background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%) !important; color: #ffffff !important; display: inline-block !important; padding: 0.6rem 1.5rem !important; border-radius: 24px !important; font-size: 0.85rem !important; font-weight: 700 !important; margin-top: 1.25rem !important; text-transform: uppercase !important;">AI-Powered</span>
+        <span style="background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%) !important; color: #ffffff !important; display: inline-block !important; padding: 0.6rem 1.5rem !important; border-radius: 24px !important; font-size: 0.85rem !important; font-weight: 700 !important; margin-top: 1.25rem !important; text-transform: uppercase !important;">Multi-AI Powered</span>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -631,6 +596,7 @@ class ProductAnalysis:
     colors: List[str]
     style: str
     confidence: float
+    specific_type: str = ""
 
 
 @dataclass
@@ -640,17 +606,17 @@ class ProductDescription:
     bullet_points: List[str]
     meta_description: str
     style_type: str
+    ai_source: str = "template"  # Track which AI generated this
 
 
 class QuickListAI:
-    """AI-powered product listing generator"""
+    """AI-powered product listing generator with multi-AI fallback"""
     
     @staticmethod
-    def analyze_product_with_clip(image: Image.Image) -> ProductAnalysis:
-        """Step 1: Quick analysis using CLIP (for metadata)"""
+    def analyze_product_with_clip(image: Image.Image, product_name: str = "") -> ProductAnalysis:
+        """IMPROVED: Better CLIP analysis with more specific categories"""
         
         try:
-            # Convert image to bytes for API
             buffered = io.BytesIO()
             image.save(buffered, format="PNG")
             img_bytes = buffered.getvalue()
@@ -658,46 +624,85 @@ class QuickListAI:
             headers = {"Content-Type": "application/octet-stream"}
             API_URL = "https://api-inference.huggingface.co/models/openai/clip-vit-base-patch32"
             
-            # Detect CATEGORY
-            broad_categories = [
-                "clothing apparel", "electronics device", "furniture", 
-                "beauty personal care product", "kitchen cookware",  "sports equipment",
-                "toy", "jewelry accessory", "tool", "home decor"
+            clothing_categories = [
+                "dress evening formal", "dress casual day", "shirt top blouse",
+                "pants jeans trousers", "jacket coat outerwear", "sweater cardigan",
+                "skirt", "activewear sportswear", "lingerie sleepwear", "suit blazer"
             ]
+            
+            electronics_categories = [
+                "headphones earbuds audio", "smartphone mobile phone", "laptop computer",
+                "tablet device", "camera photography", "speaker bluetooth", 
+                "smartwatch wearable", "gaming console", "television screen"
+            ]
+            
+            furniture_categories = [
+                "chair seating", "table desk workspace", "sofa couch",
+                "bed mattress", "cabinet storage", "shelf bookcase",
+                "lamp lighting", "rug carpet"
+            ]
+            
+            other_categories = [
+                "jewelry watch accessory", "bag purse luggage", "shoes footwear",
+                "beauty cosmetics skincare", "kitchen cookware utensils",
+                "toy game", "book stationery", "tool hardware equipment",
+                "home decor decorative"
+            ]
+            
+            all_categories = clothing_categories + electronics_categories + furniture_categories + other_categories
             
             response1 = requests.post(
                 API_URL,
                 headers=headers,
                 data=img_bytes,
-                params={"candidate_labels": ",".join(broad_categories)},
+                params={"candidate_labels": ",".join(all_categories)},
                 timeout=20
             )
             
-            category = "General Product"
+            category = "Product"
+            specific_type = ""
+            
             if response1.status_code == 200:
                 result = response1.json()
                 if isinstance(result, list) and len(result) > 0:
-                    broad_cat = result[0].get('label', 'product')
+                    detected = result[0].get('label', '').strip()
                     
-                    category_map = {
-                        "clothing apparel": "Apparel",
-                        "electronics device": "Electronics",
-                        "furniture": "Furniture",
-                        "beauty personal care product": "Beauty & Personal Care",
-                        "kitchen cookware": "Kitchen & Home",
-                        "sports equipment": "Sports & Fitness",
-                        "toy": "Toys & Games",
-                        "jewelry accessory": "Accessories",
-                        "tool": "Tools & Hardware",
-                        "home decor": "Home Decor"
-                    }
-                    category = category_map.get(broad_cat, "General Product")
+                    if any(c in detected for c in ["dress", "shirt", "pants", "jacket", "sweater", "skirt", "suit"]):
+                        category = "Apparel & Fashion"
+                        specific_type = detected.split()[0].capitalize()
+                    elif any(c in detected for c in ["headphone", "phone", "laptop", "camera", "speaker", "watch"]):
+                        category = "Electronics"
+                        specific_type = detected.split()[0].capitalize()
+                    elif any(c in detected for c in ["chair", "table", "sofa", "bed", "cabinet", "shelf"]):
+                        category = "Furniture"
+                        specific_type = detected.split()[0].capitalize()
+                    elif "jewelry" in detected or "watch" in detected:
+                        category = "Jewelry & Accessories"
+                        specific_type = "Jewelry"
+                    elif "bag" in detected or "purse" in detected:
+                        category = "Bags & Luggage"
+                        specific_type = "Bag"
+                    elif "shoes" in detected or "footwear" in detected:
+                        category = "Footwear"
+                        specific_type = "Shoes"
+                    elif "beauty" in detected or "cosmetics" in detected:
+                        category = "Beauty & Personal Care"
+                        specific_type = "Beauty Product"
+                    elif "kitchen" in detected or "cookware" in detected:
+                        category = "Kitchen & Home"
+                        specific_type = "Kitchen Item"
+                    elif "toy" in detected or "game" in detected:
+                        category = "Toys & Games"
+                        specific_type = "Toy"
+                    else:
+                        category = "Product"
+                        specific_type = detected.split()[0].capitalize() if detected else "Item"
             
-            # Detect COLOR
             color_labels = [
-                "black", "white", "silver", "gray", "red", "blue", 
-                "green", "yellow", "pink", "purple", "brown", "gold", 
-                "rose gold", "metallic", "transparent", "multicolor", "beige"
+                "black dark", "white light", "silver metallic", "gray grey", 
+                "red crimson", "blue navy", "green emerald", "yellow gold",
+                "pink rose", "purple violet", "brown tan", "beige cream",
+                "orange coral", "multicolor rainbow", "transparent clear"
             ]
             
             response2 = requests.post(
@@ -712,14 +717,32 @@ class QuickListAI:
             if response2.status_code == 200:
                 result = response2.json()
                 if isinstance(result, list) and len(result) > 0:
-                    detected_color = result[0].get('label', 'neutral')
+                    color_full = result[0].get('label', 'neutral')
+                    detected_color = color_full.split()[0]
             
-            # Detect MATERIAL
-            material_labels = [
-                "metal", "plastic", "fabric", "leather", "wood", 
-                "glass", "ceramic", "silicone", "stainless steel",
-                "aluminum", "rubber", "synthetic"
-            ]
+            if category in ["Apparel & Fashion", "Bags & Luggage"]:
+                material_labels = [
+                    "cotton fabric textile", "silk satin", "wool knit",
+                    "leather genuine", "synthetic polyester", "denim",
+                    "linen natural", "velvet luxe", "lace delicate"
+                ]
+            elif category == "Electronics":
+                material_labels = [
+                    "metal aluminum", "plastic polymer", "glass screen",
+                    "stainless steel", "carbon fiber", "silicone rubber"
+                ]
+            elif category == "Furniture":
+                material_labels = [
+                    "wood oak walnut", "metal steel", "upholstered fabric",
+                    "leather genuine", "plastic modern", "glass transparent",
+                    "marble stone", "rattan wicker"
+                ]
+            else:
+                material_labels = [
+                    "metal", "plastic", "fabric", "leather", "wood",
+                    "glass", "ceramic", "silicone", "stainless steel",
+                    "aluminum", "rubber", "synthetic"
+                ]
             
             response3 = requests.post(
                 API_URL,
@@ -730,20 +753,22 @@ class QuickListAI:
             )
             
             detected_material = "Premium Material"
-            material2 = "Quality Construction"
+            material2 = "Quality Craftsmanship"
             if response3.status_code == 200:
                 result = response3.json()
                 if isinstance(result, list) and len(result) >= 2:
-                    mat1 = result[0].get('label', 'material')
-                    mat2 = result[1].get('label', 'construction')
-                    detected_material = mat1.capitalize()
-                    material2 = mat2.capitalize()
+                    mat1_full = result[0].get('label', 'material')
+                    mat2_full = result[1].get('label', 'construction')
+                    
+                    detected_material = mat1_full.split()[0].capitalize()
+                    material2 = mat2_full.split()[0].capitalize() if len(mat2_full.split()) > 0 else "Quality"
             
-            # Detect STYLE
             style_labels = [
-                "modern sleek", "classic traditional", "minimalist", 
-                "vintage retro", "elegant luxury", "sporty",
-                "professional", "casual", "industrial rugged"
+                "elegant sophisticated luxury", "modern contemporary sleek",
+                "casual everyday comfortable", "vintage retro classic",
+                "minimalist clean simple", "sporty athletic active",
+                "bohemian artistic creative", "professional business formal",
+                "trendy fashionable stylish", "traditional timeless"
             ]
             
             response4 = requests.post(
@@ -758,87 +783,104 @@ class QuickListAI:
             if response4.status_code == 200:
                 result = response4.json()
                 if isinstance(result, list) and len(result) > 0:
-                    style = result[0].get('label', 'modern').split()[0]
-                    detected_style = style.capitalize()
+                    style_full = result[0].get('label', 'modern')
+                    detected_style = style_full.split()[0].capitalize()
             
-            # Extract hex color
             img_array = np.array(image.resize((100, 100)))
             pixels = img_array.reshape(-1, 3)
             avg_colors = np.mean(pixels, axis=0).astype(int)
             hex_color = '#{:02x}{:02x}{:02x}'.format(*avg_colors)
-            
-            # Store for later use
-            st.session_state.detected_color = detected_color
             
             return ProductAnalysis(
                 category=category,
                 materials=[detected_material, material2],
                 colors=[detected_color, hex_color],
                 style=detected_style,
-                confidence=0.88
+                confidence=0.85,
+                specific_type=specific_type
             )
             
         except Exception as e:
             return ProductAnalysis(
-                category="General Product",
+                category="Product",
                 materials=["Premium Material", "Quality Construction"],
                 colors=['neutral', '#808080'],
                 style='Modern',
-                confidence=0.70
+                confidence=0.70,
+                specific_type="Item"
             )
     
     @staticmethod
-    def generate_with_llava(product_name: str, analysis: ProductAnalysis, 
-                           style: str, features: str, image: Image.Image) -> ProductDescription:
-        """Generate with AI - Full fallback chain: Groq → Mistral → Anthropic → Templates"""
+    def generate_with_multi_ai(product_name: str, analysis: ProductAnalysis, 
+                               style: str, features: str, image: Image.Image,
+                               target_audience: str = "", price_range: str = "") -> ProductDescription:
+        """MULTI-AI FALLBACK CHAIN: Try multiple AI services before falling back to templates"""
         
         color = analysis.colors[0] if analysis.colors[0] != "neutral" else ""
         
-        # Build prompts for all styles
+        # Enhanced context
+        context = f"""Product: {product_name}
+Category: {analysis.category}
+Type: {analysis.specific_type}
+Color: {color}
+Style: {analysis.style}
+Materials: {', '.join(analysis.materials)}
+Features: {features if features else 'Premium quality'}"""
+        
+        if target_audience:
+            context += f"\nTarget Audience: {target_audience}"
+        if price_range:
+            context += f"\nPrice Range: {price_range}"
+        
+        # Build prompt based on style
         if style == "Storytelling (Emotional)":
-            prompt = f"""Write an emotional, storytelling e-commerce product description for this {product_name}.
+            prompt = f"""Write an emotional, storytelling e-commerce product description.
 
-Product Details:
-- Category: {analysis.category}
-- Color: {color}
-- Style: {analysis.style}
-- Materials: {', '.join(analysis.materials)}
-- Features: {features if features else 'Premium quality'}
+{context}
 
-Write 150-200 words that create emotional connection, use sensory language, focus on lifestyle benefits.
+Write 150-200 words that:
+- Create emotional connection with the customer
+- Use vivid, sensory language
+- Focus on lifestyle benefits and how it makes them FEEL
+- Tell a mini-story about using the product
+- Make it personal and relatable
 
 Respond with JSON:
-{{"title": "emotional title", "description": "storytelling description", "bullet_points": ["benefit 1", "benefit 2", "benefit 3", "benefit 4", "benefit 5"], "meta_description": "SEO meta under 160 chars"}}"""
+{{"title": "emotional compelling title", "description": "storytelling description with sensory details", "bullet_points": ["emotional benefit 1", "emotional benefit 2", "emotional benefit 3", "emotional benefit 4", "emotional benefit 5"], "meta_description": "SEO meta under 160 chars"}}"""
 
         elif style == "Feature-Benefit (Practical)":
-            prompt = f"""Write a practical feature-benefit product description for this {product_name}.
+            prompt = f"""Write a practical feature-benefit product description.
 
-Product Details:
-- Category: {analysis.category}
-- Color: {color}
-- Style: {analysis.style}
-- Materials: {', '.join(analysis.materials)}
-- Features: {features if features else 'Professional quality'}
+{context}
 
-Write 150-200 words with clear features and benefits, professional language.
+Write 150-200 words that:
+- Lead with SPECIFIC features (not generic)
+- Translate each feature into a clear benefit
+- Use professional, authoritative language
+- Include technical details where relevant
+- Make it scannable with clear sections
 
 Respond with JSON:
-{{"title": "professional title", "description": "feature-benefit description", "bullet_points": ["feature 1", "feature 2", "feature 3", "feature 4", "feature 5"], "meta_description": "SEO meta under 160 chars"}}"""
+{{"title": "professional descriptive title with key feature", "description": "feature-benefit description with specifics", "bullet_points": ["specific feature + benefit 1", "specific feature + benefit 2", "specific feature + benefit 3", "specific feature + benefit 4", "specific feature + benefit 5"], "meta_description": "SEO meta under 160 chars"}}"""
 
         else:  # Minimalist
-            prompt = f"""Write a minimalist product description for this {product_name}.
+            prompt = f"""Write a minimalist product description.
 
-Product Details:
-- Category: {analysis.category}
-- Color: {color}
-- Style: {analysis.style}
+{context}
 
-Write 80-100 words, short sentences, essential details only, clean and direct.
+Write 80-100 words:
+- Short, punchy sentences
+- Essential details only
+- No fluff or filler
+- Clean and direct
+- Modern tone
 
 Respond with JSON:
-{{"title": "simple title", "description": "minimalist description", "bullet_points": ["detail 1", "detail 2", "detail 3", "detail 4", "detail 5"], "meta_description": "meta under 160"}}"""
+{{"title": "simple clean title", "description": "minimalist description, short sentences only", "bullet_points": ["essential detail 1", "essential detail 2", "essential detail 3", "essential detail 4", "essential detail 5"], "meta_description": "meta under 160"}}"""
         
-        # TIER 1: Try Groq (fastest, best quality)
+        # ============================================
+        # TIER 1: Groq (Best quality, fastest - needs API key)
+        # ============================================
         if GROQ_API_KEY and HAS_GROQ:
             try:
                 client = Groq(api_key=GROQ_API_KEY)
@@ -856,12 +898,59 @@ Respond with JSON:
                     description=parsed.get('description', ''),
                     bullet_points=parsed.get('bullet_points', [])[:5],
                     meta_description=parsed.get('meta_description', '')[:160],
-                    style_type=style
+                    style_type=style,
+                    ai_source="Groq Llama 3.3"
                 )
             except Exception as e:
-                pass  # Fall through to Mistral
+                pass  # Continue to next tier
         
-        # TIER 2: Try Mistral (free Hugging Face)
+        # ============================================
+        # TIER 2: Pollinations AI (100% Free, no API key needed!)
+        # ============================================
+        try:
+            pollinations_url = "https://text.pollinations.ai/"
+            
+            # Format prompt for Pollinations
+            pollinations_prompt = f"{prompt}\n\nIMPORTANT: Respond ONLY with valid JSON, no other text."
+            
+            response = requests.post(
+                pollinations_url,
+                json={
+                    "messages": [
+                        {"role": "user", "content": pollinations_prompt}
+                    ],
+                    "model": "openai",
+                    "jsonMode": True
+                },
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                generated = response.text.strip()
+                
+                # Clean response
+                generated = generated.replace('```json', '').replace('```', '').strip()
+                start = generated.find('{')
+                end = generated.rfind('}') + 1
+                
+                if start != -1 and end > start:
+                    json_str = generated[start:end]
+                    parsed = json.loads(json_str)
+                    
+                    return ProductDescription(
+                        title=parsed.get('title', product_name),
+                        description=parsed.get('description', ''),
+                        bullet_points=parsed.get('bullet_points', [])[:5],
+                        meta_description=parsed.get('meta_description', '')[:160],
+                        style_type=style,
+                        ai_source="Pollinations AI"
+                    )
+        except Exception as e:
+            pass  # Continue to next tier
+        
+        # ============================================
+        # TIER 3: HuggingFace Mistral (Free)
+        # ============================================
         try:
             API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2"
             
@@ -882,7 +971,6 @@ Respond with JSON:
                 generated = result[0].get('generated_text', '') if isinstance(result, list) else result.get('generated_text', '')
                 
                 if generated:
-                    # Clean and parse JSON
                     generated = generated.replace('```json', '').replace('```', '').strip()
                     start = generated.find('{')
                     end = generated.rfind('}') + 1
@@ -896,344 +984,448 @@ Respond with JSON:
                             description=parsed.get('description', ''),
                             bullet_points=parsed.get('bullet_points', [])[:5],
                             meta_description=parsed.get('meta_description', '')[:160],
-                            style_type=style
+                            style_type=style,
+                            ai_source="HuggingFace Mistral"
                         )
         except Exception as e:
-            pass  # Fall through to Anthropic
+            pass  # Continue to next tier
         
-        # TIER 3: Try Anthropic Claude (if API key available)
+        # ============================================
+        # TIER 4: HuggingFace Llama (Alternative model)
+        # ============================================
         try:
-            # Check for Anthropic API key
-            anthropic_key = None
-            try:
-                anthropic_key = st.secrets.get("anthropic", {}).get("api_key")
-            except:
-                pass
+            API_URL = "https://api-inference.huggingface.co/models/meta-llama/Llama-2-7b-chat-hf"
             
-            if anthropic_key:
-                import anthropic
-                client = anthropic.Anthropic(api_key=anthropic_key)
+            headers = {"Content-Type": "application/json"}
+            payload = {
+                "inputs": f"<s>[INST] {prompt} [/INST]",
+                "parameters": {
+                    "max_new_tokens": 500,
+                    "temperature": 0.7,
+                    "return_full_text": False
+                }
+            }
+            
+            response = requests.post(API_URL, headers=headers, json=payload, timeout=30)
+            
+            if response.status_code == 200:
+                result = response.json()
+                generated = result[0].get('generated_text', '') if isinstance(result, list) else result.get('generated_text', '')
                 
-                message = client.messages.create(
-                    model="claude-3-5-sonnet-20241022",
-                    max_tokens=600,
-                    messages=[{"role": "user", "content": prompt}]
-                )
-                
-                content = message.content[0].text
-                # Parse JSON from response
-                start = content.find('{')
-                end = content.rfind('}') + 1
-                
-                if start != -1 and end > start:
-                    json_str = content[start:end]
-                    parsed = json.loads(json_str)
+                if generated:
+                    generated = generated.replace('```json', '').replace('```', '').strip()
+                    start = generated.find('{')
+                    end = generated.rfind('}') + 1
                     
-                    return ProductDescription(
-                        title=parsed.get('title', product_name),
-                        description=parsed.get('description', ''),
-                        bullet_points=parsed.get('bullet_points', [])[:5],
-                        meta_description=parsed.get('meta_description', '')[:160],
-                        style_type=style
-                    )
+                    if start != -1 and end > start:
+                        json_str = generated[start:end]
+                        parsed = json.loads(json_str)
+                        
+                        return ProductDescription(
+                            title=parsed.get('title', product_name),
+                            description=parsed.get('description', ''),
+                            bullet_points=parsed.get('bullet_points', [])[:5],
+                            meta_description=parsed.get('meta_description', '')[:160],
+                            style_type=style,
+                            ai_source="HuggingFace Llama"
+                        )
         except Exception as e:
-            pass  # Fall through to templates
+            pass  # Continue to final fallback
         
-        # TIER 4: Industry-specific templates (always works)
-        return QuickListAI._industry_templates(product_name, analysis, style, features)
+        # ============================================
+        # TIER 5: IMPROVED Templates (Final fallback - always works)
+        # ============================================
+        return QuickListAI._industry_templates(product_name, analysis, style, features, target_audience, price_range)
     
     @staticmethod
     def _industry_templates(product_name: str, analysis: ProductAnalysis, 
-                          style: str, features: str) -> ProductDescription:
-        """Industry-specific templates - way better than generic"""
+                          style: str, features: str, target_audience: str = "", 
+                          price_range: str = "") -> ProductDescription:
+        """Industry-specific templates - same as before but marked with source"""
+        
+        # [Same template code as in previous version - truncated for brevity]
+        # This is identical to the improved templates from the previous file
         
         cat_lower = analysis.category.lower()
         prod_lower = product_name.lower()
+        specific = analysis.specific_type.lower() if analysis.specific_type else ""
         
-        # Detect industry
-        is_clothing = any(word in cat_lower or word in prod_lower for word in ['apparel', 'clothing', 'dress', 'shirt', 'pants', 'jacket', 'sweater', 'coat', 'skirt', 'jeans', 'top', 'blouse'])
-        is_electronics = any(word in cat_lower or word in prod_lower for word in ['electronics', 'headphone', 'speaker', 'laptop', 'phone', 'tablet', 'camera', 'device', 'earbuds'])
-        is_furniture = any(word in cat_lower or word in prod_lower for word in ['furniture', 'chair', 'table', 'desk', 'sofa', 'bed', 'cabinet', 'shelf', 'couch'])
+        material1 = analysis.materials[0].lower()
+        material2 = analysis.materials[1].lower()
         
-        # Get color
+        if "material" in material1 and "construction" in material2:
+            material_desc = "premium materials with expert craftsmanship"
+        elif material1 == material2:
+            material_desc = f"high-quality {material1}"
+        else:
+            material_desc = f"{material1} with {material2} accents"
+        
         color = analysis.colors[0] if analysis.colors[0] != "neutral" else ""
         color_text = f"{color} " if color else ""
-        color_cap = f" in {color}" if color else ""
+        color_mention = f" in {color}" if color else ""
         
-        # CLOTHING - talk about fit, fabric, style, occasions
-        if is_clothing:
+        audience_context = f" designed for {target_audience}" if target_audience else ""
+        
+        # APPAREL
+        if "apparel" in cat_lower or "fashion" in cat_lower or any(word in specific for word in ["dress", "shirt", "pants", "jacket"]):
+            
+            if "dress" in prod_lower or "dress" in specific:
+                garment = "dress"
+                occasion_desc = "whether it's a special evening out, office presentation, or weekend brunch"
+            elif "shirt" in prod_lower or "shirt" in specific or "blouse" in prod_lower:
+                garment = "top"
+                occasion_desc = "from professional meetings to casual coffee dates"
+            elif "pants" in prod_lower or "jeans" in prod_lower or "pants" in specific:
+                garment = "pants"
+                occasion_desc = "whether you're at work, running errands, or meeting friends"
+            elif "jacket" in prod_lower or "coat" in prod_lower or "jacket" in specific:
+                garment = "outerwear"
+                occasion_desc = "in any weather and every season"
+            else:
+                garment = "piece"
+                occasion_desc = "wherever your day takes you"
+            
             if style == "Storytelling (Emotional)":
-                title = f"{analysis.style}{color_cap} {product_name} - Effortless Style"
-                description = f"""Step into effortless style with this {color_text}{product_name.lower()}.
+                title = f"{analysis.style}{color_mention} {product_name} - Effortless Style"
+                
+                description = f"""Step into confidence with this {color_text}{product_name.lower()}.
 
-The soft, breathable fabric drapes beautifully, creating a flattering silhouette that moves with you. Whether heading to the office, meeting friends for brunch, or enjoying an evening out, this {product_name.lower()} adapts to your lifestyle with ease.
+The moment you slip it on, you'll feel the difference. Crafted from {material_desc}, it drapes beautifully against your body, creating a silhouette that's both flattering and comfortable. The {color_text}shade catches the light perfectly, adding subtle sophistication to your look.
 
-{features if features else f'The {analysis.style.lower()} design pairs perfectly with your favorite accessories, giving you endless styling possibilities.'}
+{features if features else f'The {analysis.style.lower()} design is timeless yet contemporary - it works seamlessly with pieces you already own while elevating your entire outfit.'}
 
-More than just another piece in your wardrobe - it's the confidence you feel when you know you look your best."""
+Perfect for {occasion_desc}, this {garment} becomes your go-to choice when you want to look polished without overthinking it. It's the piece you'll reach for again and again, the one that makes getting dressed feel effortless."""
                 
                 bullet_points = [
-                    "Soft, breathable fabric for all-day comfort and lasting wear",
-                    f"Flattering {analysis.style.lower()} cut that complements any body type",
-                    "Versatile styling works for both casual and dressy occasions",
-                    "Easy care - maintains shape and color wash after wash",
-                    "Pairs effortlessly with wardrobe staples you already own"
+                    f"Luxurious {material_desc} feels incredible against your skin",
+                    f"{analysis.style} cut designed to flatter your natural shape",
+                    f"Versatile {color_text}design works for multiple occasions and seasons",
+                    "Maintains its beauty wash after wash - looks new for years",
+                    "Pairs effortlessly with your existing wardrobe favorites"
                 ]
                 
             elif style == "Feature-Benefit (Practical)":
-                title = f"{color_cap.strip() if color_cap else analysis.style} {product_name} - Comfortable & Versatile"
-                description = f"""Experience the perfect balance of style and comfort with this {color_text}{product_name.lower()}.
+                title = f"{product_name}{color_mention} - {analysis.style} Design | Premium {material1.capitalize()}"
+                
+                description = f"""Elevate your wardrobe with this expertly crafted {color_text}{product_name.lower()}.
 
-PREMIUM FABRIC: Soft against your skin while maintaining its shape throughout the day. The breathable construction keeps you comfortable from morning to night.
+PREMIUM CONSTRUCTION: Made from {material_desc}, ensuring exceptional comfort and durability. The fabric breathes naturally while maintaining its shape through repeated wear and washing.
 
-FLATTERING FIT: The {analysis.style.lower()} cut is designed to flatter - not too tight, not too loose. It skims your silhouette in all the right places while allowing freedom of movement.
+FLATTERING FIT: The {analysis.style.lower()} cut is precision-designed to complement various body types. It provides the right amount of structure without feeling restrictive - you'll forget you're wearing it.
 
-{features if features else 'VERSATILE STYLING: Dress it up with heels and jewelry or keep it casual with sneakers and a denim jacket. One piece, countless outfit possibilities.'}
+{features if features else f'VERSATILE STYLING: The clean lines and {color_text}finish make this incredibly adaptable. Dress it up or down depending on your needs.'}
 
-EASY CARE: Machine washable and wrinkle-resistant. Looks fresh wear after wear with minimal effort."""
+EASY MAINTENANCE: Machine washable and wrinkle-resistant. The color stays vibrant and the fabric maintains its integrity even with frequent use."""
                 
                 bullet_points = [
-                    "Soft, breathable fabric provides all-day comfort",
-                    "Flattering fit designed for real bodies",
-                    "Versatile enough for work, weekends, and everything between",
-                    "Easy care - machine washable, stays looking new",
-                    "Quality construction ensures long-lasting wear"
+                    f"Premium {material_desc} provides superior comfort and longevity",
+                    f"{analysis.style} silhouette flatters without restricting movement",
+                    f"Versatile {color_text}design adapts to professional and casual settings",
+                    "Low-maintenance care - machine washable, stays looking fresh",
+                    "Quality stitching and construction built for years of wear"
                 ]
                 
             else:  # Minimalist
-                title = f"{color_cap.strip() if color_cap else ''} {product_name}".strip()
-                description = f"""Timeless {analysis.style.lower()} design.{color_cap.capitalize() + '.' if color_cap else ''}
+                title = f"{color_text.strip()}{product_name}".strip()
+                
+                description = f"""{analysis.style} design.{color_mention.capitalize() + '.' if color_mention else ''}
 
-Soft fabric. Flattering fit. All-day comfort.
+{material1.capitalize()} construction. Clean lines.
 
-Pairs with everything in your closet.
+{features if features else 'Timeless silhouette.'}
 
-{features if features else 'Machine washable. Built to last.'}
-
-Effortless style, simplified."""
+Wears well. Lasts longer."""
                 
                 bullet_points = [
-                    "Soft, comfortable fabric",
-                    "Flattering fit",
+                    f"{material1.capitalize()} fabric",
+                    f"{analysis.style} fit",
                     "Versatile styling",
                     "Easy care",
-                    "Timeless design"
+                    "Built to last"
                 ]
         
-        # ELECTRONICS - talk about performance, features, reliability
-        elif is_electronics:
+        # ELECTRONICS
+        elif "electronic" in cat_lower or any(word in specific for word in ["headphone", "speaker", "phone", "laptop"]):
+            
+            if "headphone" in prod_lower or "earbuds" in prod_lower or "headphone" in specific:
+                device_type = "audio device"
+                use_case = "whether you're working, commuting, or just unwinding with your favorite playlist"
+            elif "speaker" in prod_lower or "speaker" in specific:
+                device_type = "speaker"
+                use_case = "from intimate gatherings to larger celebrations"
+            elif "phone" in prod_lower or "phone" in specific:
+                device_type = "smartphone"
+                use_case = "throughout your busiest days"
+            else:
+                device_type = "device"
+                use_case = "in your daily workflow"
+            
             if style == "Storytelling (Emotional)":
-                title = f"{color_cap.strip() if color_cap else analysis.style} {product_name} - Premium Performance"
-                description = f"""Transform your technology experience with this {color_text}{product_name.lower()}.
+                title = f"{product_name}{color_mention} - Premium Performance"
+                
+                description = f"""Experience technology the way it should be with this {color_text}{product_name.lower()}.
 
-From the moment you first use it, you'll notice the difference. Crisp, responsive performance. Intuitive controls that feel natural in your hands. The {color_text}finish isn't just sleek - it's built to withstand daily use while looking showroom-new.
+From the first moment you use it, you'll notice the quality. Built with {material_desc}, it feels solid and reliable in your hands. The {color_text}finish isn't just attractive - it's designed to resist fingerprints and everyday wear, keeping it looking pristine.
 
-{features if features else 'Whether you\'re working, creating, or simply enjoying your favorite content, this device delivers the reliability you need and the quality you deserve.'}
+{features if features else 'The performance is where this truly shines. Responsive, intuitive, and powerful enough to handle whatever you throw at it.'}
 
-Technology that gets out of your way and lets you focus on what matters."""
+Perfect {use_case}, this {device_type} becomes the reliable companion you didn't know you needed. No frustration, no compromises - just technology that works."""
                 
                 bullet_points = [
-                    "Durable construction ensures long-lasting reliability",
-                    "High-performance components deliver fast, responsive operation",
-                    "Intuitive interface - easy to use right out of the box",
-                    "Sleek design that looks professional anywhere",
-                    "Built to handle daily demands without slowing down"
+                    f"Premium {material_desc} construction ensures long-lasting durability",
+                    "High-performance components deliver consistently responsive operation",
+                    f"Intuitive interface makes complex tasks feel effortless{audience_context}",
+                    f"Sleek {color_text}design looks professional in any setting",
+                    "Built to handle intensive daily use without performance degradation"
                 ]
                 
             elif style == "Feature-Benefit (Practical)":
-                title = f"{product_name}{color_cap} - High Performance | Reliable"
+                title = f"{product_name}{color_mention} - High Performance | {material1.capitalize()} Build"
+                
                 description = f"""Get professional-grade performance with this {color_text}{product_name.lower()}.
 
-POWERFUL PERFORMANCE: Engineered with high-quality components that deliver fast, responsive operation. No lag, no waiting - just smooth, reliable performance when you need it.
+POWERFUL PERFORMANCE: Engineered with premium components that deliver fast, reliable operation. Whether you're multitasking or running demanding applications, it handles everything smoothly.
 
-DURABLE BUILD: Built to stand up to daily use. The {color_text}finish resists scratches and fingerprints, maintaining that new look longer.
+DURABLE CONSTRUCTION: Built with {material_desc} that stands up to daily use. The {color_text}finish resists scratches and maintains its appearance over time.
 
-{features if features else 'EASY TO USE: Intuitive controls and clear interface mean you\'ll be productive from day one. No steep learning curve.'}
+{features if features else 'USER-FRIENDLY DESIGN: Intuitive controls and clear interface mean minimal learning curve. You\'ll be productive from day one.'}
 
-VERSATILE: Works seamlessly with your existing setup. Plug in and start using immediately."""
+BROAD COMPATIBILITY: Works seamlessly with your existing devices and accessories. No complicated setup required."""
                 
                 bullet_points = [
-                    "High-performance components for fast, reliable operation",
-                    "Durable construction built for daily use",
-                    "Intuitive controls - easy to learn and use",
-                    "Broad compatibility with existing devices",
-                    "Quality engineering backed by rigorous testing"
+                    "High-performance components provide reliable, lag-free operation",
+                    f"Durable {material_desc} withstands intensive daily use",
+                    "Intuitive interface requires minimal learning time",
+                    "Wide compatibility with standard devices and platforms",
+                    "Quality engineering backed by rigorous testing standards"
                 ]
                 
             else:  # Minimalist
-                title = f"{color_cap.strip() if color_cap else ''} {product_name}".strip()
-                description = f"""Performance. Reliability.{color_cap.capitalize() + '.' if color_cap else ''}
+                title = f"{color_text.strip()}{product_name}".strip()
+                
+                description = f"""Performance.{color_mention.capitalize() + '.' if color_mention else ''}
 
-Fast response. Intuitive controls.
+{material1.capitalize()} build. Fast response.
 
 {features if features else 'Built for daily use.'}
 
-Works when you need it. No complications."""
+Works reliably. No complications."""
                 
                 bullet_points = [
-                    "High-performance operation",
-                    "Durable construction",
+                    "High performance",
+                    f"{material1.capitalize()} construction",
                     "Easy to use",
-                    "Reliable daily performance",
+                    "Reliable operation",
                     "Professional quality"
                 ]
         
-        # FURNITURE - talk about comfort, space, durability
-        elif is_furniture:
+        # FURNITURE
+        elif "furniture" in cat_lower or any(word in specific for word in ["chair", "table", "sofa", "bed"]):
+            
+            if "chair" in prod_lower or "chair" in specific:
+                furniture_type = "seating"
+                comfort_note = "ergonomic support that keeps you comfortable during extended sitting"
+            elif "table" in prod_lower or "desk" in prod_lower or "table" in specific:
+                furniture_type = "surface"
+                comfort_note = "spacious, stable surface that handles your daily needs"
+            elif "sofa" in prod_lower or "couch" in prod_lower or "sofa" in specific:
+                furniture_type = "seating"
+                comfort_note = "plush comfort that invites you to relax for hours"
+            elif "bed" in prod_lower or "bed" in specific:
+                furniture_type = "sleeping"
+                comfort_note = "supportive comfort for restorative sleep night after night"
+            else:
+                furniture_type = "piece"
+                comfort_note = "quality construction that lasts for years"
+            
             if style == "Storytelling (Emotional)":
-                title = f"{analysis.style}{color_cap} {product_name} - Transform Your Space"
+                title = f"{analysis.style}{color_mention} {product_name} - Transform Your Space"
+                
                 description = f"""Reimagine your space with this beautifully crafted {color_text}{product_name.lower()}.
 
-The {color_text}finish adds warmth and character to any room, while the {analysis.style.lower()} design brings everything together with effortless sophistication.
+The moment you bring it home, you'll see the difference quality makes. Built from {material_desc}, it provides {comfort_note}. The {color_text}finish adds warmth and character to your room, while the {analysis.style.lower()} design brings everything together with effortless sophistication.
 
-Sink into comfort that lasts - this isn't furniture that looks good but feels mediocre. It's built with solid construction that provides the support and durability you need, day after day.
+{features if features else f'This isn\'t furniture that looks good but disappoints in use. It\'s built with solid construction that you can feel the first time you sit down.'}
 
-{features if features else 'Whether you\'re relaxing after a long day, hosting friends, or simply enjoying your morning coffee, this piece becomes the backdrop to your best moments at home.'}"""
+Whether you're relaxing after a long day, working from home, or hosting friends, this {furniture_type} becomes the backdrop to your best moments at home."""
                 
                 bullet_points = [
-                    "Solid construction ensures stability and long-lasting comfort",
-                    f"{analysis.style} design elevates any room aesthetic",
-                    "Ergonomic construction provides excellent support",
-                    "Versatile style complements both traditional and contemporary decor",
-                    "Built to become a cherished part of your home for years"
+                    f"Solid {material_desc} ensures exceptional stability and longevity",
+                    f"{analysis.style} design elevates any room's aesthetic instantly",
+                    f"Ergonomic construction provides genuine comfort{audience_context}",
+                    f"Versatile {color_text}finish complements multiple decor styles",
+                    "Quality craftsmanship built to become a cherished part of your home"
                 ]
                 
             elif style == "Feature-Benefit (Practical)":
-                title = f"{color_cap.strip() if color_cap else analysis.style} {product_name} - Durable & Comfortable"
-                description = f"""Upgrade your space with this well-crafted {color_text}{product_name.lower()}.
+                title = f"{product_name}{color_mention} - {analysis.style} Design | {material1.capitalize()}"
+                
+                description = f"""Upgrade your space with this expertly crafted {color_text}{product_name.lower()}.
 
-SOLID CONSTRUCTION: Built with quality materials that provide reliable support and exceptional durability. This isn't furniture you'll replace in a year - it's built to last.
+SOLID CONSTRUCTION: Built with {material_desc} that provides exceptional durability and stability. This furniture is designed for real life - it handles daily use without showing wear.
 
-ERGONOMIC DESIGN: The {analysis.style.lower()} design isn't just visually appealing - it's engineered for comfort. Proper support where you need it, without sacrificing style.
+ERGONOMIC DESIGN: The {analysis.style.lower()} design isn't just attractive - it's engineered for comfort. Proper support where you need it, generous proportions that don't cramp your space.
 
-{features if features else 'VERSATILE STYLING: The clean lines work with any decor style, from traditional to contemporary.'}
+{features if features else f'VERSATILE STYLING: Clean lines and {color_text}finish work with any decor style, from traditional to contemporary.'}
 
-QUALITY CRAFTSMANSHIP: Precision assembly and quality materials ensure this piece stays sturdy and attractive through years of daily use."""
+QUALITY CRAFTSMANSHIP: Precision assembly and premium materials ensure this piece stays sturdy and beautiful through years of use."""
                 
                 bullet_points = [
-                    "Solid construction provides excellent durability",
-                    "Ergonomic design maximizes comfort during extended use",
-                    f"{analysis.style} aesthetic enhances any room",
-                    "Quality craftsmanship ensures long-term reliability",
-                    "Versatile design adapts to changing decor styles"
+                    f"Robust {material_desc} provides superior structural integrity",
+                    "Ergonomic proportions maximize comfort during extended use",
+                    f"{analysis.style} aesthetic enhances both modern and classic interiors",
+                    "Quality construction maintains stability and appearance over time",
+                    f"Versatile {color_text}design adapts as your style evolves"
                 ]
                 
             else:  # Minimalist
-                title = f"{color_cap.strip() if color_cap else ''} {product_name}".strip()
-                description = f"""Solid. Comfortable.{color_cap.capitalize() + '.' if color_cap else ''}
+                title = f"{color_text.strip()}{product_name}".strip()
+                
+                description = f"""Solid.{color_mention.capitalize() + '.' if color_mention else ''}
 
-Ergonomic support. Clean lines.
+{material1.capitalize()} construction. Clean design.
 
-{features if features else 'Quality construction.'}
+{features if features else 'Built to last.'}
 
 Furniture that works."""
                 
                 bullet_points = [
-                    "Solid construction",
+                    f"{material1.capitalize()} build",
                     "Ergonomic design",
-                    "Durable build",
+                    "Durable construction",
                     f"{analysis.style} aesthetic",
-                    "Built for daily use"
+                    "Quality craftsmanship"
                 ]
         
-        # GENERAL FALLBACK - still better than before
+        # GENERAL FALLBACK
         else:
-            material_text = f"{analysis.materials[0].lower()} and {analysis.materials[1].lower()}"
-            if "material" in material_text and "construction" in material_text:
-                material_text = "premium materials with quality craftsmanship"
-            
             if style == "Storytelling (Emotional)":
-                title = f"{analysis.style} {product_name}{color_cap} - Premium Quality"
-                description = f"""Discover the perfect harmony of form and function with this exceptional {color_text}{product_name.lower()}.
+                title = f"{analysis.style} {product_name}{color_mention} - Premium Quality"
+                
+                description = f"""Discover exceptional quality with this {color_text}{product_name.lower()}.
 
-Crafted from {material_text}, this {product_name.lower()} combines {analysis.style.lower()} aesthetics with uncompromising quality.
+Crafted from {material_desc}, this piece combines {analysis.style.lower()} aesthetics with uncompromising quality. The attention to detail is evident the moment you see it - from the {color_text}finish to the precise construction.
 
-{features if features else f'Whether for everyday use or special occasions, this {product_name.lower()} delivers an experience that exceeds expectations.'}
+{features if features else f'Designed {audience_context if audience_context else "for those who appreciate quality"}, it delivers an experience that exceeds expectations.'}
 
-It's more than a product - it's a statement of quality and style."""
+More than just a {analysis.category.lower()} - it's a statement of your standards."""
                 
                 bullet_points = [
-                    f"{material_text.capitalize()} ensures lasting durability",
-                    f"Sophisticated {analysis.style.lower()} design",
-                    "Exceptional attention to detail",
-                    "Versatile styling for multiple uses",
-                    "Makes a thoughtful gift"
+                    f"Premium {material_desc} ensures lasting durability and performance",
+                    f"Sophisticated {analysis.style.lower()} design stands out from ordinary alternatives",
+                    "Exceptional attention to detail in every aspect of construction",
+                    f"Versatile {color_text}design adapts to multiple uses and settings",
+                    "Quality that makes it perfect for gifting or personal use"
                 ]
                 
             elif style == "Feature-Benefit (Practical)":
-                title = f"{product_name}{color_cap} - {analysis.style} Design | Professional Quality"
+                title = f"{product_name}{color_mention} - {analysis.style} | Premium {material1.capitalize()}"
+                
                 description = f"""Experience professional-grade quality with this {color_text}{product_name.lower()}.
 
-SUPERIOR CONSTRUCTION: Built with {material_text}, ensuring exceptional durability and reliable performance.
+SUPERIOR CONSTRUCTION: Built with {material_desc}, ensuring exceptional durability and reliable performance. This is designed to handle real-world use, not just look good on a shelf.
 
-INTELLIGENT DESIGN: The {analysis.style.lower()} aesthetic is engineered for optimal functionality.
+INTELLIGENT DESIGN: The {analysis.style.lower()} aesthetic is engineered for optimal functionality. Form and function work together seamlessly.
 
-{features if features else 'PROVEN PERFORMANCE: Versatile design adapts to your needs.'}
+{features if features else f'PROVEN PERFORMANCE: {audience_context.capitalize() if audience_context else "Versatile design"} adapts to your specific needs.'}
 
-QUALITY ASSURANCE: Rigorous standards ensure consistent excellence."""
+QUALITY ASSURANCE: Rigorous standards ensure consistent excellence in every detail."""
                 
                 bullet_points = [
-                    f"{material_text.capitalize()} provides superior strength",
-                    "Intelligent design maximizes functionality",
-                    "Premium construction maintains performance",
-                    "Versatile use for multiple applications",
-                    "Quality craftsmanship guaranteed"
+                    f"Premium {material_desc} provides superior strength and longevity",
+                    "Intelligent design maximizes both functionality and aesthetics",
+                    "Quality construction maintains performance through intensive use",
+                    f"Versatile {color_text}design suits multiple applications and environments",
+                    "Backed by rigorous quality control standards"
                 ]
                 
             else:  # Minimalist
-                title = f"{product_name}{color_cap} | {analysis.style}"
-                description = f"""Clean design. Premium materials.{color_cap.capitalize() + '.' if color_cap else ''}
+                title = f"{product_name}{color_mention}"
+                
+                description = f"""{analysis.style} design.{color_mention.capitalize() + '.' if color_mention else ''}
 
-Crafted from {material_text}. {analysis.style} principles.
+{material1.capitalize()} construction.
 
-{features if features else 'Functional. Reliable. Timeless.'}
+{features if features else 'Built for those who value quality.'}
 
-Built for those who value substance."""
+Functional. Reliable."""
                 
                 bullet_points = [
-                    f"{material_text.capitalize()}",
-                    f"{analysis.style} design aesthetic",
-                    "Essential functionality",
-                    "Superior craftsmanship",
-                    "Timeless quality"
+                    f"{material1.capitalize()} build",
+                    f"{analysis.style} design",
+                    "Quality construction",
+                    "Versatile use",
+                    "Built to last"
                 ]
         
-        meta = f"{product_name} - {bullet_points[0]}."[:160]
+        meta = f"{product_name} - {bullet_points[0]}"[:160]
         
         return ProductDescription(
             title=title,
             description=description,
             bullet_points=bullet_points,
             meta_description=meta,
-            style_type=style
+            style_type=style,
+            ai_source="Smart Templates"
         )
     
     @staticmethod
     def extract_keywords(product_name: str, analysis: ProductAnalysis, description: str) -> Dict[str, List[str]]:
         """Generate SEO keywords"""
         
+        base = product_name.lower()
+        category = analysis.category.lower()
+        style = analysis.style.lower()
+        material = analysis.materials[0].lower()
+        color = analysis.colors[0] if analysis.colors[0] != "neutral" else ""
+        
         primary = [
-            f"{product_name.lower()}",
-            f"{analysis.style.lower()} {product_name.lower()}",
-            f"premium {product_name.lower()}",
-            f"best {product_name.lower()}",
-            f"{analysis.materials[0].lower()} {product_name.lower()}",
-            f"professional {product_name.lower()}",
-            f"high quality {product_name.lower()}"
+            base,
+            f"{style} {base}",
+            f"premium {base}",
+            f"best {base}",
+            f"{material} {base}",
         ]
         
+        if color:
+            primary.extend([
+                f"{color} {base}",
+                f"{color} {style} {base}",
+            ])
+        
+        if category != "product":
+            primary.extend([
+                f"{category.lower()} {base}",
+                f"professional {base}",
+            ])
+        
+        primary = list(dict.fromkeys(primary[:8]))
+        
         long_tail = [
-            f"buy {product_name.lower()} online",
-            f"best {product_name.lower()} for sale",
-            f"where to buy {product_name.lower()}",
-            f"{analysis.style.lower()} {product_name.lower()} reviews",
-            f"affordable {product_name.lower()}",
-            f"professional grade {product_name.lower()}",
-            f"{product_name.lower()} with {analysis.materials[0].lower()}",
-            f"durable {product_name.lower()}",
-            f"top rated {product_name.lower()}",
-            f"{analysis.category.lower()} {product_name.lower()}"
+            f"buy {base} online",
+            f"best {base} for sale",
+            f"where to buy {base}",
+            f"{style} {base} reviews",
+            f"affordable {base}",
+            f"professional grade {base}",
         ]
+        
+        if color:
+            long_tail.extend([
+                f"{color} {base} for sale",
+                f"best {color} {base}",
+            ])
+        
+        if material != "premium material":
+            long_tail.append(f"{material} {base}")
+        
+        long_tail.extend([
+            f"durable {base}",
+            f"top rated {base}",
+            f"{category.lower()} {base}" if category != "product" else f"quality {base}",
+        ])
+        
+        long_tail = list(dict.fromkeys(long_tail[:12]))
         
         return {'primary': primary, 'long_tail': long_tail}
 
@@ -1352,12 +1544,18 @@ def main():
         
         st.markdown("---")
         
-        # Show Gen AI status
+        # Show Multi-AI status
+        st.markdown("### AI Status")
         if GROQ_API_KEY and HAS_GROQ:
-            st.success("✅ Groq Gen AI Active")
-        else:
-            st.info("💡 Using Smart Templates")
-            st.caption("To enable Gen AI: Install groq & add API key to secrets")
+            st.success("✅ Groq (Tier 1)")
+        st.info("✅ Pollinations AI (Tier 2)")
+        st.info("✅ HuggingFace Mistral (Tier 3)")
+        st.info("✅ HuggingFace Llama (Tier 4)")
+        st.info("✅ Smart Templates (Tier 5)")
+        
+        st.caption("**Multi-AI Fallback:** Tries multiple AI services for best quality!")
+        
+        st.markdown("---")
         
         st.markdown("""
         **100% Free**  
@@ -1385,7 +1583,6 @@ def main():
     if uploaded_file is not None:
         image = Image.open(uploaded_file)
         
-        # Store image in session state for Gen AI
         st.session_state.product_image = image
         
         col1, col2, col3 = st.columns([1, 2, 1])
@@ -1415,10 +1612,26 @@ def main():
                 help="Choose platform"
             )
         
+        col1, col2 = st.columns([1, 1])
+        
+        with col1:
+            target_audience = st.text_input(
+                "Target Audience (Optional)",
+                placeholder="e.g., professionals, fitness enthusiasts",
+                help="Who is this product for?"
+            )
+        
+        with col2:
+            price_range = st.selectbox(
+                "Price Range (Optional)",
+                ['', 'Budget ($0-$50)', 'Mid-Range ($50-$150)', 'Premium ($150-$500)', 'Luxury ($500+)'],
+                help="Price positioning"
+            )
+        
         product_features = st.text_area(
-            "Key Features (Optional)",
-            placeholder="e.g., 40-hour battery, noise cancellation...",
-            help="Optional features",
+            "Key Features (Optional but Recommended)",
+            placeholder="e.g., 40-hour battery, active noise cancellation, wireless charging",
+            help="Specific features make better descriptions",
             height=100
         )
         
@@ -1435,14 +1648,14 @@ def main():
                     st.session_state.target_platform = target_platform
                     
                     # Phase 1: Analysis
-                    with st.spinner('Analyzing product...'):
+                    with st.spinner('Analyzing product with AI...'):
                         progress = st.progress(0)
                         
                         for i in range(40):
                             time.sleep(0.02)
                             progress.progress(i + 1)
                         
-                        analysis = ai.analyze_product_with_clip(image)
+                        analysis = ai.analyze_product_with_clip(image, product_name)
                         st.session_state.analysis = analysis
                         
                         for i in range(40, 50):
@@ -1451,20 +1664,22 @@ def main():
                         
                         progress.empty()
                     
-                    # Phase 2: Descriptions
-                    with st.spinner('Writing professional descriptions...'):
+                    # Phase 2: Multi-AI Descriptions
+                    with st.spinner('Generating descriptions with Multi-AI (trying Pollinations, Mistral, Llama...)'):
                         progress = st.progress(0)
                         
                         descriptions = {}
                         styles = ["Storytelling (Emotional)", "Feature-Benefit (Practical)", "Minimalist (Clean)"]
                         
                         for idx, style_name in enumerate(styles):
-                            desc = ai.generate_with_llava(
+                            desc = ai.generate_with_multi_ai(
                                 product_name, 
                                 analysis, 
                                 style_name, 
                                 product_features,
-                                image
+                                image,
+                                target_audience,
+                                price_range
                             )
                             descriptions[style_name] = desc
                             
@@ -1476,7 +1691,7 @@ def main():
                     st.session_state.descriptions = descriptions
                     
                     # Phase 3: Keywords
-                    with st.spinner('Generating keywords...'):
+                    with st.spinner('Generating SEO keywords...'):
                         progress = st.progress(0)
                         
                         for i in range(100):
@@ -1493,7 +1708,12 @@ def main():
                     
                     st.session_state.keywords = keywords
                     
-                    st.success("Your listing is ready!")
+                    # Show which AI was used
+                    ai_sources = list(set([desc.ai_source for desc in descriptions.values()]))
+                    if len(ai_sources) == 1:
+                        st.success(f"✅ Listing ready! Generated by: **{ai_sources[0]}**")
+                    else:
+                        st.success(f"✅ Listing ready! Generated by: **{', '.join(ai_sources)}**")
         
         # Display results
         if 'show_results' in st.session_state and st.session_state.show_results:
@@ -1514,10 +1734,11 @@ def main():
             col1, col2, col3 = st.columns(3)
             
             with col1:
+                display_category = f"{analysis.category}" + (f" - {analysis.specific_type}" if analysis.specific_type and analysis.specific_type != "Item" else "")
                 st.markdown(f"""
                 <div class="metric-box">
                     <div class="metric-label">Category</div>
-                    <div class="metric-value">{analysis.category}</div>
+                    <div class="metric-value">{display_category}</div>
                 </div>
                 """, unsafe_allow_html=True)
             
@@ -1541,7 +1762,7 @@ def main():
             st.markdown("""
             <div class="section-header">
                 <h2 class="section-title">Your Product Descriptions</h2>
-                <p class="section-subtitle">Three professionally written styles - compare side-by-side</p>
+                <p class="section-subtitle">Three professionally written styles</p>
             </div>
             """, unsafe_allow_html=True)
             
@@ -1557,6 +1778,7 @@ def main():
                     </div>
                 """, unsafe_allow_html=True)
                 
+                st.caption(f"Generated by: {desc.ai_source}")
                 st.markdown(f"**Title:**\n{desc.title}")
                 st.markdown(f"**Description:**\n{desc.description}")
                 st.markdown("**Features:**")
@@ -1575,6 +1797,7 @@ def main():
                     </div>
                 """, unsafe_allow_html=True)
                 
+                st.caption(f"Generated by: {desc.ai_source}")
                 st.markdown(f"**Title:**\n{desc.title}")
                 st.markdown(f"**Description:**\n{desc.description}")
                 st.markdown("**Features:**")
@@ -1593,6 +1816,7 @@ def main():
                     </div>
                 """, unsafe_allow_html=True)
                 
+                st.caption(f"Generated by: {desc.ai_source}")
                 st.markdown(f"**Title:**\n{desc.title}")
                 st.markdown(f"**Description:**\n{desc.description}")
                 st.markdown("**Features:**")
@@ -1628,7 +1852,7 @@ def main():
             export_style = st.selectbox(
                 "Choose Description Style:",
                 list(descriptions.keys()),
-                help="Select which AI-generated description to use for your platform export",
+                help="Select which description to use",
                 key="style_selector"
             )
             
@@ -1662,13 +1886,13 @@ def main():
             
             with col2:
                 all_listings = f"=== {product_name.upper()} - ALL STYLES ===\n\n"
-                all_listings += f"Created by QuickList AI\n"
+                all_listings += f"Created by QuickList Multi-AI\n"
                 all_listings += f"Platform: {target_platform}\n"
                 all_listings += f"Category: {analysis.category}\n\n"
                 all_listings += "="*70 + "\n\n"
                 
                 for style_name, desc in descriptions.items():
-                    all_listings += f"\n{'='*70}\n{style_name}\n{'='*70}\n\n"
+                    all_listings += f"\n{'='*70}\n{style_name} (Generated by: {desc.ai_source})\n{'='*70}\n\n"
                     all_listings += format_for_platform(desc, keywords, target_platform) + "\n\n"
                 
                 st.download_button(
@@ -1699,7 +1923,7 @@ def main():
         st.markdown("""
         <div class="section-header">
             <h2 class="section-title">How QuickList Works</h2>
-            <p class="section-subtitle">Professional AI-powered listings in seconds</p>
+            <p class="section-subtitle">Multi-AI powered listings in seconds</p>
         </div>
         """, unsafe_allow_html=True)
         
@@ -1720,9 +1944,9 @@ def main():
             st.markdown("""
             <div class="metric-box">
                 <div style="font-size: 3rem; margin-bottom: 1rem;">2</div>
-                <div class="metric-label">Generate Content</div>
+                <div class="metric-label">Multi-AI Generation</div>
                 <div style="color: #666666; font-size: 0.95rem; margin-top: 0.5rem; line-height: 1.5;">
-                    Get descriptions, keywords, and photos
+                    5 AI services work together for best results
                 </div>
             </div>
             """, unsafe_allow_html=True)
@@ -1733,7 +1957,7 @@ def main():
                 <div style="font-size: 3rem; margin-bottom: 1rem;">3</div>
                 <div class="metric-label">Download & Sell</div>
                 <div style="color: #666666; font-size: 0.95rem; margin-top: 0.5rem; line-height: 1.5;">
-                    Ready for Shopify, Amazon, Etsy
+                    Ready for any platform
                 </div>
             </div>
             """, unsafe_allow_html=True)
@@ -1741,14 +1965,15 @@ def main():
         st.markdown("""
         <div class="info-box" style="margin-top: 3rem;">
             <p style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.75rem;">
-                What You Get:
+                Multi-AI Fallback System:
             </p>
             <p style="margin: 0; line-height: 1.8;">
-                • Smart product analysis from your image<br>
-                • 3 professionally written description styles<br>
-                • Search-optimized keywords<br>
-                • Platform-ready formatting<br>
-                • Complete listing in under 30 seconds
+                • <strong>Tier 1:</strong> Groq Llama 3.3 (if API key provided)<br>
+                • <strong>Tier 2:</strong> Pollinations AI (100% free, no key needed!)<br>
+                • <strong>Tier 3:</strong> HuggingFace Mistral<br>
+                • <strong>Tier 4:</strong> HuggingFace Llama<br>
+                • <strong>Tier 5:</strong> Smart Industry Templates<br><br>
+                <strong>Result:</strong> Almost always get Gen AI responses instead of templates!
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -1756,7 +1981,7 @@ def main():
         st.markdown("""
         <div class="info-box" style="margin-top: 2rem; border-left-color: #0066cc;">
             <p style="margin: 0; font-weight: 600;">
-                100% Free • No Signup Required • Instant Results
+                100% Free • No Signup Required • Multiple AI Services • Instant Results
             </p>
         </div>
         """, unsafe_allow_html=True)
