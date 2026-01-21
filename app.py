@@ -1315,7 +1315,6 @@ def main():
                     
                     ai = QuickListAI()
                     
-                    st.session_state.show_results = True
                     st.session_state.product_name = product_name
                     st.session_state.target_platform = target_platform
                     
@@ -1374,11 +1373,14 @@ def main():
                         progress.empty()
                     
                     st.session_state.keywords = keywords
+                    st.session_state.show_results = True
                     
                     st.success("✅ Your listing is ready!")
         
         # Display results
-        if 'show_results' in st.session_state and st.session_state.show_results:
+        if ('show_results' in st.session_state and st.session_state.show_results and 
+            'description' in st.session_state and 'analysis' in st.session_state and 
+            'keywords' in st.session_state):
             analysis = st.session_state.analysis
             description = st.session_state.description
             keywords = st.session_state.keywords
