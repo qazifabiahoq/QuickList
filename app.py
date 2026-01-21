@@ -1046,18 +1046,22 @@ Respond ONLY with valid JSON (no markdown, no extra text):
             pass
         
         # FINAL FALLBACK: Simple template
-        color_text = f"{color} " if color else ""
+        # Don't duplicate color if it's already in product name
+        color_text = ""
+        if color and color.lower() not in product_name.lower():
+            color_text = f"{color} "
+        
         return ProductDescription(
             title=f"{analysis.style} {color_text}{product_name}".strip(),
             description=f"Experience exceptional quality with this {color_text}{product_name.lower()}. Crafted from {analysis.materials[0].lower()}, this {analysis.specific_type.lower()} combines {analysis.style.lower()} design with premium craftsmanship. {features if features else 'Perfect for any occasion.'}",
             bullet_points=[
                 f"{analysis.materials[0]} construction for durability",
                 f"{analysis.style} design that stands out",
-                f"Versatile {color_text}styling".strip(),
+                f"Versatile {color if color else 'classic'} styling",
                 "Quality craftsmanship ensures long-lasting wear",
                 "Perfect addition to your collection"
             ],
-            meta_description=f"{product_name} - {analysis.style} {color_text}{analysis.specific_type.lower()}"[:160]
+            meta_description=f"{product_name} - {analysis.style} {analysis.specific_type.lower()}"[:160]
         )
     
     @staticmethod
