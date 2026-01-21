@@ -16,7 +16,6 @@ import re
 HAS_GROQ = False
 GROQ_API_KEY = None
 
-# Try to import and configure Groq
 try:
     from groq import Groq
     GROQ_API_KEY = st.secrets.get("groq", {}).get("api_key")
@@ -32,7 +31,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS - Same as before
+# Custom CSS
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700;800&display=swap');
@@ -294,20 +293,6 @@ st.markdown("""
         color: #000000 !important;
         margin-bottom: 1.5rem;
         font-family: 'Space Grotesk', sans-serif;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-    
-    .style-badge {
-        background: #000000;
-        color: #ffffff !important;
-        padding: 0.4rem 1rem;
-        border-radius: 20px;
-        font-size: 0.7rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
     }
     
     .seo-box {
@@ -338,23 +323,6 @@ st.markdown("""
         margin: 0.4rem 0.4rem 0.4rem 0;
     }
     
-    .image-gallery {
-        background: #ffffff;
-        border: 2px solid #e5e5e5;
-        border-radius: 16px;
-        padding: 2.5rem;
-        margin: 2rem 0;
-    }
-    
-    .gallery-title {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #000000 !important;
-        margin-bottom: 2rem;
-        font-family: 'Space Grotesk', sans-serif;
-        text-align: center;
-    }
-    
     [data-testid="stImage"] {
         border-radius: 12px;
         overflow: hidden;
@@ -379,33 +347,6 @@ st.markdown("""
     
     .stProgress > div > div > div > div {
         background: linear-gradient(90deg, #000000 0%, #0066cc 100%);
-    }
-    
-    .status-badge {
-        display: inline-block;
-        padding: 0.6rem 1.5rem;
-        border-radius: 24px;
-        font-size: 0.9rem;
-        font-weight: 700;
-        margin: 0.5rem 0;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-    
-    .status-processing {
-        background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%);
-        color: #ffffff !important;
-        animation: pulse 2s ease-in-out infinite;
-    }
-    
-    @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.7; }
-    }
-    
-    .status-complete {
-        background: linear-gradient(135deg, #059669 0%, #047857 100%);
-        color: #ffffff !important;
     }
     
     .section-header {
@@ -464,23 +405,6 @@ st.markdown("""
     .stTextArea textarea:focus {
         border-color: #0066cc !important;
         box-shadow: 0 0 0 3px rgba(0,102,204,0.1) !important;
-    }
-    
-    pre, code {
-        background: #f8f8f8 !important;
-        color: #000000 !important;
-        border: 1px solid #e5e5e5 !important;
-        border-radius: 8px !important;
-        padding: 1rem !important;
-    }
-    
-    .stCode, [data-testid="stCode"] {
-        background: #f8f8f8 !important;
-    }
-    
-    .stCode pre, [data-testid="stCode"] pre {
-        background: #f8f8f8 !important;
-        color: #000000 !important;
     }
     
     .stSelectbox div[data-baseweb="select"] {
@@ -606,17 +530,233 @@ class ProductDescription:
     description: str
     bullet_points: List[str]
     meta_description: str
-    style_type: str
-    ai_source: str = "template"
 
 
 class QuickListAI:
-    """AI-powered product listing generator with 10+ AI fallback chain"""
+    """AI-powered product listing generator"""
     
     @staticmethod
-    def analyze_product_with_clip(image: Image.Image, product_name: str = "") -> ProductAnalysis:
-        """IMPROVED CLIP analysis - now checks product name too!"""
+    def analyze_with_vision_apis(image: Image.Image, product_name: str = "") -> ProductAnalysis:
+        """Multi-tier FREE image detection: Google Vision → Amazon Rekognition → CLIP"""
         
+        # Convert image to base64
+        buffered = io.BytesIO()
+        image.save(buffered, format="JPEG", quality=95)
+        img_base64 = base64.b64encode(buffered.getvalue()).decode()
+        
+        # ============================================
+        # TIER 1: Google Cloud Vision API (1000/month free)
+        # ============================================
+        try:
+            # Check if Google API key exists
+            google_key = None
+            try:
+                google_key = st.secrets.get("google", {}).get("vision_api_key")
+            except:
+                pass
+            
+            if google_key:
+                response = requests.post(
+                    f"https://vision.googleapis.com/v1/images:annotate?key={google_key}",
+                    json={
+                        "requests": [{
+                            "image": {"content": img_base64},
+                            "features": [
+                                {"type": "LABEL_DETECTION", "maxResults": 10},
+                                {"type": "OBJECT_LOCALIZATION", "maxResults": 5},
+                                {"type": "IMAGE_PROPERTIES"}
+                            ]
+                        }]
+                    },
+                    timeout=10
+                )
+                
+                if response.status_code == 200:
+                    result = response.json()
+                    labels = [label['description'].lower() for label in result['responses'][0].get('labelAnnotations', [])]
+                    objects = [obj['name'].lower() for obj in result['responses'][0].get('localizedObjectAnnotations', [])]
+                    colors_data = result['responses'][0].get('imagePropertiesAnnotation', {}).get('dominantColors', {}).get('colors', [])
+                    
+                    # Extract category from labels/objects
+                    category, specific_type = QuickListAI._parse_google_vision(labels, objects, product_name)
+                    
+                    # Extract dominant color
+                    dominant_color = "neutral"
+                    if colors_data:
+                        rgb = colors_data[0].get('color', {})
+                        dominant_color = QuickListAI._rgb_to_color_name(rgb.get('red', 0), rgb.get('green', 0), rgb.get('blue', 0))
+                    
+                    # Detect materials and style from labels
+                    materials, style = QuickListAI._detect_materials_style(labels, category)
+                    
+                    return ProductAnalysis(
+                        category=category,
+                        materials=materials,
+                        colors=[dominant_color, "#000000"],
+                        style=style,
+                        confidence=0.92,
+                        specific_type=specific_type
+                    )
+        except Exception as e:
+            pass
+        
+        # ============================================
+        # TIER 2: Amazon Rekognition (5000/month free first year)
+        # ============================================
+        try:
+            # Check for AWS credentials
+            aws_key = None
+            aws_secret = None
+            try:
+                aws_key = st.secrets.get("aws", {}).get("access_key_id")
+                aws_secret = st.secrets.get("aws", {}).get("secret_access_key")
+            except:
+                pass
+            
+            if aws_key and aws_secret:
+                import boto3
+                
+                client = boto3.client(
+                    'rekognition',
+                    aws_access_key_id=aws_key,
+                    aws_secret_access_key=aws_secret,
+                    region_name='us-east-1'
+                )
+                
+                response = client.detect_labels(
+                    Image={'Bytes': buffered.getvalue()},
+                    MaxLabels=15,
+                    MinConfidence=70
+                )
+                
+                labels = [label['Name'].lower() for label in response['Labels']]
+                
+                category, specific_type = QuickListAI._parse_amazon_labels(labels, product_name)
+                materials, style = QuickListAI._detect_materials_style(labels, category)
+                
+                # Get color from image
+                dominant_color = QuickListAI._extract_dominant_color(image)
+                
+                return ProductAnalysis(
+                    category=category,
+                    materials=materials,
+                    colors=[dominant_color, "#000000"],
+                    style=style,
+                    confidence=0.89,
+                    specific_type=specific_type
+                )
+        except Exception as e:
+            pass
+        
+        # ============================================
+        # TIER 3: CLIP (HuggingFace - Unlimited Free)
+        # ============================================
+        return QuickListAI._analyze_with_clip(image, product_name)
+    
+    @staticmethod
+    def _parse_google_vision(labels: List[str], objects: List[str], product_name: str) -> tuple:
+        """Parse Google Vision labels to category"""
+        all_tags = labels + objects
+        prod_lower = product_name.lower()
+        
+        # Clothing
+        if any(tag in all_tags or tag in prod_lower for tag in ['dress', 'gown', 'frock']):
+            return "Apparel & Fashion", "Dress"
+        elif any(tag in all_tags or tag in prod_lower for tag in ['shirt', 'blouse', 'top']):
+            return "Apparel & Fashion", "Top"
+        elif any(tag in all_tags or tag in prod_lower for tag in ['pants', 'jeans', 'trousers']):
+            return "Apparel & Fashion", "Pants"
+        elif any(tag in all_tags or tag in prod_lower for tag in ['jacket', 'coat', 'blazer']):
+            return "Apparel & Fashion", "Jacket"
+        
+        # Electronics
+        elif any(tag in all_tags or tag in prod_lower for tag in ['headphones', 'earbuds', 'earphones']):
+            return "Electronics", "Headphones"
+        elif any(tag in all_tags or tag in prod_lower for tag in ['phone', 'smartphone', 'mobile']):
+            return "Electronics", "Smartphone"
+        elif any(tag in all_tags or tag in prod_lower for tag in ['laptop', 'computer', 'notebook']):
+            return "Electronics", "Laptop"
+        
+        # Furniture
+        elif any(tag in all_tags or tag in prod_lower for tag in ['chair', 'seat']):
+            return "Furniture", "Chair"
+        elif any(tag in all_tags or tag in prod_lower for tag in ['table', 'desk']):
+            return "Furniture", "Table"
+        elif any(tag in all_tags or tag in prod_lower for tag in ['sofa', 'couch']):
+            return "Furniture", "Sofa"
+        
+        # Accessories
+        elif any(tag in all_tags or tag in prod_lower for tag in ['bag', 'purse', 'handbag']):
+            return "Bags & Luggage", "Bag"
+        elif any(tag in all_tags or tag in prod_lower for tag in ['shoes', 'sneakers', 'boots']):
+            return "Footwear", "Shoes"
+        
+        # Default
+        return "Product", "Item"
+    
+    @staticmethod
+    def _parse_amazon_labels(labels: List[str], product_name: str) -> tuple:
+        """Parse Amazon Rekognition labels"""
+        return QuickListAI._parse_google_vision(labels, [], product_name)
+    
+    @staticmethod
+    def _rgb_to_color_name(r: int, g: int, b: int) -> str:
+        """Convert RGB to color name"""
+        if r < 50 and g < 50 and b < 50:
+            return "black"
+        elif r > 200 and g > 200 and b > 200:
+            return "white"
+        elif r > g and r > b:
+            return "red"
+        elif g > r and g > b:
+            return "green"
+        elif b > r and b > g:
+            return "blue"
+        elif r > 150 and g > 100 and b < 100:
+            return "brown"
+        elif r > 150 and g > 150 and b < 100:
+            return "yellow"
+        else:
+            return "neutral"
+    
+    @staticmethod
+    def _extract_dominant_color(image: Image.Image) -> str:
+        """Extract dominant color from image"""
+        img_array = np.array(image.resize((100, 100)))
+        pixels = img_array.reshape(-1, 3)
+        avg_color = np.mean(pixels, axis=0).astype(int)
+        return QuickListAI._rgb_to_color_name(avg_color[0], avg_color[1], avg_color[2])
+    
+    @staticmethod
+    def _detect_materials_style(labels: List[str], category: str) -> tuple:
+        """Detect materials and style from labels"""
+        materials = ["Premium", "Quality"]
+        style = "Modern"
+        
+        # Materials
+        if category == "Apparel & Fashion":
+            if any(mat in ' '.join(labels) for mat in ['silk', 'satin']):
+                materials = ["Silk", "Premium Fabric"]
+            elif any(mat in ' '.join(labels) for mat in ['cotton', 'cloth']):
+                materials = ["Cotton", "Soft Fabric"]
+            elif any(mat in ' '.join(labels) for mat in ['leather']):
+                materials = ["Leather", "Premium Material"]
+            else:
+                materials = ["Fabric", "Quality Material"]
+        
+        # Style
+        if any(s in ' '.join(labels) for s in ['elegant', 'formal', 'luxury']):
+            style = "Elegant"
+        elif any(s in ' '.join(labels) for s in ['casual', 'everyday']):
+            style = "Casual"
+        elif any(s in ' '.join(labels) for s in ['vintage', 'classic']):
+            style = "Classic"
+        
+        return materials, style
+    
+    @staticmethod
+    def _analyze_with_clip(image: Image.Image, product_name: str) -> ProductAnalysis:
+        """Fallback CLIP analysis"""
         try:
             buffered = io.BytesIO()
             image.save(buffered, format="PNG")
@@ -625,224 +765,68 @@ class QuickListAI:
             headers = {"Content-Type": "application/octet-stream"}
             API_URL = "https://api-inference.huggingface.co/models/openai/clip-vit-base-patch32"
             
-            # Use product name hints if available
-            product_lower = product_name.lower()
+            prod_lower = product_name.lower()
             
-            clothing_categories = [
-                "dress evening formal gown", "dress casual day sundress", "shirt top blouse tunic",
-                "pants jeans trousers slacks", "jacket coat blazer outerwear", "sweater cardigan pullover",
-                "skirt midi maxi mini", "activewear sportswear athletic", "lingerie sleepwear nightwear", "suit blazer professional"
+            # Detect category
+            categories = [
+                "dress evening gown", "shirt blouse top", "pants jeans", "jacket coat",
+                "headphones earbuds", "smartphone phone", "laptop computer",
+                "chair seating", "table desk", "sofa couch",
+                "bag purse", "shoes footwear"
             ]
             
-            electronics_categories = [
-                "headphones earbuds earphones audio", "smartphone mobile phone device", "laptop computer notebook",
-                "tablet ipad device", "camera photography dslr", "speaker bluetooth portable", 
-                "smartwatch wearable fitness", "gaming console playstation xbox", "television tv screen monitor"
-            ]
-            
-            furniture_categories = [
-                "chair seating armchair", "table desk workspace surface", "sofa couch sectional",
-                "bed mattress frame", "cabinet storage dresser", "shelf bookcase bookshelf",
-                "lamp lighting fixture", "rug carpet mat flooring"
-            ]
-            
-            other_categories = [
-                "jewelry watch necklace bracelet", "bag purse handbag backpack luggage", "shoes sneakers boots footwear",
-                "beauty cosmetics skincare makeup", "kitchen cookware utensils appliance",
-                "toy game puzzle", "book notebook stationery", "tool hardware equipment",
-                "home decor decorative wall art"
-            ]
-            
-            all_categories = clothing_categories + electronics_categories + furniture_categories + other_categories
-            
-            response1 = requests.post(
+            response = requests.post(
                 API_URL,
                 headers=headers,
                 data=img_bytes,
-                params={"candidate_labels": ",".join(all_categories)},
+                params={"candidate_labels": ",".join(categories)},
                 timeout=20
             )
             
-            category = "Apparel & Fashion"  # Default for clothing
+            category = "Apparel & Fashion"
             specific_type = "Dress"
             
-            if response1.status_code == 200:
-                result = response1.json()
+            if response.status_code == 200:
+                result = response.json()
                 if isinstance(result, list) and len(result) > 0:
-                    detected = result[0].get('label', '').strip().lower()
+                    detected = result[0].get('label', '').lower()
                     
-                    # Map to categories
-                    if "dress" in detected or "dress" in product_lower:
-                        category = "Apparel & Fashion"
-                        specific_type = "Dress"
-                    elif any(word in detected or word in product_lower for word in ["shirt", "blouse", "top", "tunic"]):
-                        category = "Apparel & Fashion"
-                        specific_type = "Top"
-                    elif any(word in detected or word in product_lower for word in ["pants", "jeans", "trousers", "slacks"]):
-                        category = "Apparel & Fashion"
-                        specific_type = "Pants"
-                    elif any(word in detected or word in product_lower for word in ["jacket", "coat", "blazer"]):
-                        category = "Apparel & Fashion"
-                        specific_type = "Jacket"
-                    elif "sweater" in detected or "cardigan" in detected or "sweater" in product_lower:
-                        category = "Apparel & Fashion"
-                        specific_type = "Sweater"
-                    elif "skirt" in detected or "skirt" in product_lower:
-                        category = "Apparel & Fashion"
-                        specific_type = "Skirt"
-                    elif any(word in detected or word in product_lower for word in ["headphone", "earbud", "earphone"]):
-                        category = "Electronics"
-                        specific_type = "Headphones"
-                    elif any(word in detected or word in product_lower for word in ["phone", "smartphone"]):
-                        category = "Electronics"
-                        specific_type = "Smartphone"
-                    elif "laptop" in detected or "computer" in detected or "laptop" in product_lower:
-                        category = "Electronics"
-                        specific_type = "Laptop"
-                    elif "camera" in detected or "camera" in product_lower:
-                        category = "Electronics"
-                        specific_type = "Camera"
-                    elif "speaker" in detected or "speaker" in product_lower:
-                        category = "Electronics"
-                        specific_type = "Speaker"
-                    elif "chair" in detected or "chair" in product_lower:
-                        category = "Furniture"
-                        specific_type = "Chair"
-                    elif any(word in detected or word in product_lower for word in ["table", "desk"]):
-                        category = "Furniture"
-                        specific_type = "Table"
-                    elif any(word in detected or word in product_lower for word in ["sofa", "couch"]):
-                        category = "Furniture"
-                        specific_type = "Sofa"
-                    elif "bed" in detected or "bed" in product_lower:
-                        category = "Furniture"
-                        specific_type = "Bed"
-                    elif "jewelry" in detected or "watch" in detected or "jewelry" in product_lower:
-                        category = "Jewelry & Accessories"
-                        specific_type = "Jewelry"
-                    elif "bag" in detected or "purse" in detected or "bag" in product_lower:
-                        category = "Bags & Luggage"
-                        specific_type = "Bag"
-                    elif "shoes" in detected or "footwear" in detected or "shoes" in product_lower:
-                        category = "Footwear"
-                        specific_type = "Shoes"
-                    elif "beauty" in detected or "cosmetics" in detected or "beauty" in product_lower:
-                        category = "Beauty & Personal Care"
-                        specific_type = "Beauty Product"
-                    elif "kitchen" in detected or "cookware" in detected or "kitchen" in product_lower:
-                        category = "Kitchen & Home"
-                        specific_type = "Kitchen Item"
-                    elif "toy" in detected or "game" in detected or "toy" in product_lower:
-                        category = "Toys & Games"
-                        specific_type = "Toy"
+                    if "dress" in detected or "dress" in prod_lower:
+                        category, specific_type = "Apparel & Fashion", "Dress"
+                    elif "shirt" in detected or "top" in detected or "shirt" in prod_lower:
+                        category, specific_type = "Apparel & Fashion", "Top"
+                    elif "pants" in detected or "jeans" in detected or "pants" in prod_lower:
+                        category, specific_type = "Apparel & Fashion", "Pants"
+                    elif "headphone" in detected or "headphone" in prod_lower:
+                        category, specific_type = "Electronics", "Headphones"
+                    elif "phone" in detected or "phone" in prod_lower:
+                        category, specific_type = "Electronics", "Smartphone"
+                    elif "laptop" in detected or "laptop" in prod_lower:
+                        category, specific_type = "Electronics", "Laptop"
             
-            # Color detection
-            color_labels = [
-                "black dark charcoal", "white cream ivory", "silver metallic chrome", "gray grey slate", 
-                "red crimson burgundy", "blue navy cobalt", "green emerald forest", "yellow gold mustard",
-                "pink rose blush", "purple violet plum", "brown tan chocolate", "beige cream sand",
-                "orange coral rust", "multicolor rainbow", "transparent clear"
-            ]
+            # Get color
+            dominant_color = QuickListAI._extract_dominant_color(image)
+            if "black" in prod_lower:
+                dominant_color = "black"
             
-            response2 = requests.post(
-                API_URL,
-                headers=headers,
-                data=img_bytes,
-                params={"candidate_labels": ",".join(color_labels)},
-                timeout=20
-            )
-            
-            detected_color = "black" if "black" in product_lower else "neutral"
-            if response2.status_code == 200:
-                result = response2.json()
-                if isinstance(result, list) and len(result) > 0:
-                    color_full = result[0].get('label', 'neutral')
-                    detected_color = color_full.split()[0]
-            
-            # Material detection based on category
-            if category in ["Apparel & Fashion", "Bags & Luggage"]:
-                material_labels = [
-                    "cotton soft breathable", "silk satin luxurious", "wool warm knit",
-                    "leather genuine quality", "polyester synthetic durable", "denim sturdy casual",
-                    "linen natural light", "velvet plush luxe", "lace delicate elegant", "chiffon flowing"
-                ]
-            elif category == "Electronics":
-                material_labels = [
-                    "aluminum premium metal", "plastic durable lightweight", "glass tempered screen",
-                    "stainless steel polished", "carbon fiber advanced", "silicone soft rubber"
-                ]
-            elif category == "Furniture":
-                material_labels = [
-                    "wood oak walnut", "metal steel iron", "fabric upholstered soft",
-                    "leather genuine premium", "plastic modern lightweight", "glass transparent elegant",
-                    "marble luxurious stone", "rattan wicker natural"
-                ]
+            # Materials and style based on category
+            if category == "Apparel & Fashion":
+                materials = ["Silk", "Premium Fabric"]
+                style = "Elegant"
             else:
-                material_labels = [
-                    "premium quality", "durable strong", "soft comfortable", "lightweight portable",
-                    "waterproof resistant", "eco-friendly sustainable"
-                ]
-            
-            response3 = requests.post(
-                API_URL,
-                headers=headers,
-                data=img_bytes,
-                params={"candidate_labels": ",".join(material_labels)},
-                timeout=20
-            )
-            
-            detected_material = "Silk"  # Better default for dresses
-            material2 = "Quality Fabric"
-            if response3.status_code == 200:
-                result = response3.json()
-                if isinstance(result, list) and len(result) >= 2:
-                    mat1_full = result[0].get('label', 'silk')
-                    mat2_full = result[1].get('label', 'fabric')
-                    
-                    detected_material = mat1_full.split()[0].capitalize()
-                    material2 = mat2_full.split()[0].capitalize()
-            
-            # Style detection
-            style_labels = [
-                "elegant sophisticated refined", "modern contemporary sleek",
-                "casual relaxed comfortable", "vintage retro classic",
-                "minimalist clean simple", "sporty athletic active",
-                "bohemian artistic creative", "professional business formal",
-                "trendy fashionable stylish", "traditional timeless enduring"
-            ]
-            
-            response4 = requests.post(
-                API_URL,
-                headers=headers,
-                data=img_bytes,
-                params={"candidate_labels": ",".join(style_labels)},
-                timeout=20
-            )
-            
-            detected_style = "Elegant"  # Better default for dresses
-            if response4.status_code == 200:
-                result = response4.json()
-                if isinstance(result, list) and len(result) > 0:
-                    style_full = result[0].get('label', 'elegant')
-                    detected_style = style_full.split()[0].capitalize()
-            
-            # Extract hex color
-            img_array = np.array(image.resize((100, 100)))
-            pixels = img_array.reshape(-1, 3)
-            avg_colors = np.mean(pixels, axis=0).astype(int)
-            hex_color = '#{:02x}{:02x}{:02x}'.format(*avg_colors)
+                materials = ["Premium", "Quality"]
+                style = "Modern"
             
             return ProductAnalysis(
                 category=category,
-                materials=[detected_material, material2],
-                colors=[detected_color, hex_color],
-                style=detected_style,
-                confidence=0.88,
+                materials=materials,
+                colors=[dominant_color, "#000000"],
+                style=style,
+                confidence=0.82,
                 specific_type=specific_type
             )
             
         except Exception as e:
-            # Better fallback for dresses
             return ProductAnalysis(
                 category="Apparel & Fashion",
                 materials=["Silk", "Quality Fabric"],
@@ -854,27 +838,23 @@ class QuickListAI:
     
     @staticmethod
     def clean_json_response(text: str) -> str:
-        """Extract JSON from response text"""
-        # Remove markdown code blocks
+        """Extract JSON from response"""
         text = re.sub(r'```json\s*|\s*```', '', text, flags=re.IGNORECASE)
-        
-        # Find JSON object
         start = text.find('{')
         end = text.rfind('}') + 1
-        
         if start != -1 and end > start:
             return text[start:end]
         return text
     
     @staticmethod
-    def generate_with_multi_ai(product_name: str, analysis: ProductAnalysis, 
-                               style: str, features: str, image: Image.Image,
-                               target_audience: str = "", price_range: str = "") -> ProductDescription:
-        """EXPANDED: 10+ AI services in fallback chain!"""
+    def generate_description(product_name: str, analysis: ProductAnalysis, 
+                            features: str, image: Image.Image,
+                            target_audience: str = "", price_range: str = "") -> ProductDescription:
+        """Generate ONE professional description using multi-AI fallback"""
         
         color = analysis.colors[0] if analysis.colors[0] != "neutral" else ""
         
-        # Enhanced context
+        # Build context
         context = f"""Product: {product_name}
 Category: {analysis.category}
 Type: {analysis.specific_type}
@@ -888,40 +868,21 @@ Features: {features if features else 'Premium quality'}"""
         if price_range:
             context += f"\nPrice Range: {price_range}"
         
-        # Build prompt
-        if style == "Storytelling (Emotional)":
-            prompt = f"""Write an emotional e-commerce product description for this {analysis.specific_type.lower()}.
+        # Create prompt for professional e-commerce description
+        prompt = f"""Write a professional e-commerce product description for this {analysis.specific_type.lower()}.
 
 {context}
 
-Write 150-200 words that create emotional connection. Use vivid, sensory language. Focus on how it makes the customer FEEL, not just features. Tell a mini-story.
+Write 150-200 words that balance emotional appeal with practical benefits. Be specific, engaging, and persuasive.
 
 Respond ONLY with valid JSON (no markdown, no extra text):
-{{"title": "compelling emotional title", "description": "storytelling description with sensory details", "bullet_points": ["emotional benefit 1", "emotional benefit 2", "emotional benefit 3", "emotional benefit 4", "emotional benefit 5"], "meta_description": "SEO meta under 160 chars"}}"""
-
-        elif style == "Feature-Benefit (Practical)":
-            prompt = f"""Write a practical product description for this {analysis.specific_type.lower()}.
-
-{context}
-
-Write 150-200 words. Lead with SPECIFIC features, translate to benefits. Professional tone.
-
-Respond ONLY with valid JSON (no markdown, no extra text):
-{{"title": "professional title with key feature", "description": "feature-benefit description", "bullet_points": ["feature + benefit 1", "feature + benefit 2", "feature + benefit 3", "feature + benefit 4", "feature + benefit 5"], "meta_description": "SEO meta under 160 chars"}}"""
-
-        else:  # Minimalist
-            prompt = f"""Write a minimalist product description for this {analysis.specific_type.lower()}.
-
-{context}
-
-Write 80-100 words. Short sentences. Essential details only. Modern tone.
-
-Respond ONLY with valid JSON (no markdown, no extra text):
-{{"title": "simple title", "description": "minimalist description", "bullet_points": ["detail 1", "detail 2", "detail 3", "detail 4", "detail 5"], "meta_description": "meta under 160"}}"""
+{{"title": "compelling product title", "description": "engaging professional description", "bullet_points": ["key benefit 1", "key benefit 2", "key benefit 3", "key benefit 4", "key benefit 5"], "meta_description": "SEO meta under 160 chars"}}"""
         
         # ============================================
-        # TIER 1: Groq (Best - if API key)
+        # Try multiple AI services
         # ============================================
+        
+        # TIER 1: Groq
         if GROQ_API_KEY and HAS_GROQ:
             try:
                 client = Groq(api_key=GROQ_API_KEY)
@@ -938,25 +899,17 @@ Respond ONLY with valid JSON (no markdown, no extra text):
                     title=parsed.get('title', product_name),
                     description=parsed.get('description', ''),
                     bullet_points=parsed.get('bullet_points', [])[:5],
-                    meta_description=parsed.get('meta_description', '')[:160],
-                    style_type=style,
-                    ai_source="Groq Llama 3.3"
+                    meta_description=parsed.get('meta_description', '')[:160]
                 )
             except Exception as e:
                 pass
         
-        # ============================================
-        # TIER 2: DeepInfra (Very reliable, free)
-        # ============================================
+        # TIER 2: DeepInfra
         try:
             response = requests.post(
                 "https://api.deepinfra.com/v1/inference/meta-llama/Meta-Llama-3.1-70B-Instruct",
                 headers={"Content-Type": "application/json"},
-                json={
-                    "input": prompt,
-                    "max_tokens": 700,
-                    "temperature": 0.7
-                },
+                json={"input": prompt, "max_tokens": 700, "temperature": 0.7},
                 timeout=25
             )
             
@@ -972,16 +925,12 @@ Respond ONLY with valid JSON (no markdown, no extra text):
                         title=parsed.get('title', product_name),
                         description=parsed.get('description', ''),
                         bullet_points=parsed.get('bullet_points', [])[:5],
-                        meta_description=parsed.get('meta_description', '')[:160],
-                        style_type=style,
-                        ai_source="DeepInfra Llama 3.1"
+                        meta_description=parsed.get('meta_description', '')[:160]
                     )
         except Exception as e:
             pass
         
-        # ============================================
-        # TIER 3: Together AI (Good quality, free tier)
-        # ============================================
+        # TIER 3: Together AI
         try:
             response = requests.post(
                 "https://api.together.xyz/v1/chat/completions",
@@ -1007,16 +956,12 @@ Respond ONLY with valid JSON (no markdown, no extra text):
                         title=parsed.get('title', product_name),
                         description=parsed.get('description', ''),
                         bullet_points=parsed.get('bullet_points', [])[:5],
-                        meta_description=parsed.get('meta_description', '')[:160],
-                        style_type=style,
-                        ai_source="Together AI Llama 3.1"
+                        meta_description=parsed.get('meta_description', '')[:160]
                     )
         except Exception as e:
             pass
         
-        # ============================================
-        # TIER 4: Pollinations AI (100% free)
-        # ============================================
+        # TIER 4: Pollinations
         try:
             response = requests.post(
                 "https://text.pollinations.ai/",
@@ -1037,27 +982,19 @@ Respond ONLY with valid JSON (no markdown, no extra text):
                     title=parsed.get('title', product_name),
                     description=parsed.get('description', ''),
                     bullet_points=parsed.get('bullet_points', [])[:5],
-                    meta_description=parsed.get('meta_description', '')[:160],
-                    style_type=style,
-                    ai_source="Pollinations AI"
+                    meta_description=parsed.get('meta_description', '')[:160]
                 )
         except Exception as e:
             pass
         
-        # ============================================
-        # TIER 5: HuggingFace Qwen (Good for writing)
-        # ============================================
+        # TIER 5: HuggingFace Qwen
         try:
             response = requests.post(
                 "https://api-inference.huggingface.co/models/Qwen/Qwen2.5-72B-Instruct",
                 headers={"Content-Type": "application/json"},
                 json={
                     "inputs": prompt,
-                    "parameters": {
-                        "max_new_tokens": 700,
-                        "temperature": 0.7,
-                        "return_full_text": False
-                    }
+                    "parameters": {"max_new_tokens": 700, "temperature": 0.7, "return_full_text": False}
                 },
                 timeout=25
             )
@@ -1074,27 +1011,19 @@ Respond ONLY with valid JSON (no markdown, no extra text):
                         title=parsed.get('title', product_name),
                         description=parsed.get('description', ''),
                         bullet_points=parsed.get('bullet_points', [])[:5],
-                        meta_description=parsed.get('meta_description', '')[:160],
-                        style_type=style,
-                        ai_source="HuggingFace Qwen 2.5"
+                        meta_description=parsed.get('meta_description', '')[:160]
                     )
         except Exception as e:
             pass
         
-        # ============================================
-        # TIER 6: HuggingFace Mistral (Reliable)
-        # ============================================
+        # TIER 6: HuggingFace Mistral
         try:
             response = requests.post(
                 "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.3",
                 headers={"Content-Type": "application/json"},
                 json={
                     "inputs": prompt,
-                    "parameters": {
-                        "max_new_tokens": 600,
-                        "temperature": 0.7,
-                        "return_full_text": False
-                    }
+                    "parameters": {"max_new_tokens": 600, "temperature": 0.7, "return_full_text": False}
                 },
                 timeout=20
             )
@@ -1111,105 +1040,24 @@ Respond ONLY with valid JSON (no markdown, no extra text):
                         title=parsed.get('title', product_name),
                         description=parsed.get('description', ''),
                         bullet_points=parsed.get('bullet_points', [])[:5],
-                        meta_description=parsed.get('meta_description', '')[:160],
-                        style_type=style,
-                        ai_source="HuggingFace Mistral"
+                        meta_description=parsed.get('meta_description', '')[:160]
                     )
         except Exception as e:
             pass
         
-        # ============================================
-        # TIER 7: HuggingFace Llama 3.1 (Alternative)
-        # ============================================
-        try:
-            response = requests.post(
-                "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3.1-8B-Instruct",
-                headers={"Content-Type": "application/json"},
-                json={
-                    "inputs": f"<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\n{prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n",
-                    "parameters": {
-                        "max_new_tokens": 600,
-                        "temperature": 0.7,
-                        "return_full_text": False
-                    }
-                },
-                timeout=20
-            )
-            
-            if response.status_code == 200:
-                result = response.json()
-                generated = result[0].get('generated_text', '') if isinstance(result, list) else result.get('generated_text', '')
-                
-                if generated:
-                    cleaned = QuickListAI.clean_json_response(generated)
-                    parsed = json.loads(cleaned)
-                    
-                    return ProductDescription(
-                        title=parsed.get('title', product_name),
-                        description=parsed.get('description', ''),
-                        bullet_points=parsed.get('bullet_points', [])[:5],
-                        meta_description=parsed.get('meta_description', '')[:160],
-                        style_type=style,
-                        ai_source="HuggingFace Llama 3.1"
-                    )
-        except Exception as e:
-            pass
-        
-        # ============================================
-        # TIER 8: Fireworks AI (Fast inference)
-        # ============================================
-        try:
-            response = requests.post(
-                "https://api.fireworks.ai/inference/v1/chat/completions",
-                headers={"Content-Type": "application/json"},
-                json={
-                    "model": "accounts/fireworks/models/llama-v3p1-70b-instruct",
-                    "messages": [{"role": "user", "content": prompt}],
-                    "max_tokens": 700,
-                    "temperature": 0.7
-                },
-                timeout=20
-            )
-            
-            if response.status_code == 200:
-                result = response.json()
-                generated = result.get('choices', [{}])[0].get('message', {}).get('content', '')
-                
-                if generated:
-                    cleaned = QuickListAI.clean_json_response(generated)
-                    parsed = json.loads(cleaned)
-                    
-                    return ProductDescription(
-                        title=parsed.get('title', product_name),
-                        description=parsed.get('description', ''),
-                        bullet_points=parsed.get('bullet_points', [])[:5],
-                        meta_description=parsed.get('meta_description', '')[:160],
-                        style_type=style,
-                        ai_source="Fireworks AI Llama 3.1"
-                    )
-        except Exception as e:
-            pass
-        
-        # ============================================
-        # TIER 9: IMPROVED Templates (Final fallback)
-        # ============================================
-        # Use same improved templates from before
-        # [Templates code would go here - using the improved industry-specific templates]
-        
-        # For brevity, returning a simpler fallback
+        # FINAL FALLBACK: Simple template
+        color_text = f"{color} " if color else ""
         return ProductDescription(
-            title=f"{analysis.style} {color} {product_name}".strip(),
-            description=f"Experience exceptional quality with this {color} {product_name.lower()}. Crafted from {analysis.materials[0].lower()}, this {analysis.specific_type.lower()} combines {analysis.style.lower()} design with premium craftsmanship. {features if features else 'Perfect for any occasion.'}",
+            title=f"{analysis.style} {color_text}{product_name}".strip(),
+            description=f"Experience exceptional quality with this {color_text}{product_name.lower()}. Crafted from {analysis.materials[0].lower()}, this {analysis.specific_type.lower()} combines {analysis.style.lower()} design with premium craftsmanship. {features if features else 'Perfect for any occasion.'}",
             bullet_points=[
                 f"{analysis.materials[0]} construction for durability",
                 f"{analysis.style} design that stands out",
-                f"Versatile {color} color works with any style",
+                f"Versatile {color_text}styling".strip(),
                 "Quality craftsmanship ensures long-lasting wear",
                 "Perfect addition to your collection"
             ],
-            meta_description=f"{product_name} - {analysis.style} {color} {analysis.specific_type.lower()}"[:160],
-            style_type=style,
-            ai_source="Smart Templates"
+            meta_description=f"{product_name} - {analysis.style} {color_text}{analysis.specific_type.lower()}"[:160]
         )
     
     @staticmethod
@@ -1225,7 +1073,7 @@ Respond ONLY with valid JSON (no markdown, no extra text):
         
         primary = [base]
         
-        if color:
+        if color and color not in base:
             primary.append(f"{color} {base}")
         
         primary.extend([
@@ -1234,12 +1082,13 @@ Respond ONLY with valid JSON (no markdown, no extra text):
             f"best {base}",
         ])
         
-        if material and material not in ["premium material", "quality"]:
+        if material and material not in ["premium", "quality"] and material not in base:
             primary.append(f"{material} {base}")
         
-        if category != "product" and specific:
-            primary.append(f"{specific.lower()} {category.split()[0].lower()}")
+        if category != "product" and specific and specific not in base:
+            primary.append(f"{specific} {category.split()[0].lower()}")
         
+        # Remove duplicates
         primary = list(dict.fromkeys(primary[:8]))
         
         long_tail = [
@@ -1248,7 +1097,7 @@ Respond ONLY with valid JSON (no markdown, no extra text):
             f"where to buy {base}",
         ]
         
-        if color:
+        if color and color not in base:
             long_tail.append(f"{color} {base} for sale")
         
         long_tail.extend([
@@ -1259,8 +1108,8 @@ Respond ONLY with valid JSON (no markdown, no extra text):
             f"top rated {base}",
         ])
         
-        if specific:
-            long_tail.append(f"best {specific.lower()} for {category.split()[0].lower()}")
+        if specific and specific not in base:
+            long_tail.append(f"best {specific} for {category.split()[0].lower()}")
         
         long_tail = list(dict.fromkeys(long_tail[:12]))
         
@@ -1355,8 +1204,7 @@ def main():
         
         **What You Get:**
         
-        - Professional product descriptions
-        - 3 writing styles to choose from
+        - Professional product description
         - SEO keywords included
         - Ready for your store
         
@@ -1471,48 +1319,43 @@ def main():
                     st.session_state.product_name = product_name
                     st.session_state.target_platform = target_platform
                     
-                    # Phase 1: Analysis
-                    with st.spinner('Analyzing product with AI...'):
+                    # Phase 1: Image Analysis
+                    with st.spinner('Analyzing your product...'):
                         progress = st.progress(0)
                         
-                        for i in range(40):
+                        for i in range(50):
                             time.sleep(0.02)
                             progress.progress(i + 1)
                         
-                        analysis = ai.analyze_product_with_clip(image, product_name)
+                        analysis = ai.analyze_with_vision_apis(image, product_name)
                         st.session_state.analysis = analysis
                         
-                        for i in range(40, 50):
+                        for i in range(50, 60):
                             time.sleep(0.02)
                             progress.progress(i + 1)
                         
                         progress.empty()
                     
-                    # Phase 2: 10+ AI Descriptions
-                    with st.spinner('Writing professional descriptions...'):
+                    # Phase 2: Generate Description
+                    with st.spinner('Writing professional description...'):
                         progress = st.progress(0)
                         
-                        descriptions = {}
-                        styles = ["Storytelling (Emotional)", "Feature-Benefit (Practical)", "Minimalist (Clean)"]
+                        description = ai.generate_description(
+                            product_name, 
+                            analysis, 
+                            product_features,
+                            image,
+                            target_audience,
+                            price_range
+                        )
                         
-                        for idx, style_name in enumerate(styles):
-                            desc = ai.generate_with_multi_ai(
-                                product_name, 
-                                analysis, 
-                                style_name, 
-                                product_features,
-                                image,
-                                target_audience,
-                                price_range
-                            )
-                            descriptions[style_name] = desc
-                            
-                            prog = int((idx + 1) / len(styles) * 100)
-                            progress.progress(prog)
+                        st.session_state.description = description
+                        
+                        for i in range(100):
+                            time.sleep(0.01)
+                            progress.progress(i + 1)
                         
                         progress.empty()
-                    
-                    st.session_state.descriptions = descriptions
                     
                     # Phase 3: Keywords
                     with st.spinner('Generating SEO keywords...'):
@@ -1525,7 +1368,7 @@ def main():
                         keywords = ai.extract_keywords(
                             product_name,
                             analysis,
-                            descriptions["Feature-Benefit (Practical)"].description
+                            description.description
                         )
                         
                         progress.empty()
@@ -1534,10 +1377,10 @@ def main():
                     
                     st.success("✅ Your listing is ready!")
         
-        # Display results (only if generation is complete)
+        # Display results
         if 'show_results' in st.session_state and st.session_state.show_results:
             analysis = st.session_state.analysis
-            descriptions = st.session_state.descriptions
+            description = st.session_state.description
             keywords = st.session_state.keywords
             target_platform = st.session_state.target_platform
             product_name = st.session_state.product_name
@@ -1577,69 +1420,26 @@ def main():
                 </div>
                 """, unsafe_allow_html=True)
             
-            # Descriptions
+            # Description (ONE, no label)
             st.markdown("""
             <div class="section-header">
-                <h2 class="section-title">Your Product Descriptions</h2>
-                <p class="section-subtitle">Three professionally written styles</p>
+                <h2 class="section-title">Your Product Description</h2>
+                <p class="section-subtitle">Professional listing ready to use</p>
             </div>
             """, unsafe_allow_html=True)
             
-            col1, col2, col3 = st.columns(3)
+            st.markdown(f"""
+            <div class="description-card">
+                <div class="description-title">Product Listing</div>
+            """, unsafe_allow_html=True)
             
-            with col1:
-                desc = descriptions["Storytelling (Emotional)"]
-                st.markdown(f"""
-                <div class="description-card">
-                    <div class="description-title">
-                        Storytelling
-                        <span class="style-badge">Emotional</span>
-                    </div>
-                """, unsafe_allow_html=True)
-                
-                st.markdown(f"**Title:**\n{desc.title}")
-                st.markdown(f"**Description:**\n{desc.description}")
-                st.markdown("**Features:**")
-                for bp in desc.bullet_points:
-                    st.markdown(f"• {bp}")
-                
-                st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown(f"**Title:**\n{description.title}")
+            st.markdown(f"**Description:**\n{description.description}")
+            st.markdown("**Key Features:**")
+            for bp in description.bullet_points:
+                st.markdown(f"• {bp}")
             
-            with col2:
-                desc = descriptions["Feature-Benefit (Practical)"]
-                st.markdown(f"""
-                <div class="description-card">
-                    <div class="description-title">
-                        Feature-Benefit
-                        <span class="style-badge">Practical</span>
-                    </div>
-                """, unsafe_allow_html=True)
-                
-                st.markdown(f"**Title:**\n{desc.title}")
-                st.markdown(f"**Description:**\n{desc.description}")
-                st.markdown("**Features:**")
-                for bp in desc.bullet_points:
-                    st.markdown(f"• {bp}")
-                
-                st.markdown('</div>', unsafe_allow_html=True)
-            
-            with col3:
-                desc = descriptions["Minimalist (Clean)"]
-                st.markdown(f"""
-                <div class="description-card">
-                    <div class="description-title">
-                        Minimalist
-                        <span class="style-badge">Clean</span>
-                    </div>
-                """, unsafe_allow_html=True)
-                
-                st.markdown(f"**Title:**\n{desc.title}")
-                st.markdown(f"**Description:**\n{desc.description}")
-                st.markdown("**Features:**")
-                for bp in desc.bullet_points:
-                    st.markdown(f"• {bp}")
-                
-                st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
             
             # Keywords
             st.markdown("""
@@ -1660,19 +1460,12 @@ def main():
             # Export
             st.markdown("""
             <div class="section-header">
-                <h2 class="section-title">Platform Export</h2>
+                <h2 class="section-title">Download Listing</h2>
                 <p class="section-subtitle">Formatted for {}</p>
             </div>
             """.format(target_platform), unsafe_allow_html=True)
             
-            export_style = st.selectbox(
-                "Choose Description Style:",
-                list(descriptions.keys()),
-                help="Select which description to use",
-                key="style_selector"
-            )
-            
-            formatted = format_for_platform(descriptions[export_style], keywords, target_platform)
+            formatted = format_for_platform(description, keywords, target_platform)
             
             st.markdown(f"""
             <div style="background: #ffffff; border: 2px solid #e5e5e5; border-radius: 12px; padding: 2rem; margin: 1.5rem 0;">
@@ -1682,39 +1475,13 @@ def main():
             """, unsafe_allow_html=True)
             
             # Download
-            st.markdown("""
-            <div class="section-header">
-                <h2 class="section-title">Download Your Listing</h2>
-                <p class="section-subtitle">Export and deploy instantly</p>
-            </div>
-            """, unsafe_allow_html=True)
-            
-            col1, col2 = st.columns([1, 1])
-            
-            with col1:
-                st.download_button(
-                    label=f"Download {target_platform}",
-                    data=formatted,
-                    file_name=f"{product_name.lower().replace(' ', '_')}.txt",
-                    mime="text/plain",
-                    use_container_width=True
-                )
+            col1, col2, col3 = st.columns([1, 2, 1])
             
             with col2:
-                all_listings = f"=== {product_name.upper()} - ALL STYLES ===\n\n"
-                all_listings += f"Created by QuickList AI\n"
-                all_listings += f"Platform: {target_platform}\n"
-                all_listings += f"Category: {analysis.category}\n\n"
-                all_listings += "="*70 + "\n\n"
-                
-                for style_name, desc in descriptions.items():
-                    all_listings += f"\n{'='*70}\n{style_name}\n{'='*70}\n\n"
-                    all_listings += format_for_platform(desc, keywords, target_platform) + "\n\n"
-                
                 st.download_button(
-                    label="Download All Styles",
-                    data=all_listings,
-                    file_name=f"{product_name.lower().replace(' ', '_')}_all.txt",
+                    label=f"Download for {target_platform}",
+                    data=formatted,
+                    file_name=f"{product_name.lower().replace(' ', '_')}.txt",
                     mime="text/plain",
                     use_container_width=True
                 )
@@ -1727,7 +1494,6 @@ def main():
             </div>
             """, unsafe_allow_html=True)
         elif not product_name:
-            # Only show this message if user hasn't entered a product name yet
             st.markdown("""
             <div class="info-box">
                 <p>Enter product name above to generate your listing</p>
@@ -1760,9 +1526,9 @@ def main():
             st.markdown("""
             <div class="metric-box">
                 <div style="font-size: 3rem; margin-bottom: 1rem;">2</div>
-                <div class="metric-label">AI Generation</div>
+                <div class="metric-label">AI Analysis</div>
                 <div style="color: #666666; font-size: 0.95rem; margin-top: 0.5rem; line-height: 1.5;">
-                    Professional descriptions generated instantly
+                    Professional description generated
                 </div>
             </div>
             """, unsafe_allow_html=True)
@@ -1785,7 +1551,7 @@ def main():
             </p>
             <p style="margin: 0; line-height: 1.8;">
                 • AI-powered product analysis from your image<br>
-                • 3 professionally written description styles<br>
+                • Professional product description<br>
                 • Search-optimized keywords for better visibility<br>
                 • Platform-ready formatting (Shopify, Amazon, Etsy, WooCommerce)<br>
                 • Complete listing in under 30 seconds<br>
