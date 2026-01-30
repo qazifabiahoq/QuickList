@@ -37,16 +37,17 @@ st.markdown("""
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap');
     
     :root {
-        --primary-green: #2d5f3f;
-        --light-green: #4a8c5f;
-        --accent-green: #6bb77b;
-        --background-cream: #fdfaf6;
+        --primary-green: #00A676;
+        --light-green: #2FB56A;
+        --accent-green: #4CC38A;
+        --mint-bg: #F0FDF8;
+        --background-cream: #FAFAFA;
         --text-dark: #1a1a1a;
-        --border-light: #e8e4df;
+        --border-light: #E5E5E5;
     }
     
     .stApp {
-        background: linear-gradient(135deg, #fdfaf6 0%, #f5f2ed 100%) !important;
+        background: linear-gradient(135deg, #FAFAFA 0%, #F5F5F5 100%) !important;
     }
     
     .stApp > div {
@@ -64,7 +65,7 @@ st.markdown("""
     .main-header {
         position: relative;
         overflow: hidden;
-        box-shadow: 0 8px 32px rgba(45, 95, 63, 0.15);
+        box-shadow: 0 8px 32px rgba(0, 166, 118, 0.12);
         border-radius: 0 0 32px 32px !important;
     }
     
@@ -95,18 +96,18 @@ st.markdown("""
     }
     
     [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #fdfaf6 0%, #f8f5f0 100%);
+        background: linear-gradient(180deg, #FAFAFA 0%, #F5F5F5 100%);
         border-right: 2px solid var(--border-light);
     }
     
     .upload-section {
-        background: linear-gradient(135deg, #ffffff 0%, #fdfaf6 100%) !important;
+        background: #FFFFFF !important;
         border: 2px solid var(--border-light);
         border-radius: 24px;
         padding: 3rem;
         margin: 2rem 0;
         text-align: center;
-        box-shadow: 0 4px 20px rgba(45, 95, 63, 0.08);
+        box-shadow: 0 4px 20px rgba(0, 166, 118, 0.08);
     }
     
     .upload-section h2,
@@ -207,7 +208,7 @@ st.markdown("""
     }
     
     .metric-box {
-        background: linear-gradient(135deg, #ffffff 0%, #fdfaf6 100%);
+        background: #FFFFFF;
         border: 2px solid var(--border-light);
         border-radius: 16px;
         padding: 2rem 1.5rem;
@@ -215,12 +216,12 @@ st.markdown("""
         transition: all 0.3s ease;
         height: 100%;
         min-height: 140px;
-        box-shadow: 0 2px 12px rgba(45, 95, 63, 0.06);
+        box-shadow: 0 2px 12px rgba(0, 166, 118, 0.06);
     }
     
     .metric-box:hover {
         border-color: var(--accent-green);
-        box-shadow: 0 8px 24px rgba(107, 183, 123, 0.15);
+        box-shadow: 0 8px 24px rgba(0, 166, 118, 0.15);
         transform: translateY(-4px);
     }
     
@@ -247,18 +248,18 @@ st.markdown("""
     }
     
     .description-card {
-        background: linear-gradient(135deg, #ffffff 0%, #f9f7f4 100%);
+        background: #FFFFFF;
         border: 2px solid var(--border-light);
         border-radius: 20px;
         padding: 2.5rem;
         margin: 1.5rem 0;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 16px rgba(45, 95, 63, 0.08);
+        box-shadow: 0 4px 16px rgba(0, 166, 118, 0.08);
     }
     
     .description-card:hover {
         border-color: var(--accent-green);
-        box-shadow: 0 8px 28px rgba(45, 95, 63, 0.12);
+        box-shadow: 0 8px 28px rgba(0, 166, 118, 0.12);
     }
     
     .description-title {
@@ -270,12 +271,12 @@ st.markdown("""
     }
     
     .seo-box {
-        background: linear-gradient(135deg, #f0f7f3 0%, #ffffff 100%);
+        background: linear-gradient(135deg, #F0FDF8 0%, #E6FAF3 100%);
         border: 2px solid var(--border-light);
         border-radius: 20px;
         padding: 2rem;
         margin: 2rem 0;
-        box-shadow: 0 4px 16px rgba(45, 95, 63, 0.08);
+        box-shadow: 0 4px 16px rgba(0, 166, 118, 0.08);
     }
     
     .seo-title {
@@ -288,9 +289,9 @@ st.markdown("""
     
     .keyword-tag {
         display: inline-block;
-        background: linear-gradient(135deg, #e8f5ed 0%, #f0f7f3 100%);
+        background: #FFFFFF;
         color: var(--primary-green) !important;
-        border: 1px solid var(--accent-green);
+        border: 2px solid var(--primary-green);
         padding: 0.5rem 1rem;
         border-radius: 24px;
         font-size: 0.9rem;
@@ -300,7 +301,7 @@ st.markdown("""
     }
     
     .keyword-tag:hover {
-        background: var(--accent-green);
+        background: var(--primary-green);
         color: #ffffff !important;
         transform: scale(1.05);
     }
@@ -308,7 +309,7 @@ st.markdown("""
     [data-testid="stImage"] {
         border-radius: 16px;
         overflow: hidden;
-        box-shadow: 0 6px 20px rgba(45, 95, 63, 0.12);
+        box-shadow: 0 6px 20px rgba(0, 166, 118, 0.12);
     }
     
     [data-testid="stImage"] img {
@@ -320,12 +321,12 @@ st.markdown("""
     }
     
     .section-header {
-        background: linear-gradient(135deg, #e8f5ed 0%, #f0f7f3 100%);
-        border-left: 5px solid var(--accent-green);
+        background: linear-gradient(135deg, #F0FDF8 0%, #E6FAF3 100%);
+        border-left: 5px solid var(--primary-green);
         border-radius: 12px;
         padding: 2rem 2.5rem;
         margin: 3rem 0 2rem 0;
-        box-shadow: 0 3px 12px rgba(45, 95, 63, 0.08);
+        box-shadow: 0 3px 12px rgba(0, 166, 118, 0.08);
     }
     
     .section-title {
@@ -343,12 +344,12 @@ st.markdown("""
     }
     
     .info-box {
-        background: linear-gradient(135deg, #f0f7f3 0%, #e8f5ed 100%);
-        border-left: 4px solid var(--accent-green);
+        background: linear-gradient(135deg, #F0FDF8 0%, #E6FAF3 100%);
+        border-left: 4px solid var(--primary-green);
         border-radius: 12px;
         padding: 1.5rem 2rem;
         margin: 1.5rem 0;
-        box-shadow: 0 2px 10px rgba(45, 95, 63, 0.06);
+        box-shadow: 0 2px 10px rgba(0, 166, 118, 0.06);
     }
     
     .info-box p {
@@ -433,29 +434,29 @@ st.markdown("""
     }
     
     .brand-tag {
-        background: linear-gradient(135deg, #e8f5ed 0%, #d4ede0 100%);
-        border: 1px solid rgba(255,255,255,0.4);
-        color: #2d5f3f !important;
+        background: #FFFFFF;
+        border: 2px solid #00A676;
+        color: #00A676 !important;
         display: inline-block;
-        padding: 0.5rem 1.2rem;
+        padding: 0.6rem 1.4rem;
         border-radius: 24px;
         font-size: 0.75rem;
-        font-weight: 600;
-        margin-top: 1rem;
+        font-weight: 700;
+        margin-top: 1.25rem;
         text-transform: uppercase;
         letter-spacing: 0.1em;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 12px rgba(0, 166, 118, 0.15);
     }
 </style>
 """, unsafe_allow_html=True)
 
 # Header with ThreadUp branding
 st.markdown("""
-<div class="main-header" style="background: linear-gradient(135deg, #2d5f3f 0%, #4a8c5f 100%) !important; text-align: center; padding: 3rem; border-radius: 0 0 32px 32px; margin: -6rem -5rem 3rem -5rem;">
+<div class="main-header" style="background: linear-gradient(135deg, #F0FDF8 0%, #E6FAF3 100%) !important; text-align: center; padding: 3rem; border-radius: 0 0 32px 32px; margin: -6rem -5rem 3rem -5rem;">
     <div class="header-content">
-        <h1 style="color: #ffffff !important; font-size: 3.5rem !important; font-weight: 800 !important; margin: 0 !important; font-family: 'Poppins', sans-serif !important;">QuickList</h1>
-        <p style="color: #e8f5ed !important; font-size: 0.9rem !important; margin-top: 0.5rem !important; font-family: 'Inter', sans-serif !important; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 600;">by ThreadUp</p>
-        <p style="color: #ffffff !important; font-size: 1.25rem !important; margin-top: 1rem !important; font-family: 'Inter', sans-serif !important; opacity: 0.95;">Professional Product Listings in Seconds</p>
+        <h1 style="color: #00A676 !important; font-size: 3.5rem !important; font-weight: 800 !important; margin: 0 !important; font-family: 'Poppins', sans-serif !important;">QuickList</h1>
+        <p style="color: #00A676 !important; font-size: 0.9rem !important; margin-top: 0.5rem !important; font-family: 'Inter', sans-serif !important; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 600; opacity: 0.8;">by ThreadUp</p>
+        <p style="color: #1a1a1a !important; font-size: 1.25rem !important; margin-top: 1rem !important; font-family: 'Inter', sans-serif !important; opacity: 0.85;">Professional Product Listings in Seconds</p>
         <div class="brand-tag">
             🌿 Powered by AI • Sustainable Resale
         </div>
@@ -1428,9 +1429,9 @@ def main():
             formatted = format_for_platform(description, keywords, target_platform)
             
             st.markdown(f"""
-            <div style="background: linear-gradient(135deg, #ffffff 0%, #fdfaf6 100%); border: 2px solid #e8e4df; border-radius: 16px; padding: 2rem; margin: 1.5rem 0; box-shadow: 0 4px 16px rgba(45, 95, 63, 0.08);">
-                <h3 style="color: #2d5f3f;">Your Listing</h3>
-                <pre style="color: #1a1a1a; background: #f8f5f0; padding: 1.5rem; border-radius: 8px; white-space: pre-wrap; font-size: 0.9rem; border: 1px solid #e8e4df;">{formatted}</pre>
+            <div style="background: #FFFFFF; border: 2px solid #E5E5E5; border-radius: 16px; padding: 2rem; margin: 1.5rem 0; box-shadow: 0 4px 16px rgba(0, 166, 118, 0.08);">
+                <h3 style="color: #00A676;">Your Listing</h3>
+                <pre style="color: #1a1a1a; background: #F8F8F8; padding: 1.5rem; border-radius: 8px; white-space: pre-wrap; font-size: 0.9rem; border: 1px solid #E5E5E5;">{formatted}</pre>
             </div>
             """, unsafe_allow_html=True)
             
@@ -1521,7 +1522,7 @@ def main():
         """, unsafe_allow_html=True)
         
         st.markdown("""
-        <div class="info-box" style="margin-top: 2rem; border-left-color: #6bb77b;">
+        <div class="info-box" style="margin-top: 2rem; border-left-color: #00A676;">
             <p style="margin: 0; font-weight: 600;">
                 🌿 100% Free • No Signup Required • Sustainable Resale by ThreadUp
             </p>
