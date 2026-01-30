@@ -271,7 +271,7 @@ st.markdown("""
     }
     
     .seo-box {
-        background: linear-gradient(135deg, #F0FDF8 0%, #E6FAF3 100%);
+        background: linear-gradient(135deg, #E8F5ED 0%, #D4EDE0 100%);
         border: 2px solid var(--border-light);
         border-radius: 20px;
         padding: 2rem;
@@ -321,7 +321,7 @@ st.markdown("""
     }
     
     .section-header {
-        background: linear-gradient(135deg, #F0FDF8 0%, #E6FAF3 100%);
+        background: linear-gradient(135deg, #E8F5ED 0%, #D4EDE0 100%);
         border-left: 5px solid var(--primary-green);
         border-radius: 12px;
         padding: 2rem 2.5rem;
@@ -344,7 +344,7 @@ st.markdown("""
     }
     
     .info-box {
-        background: linear-gradient(135deg, #F0FDF8 0%, #E6FAF3 100%);
+        background: linear-gradient(135deg, #E8F5ED 0%, #D4EDE0 100%);
         border-left: 4px solid var(--primary-green);
         border-radius: 12px;
         padding: 1.5rem 2rem;
@@ -452,7 +452,7 @@ st.markdown("""
 
 # Header with ThreadUp branding
 st.markdown("""
-<div class="main-header" style="background: linear-gradient(135deg, #F0FDF8 0%, #E6FAF3 100%) !important; text-align: center; padding: 3rem; border-radius: 0 0 32px 32px; margin: -6rem -5rem 3rem -5rem;">
+<div class="main-header" style="background: linear-gradient(135deg, #E8F5ED 0%, #D4EDE0 100%) !important; text-align: center; padding: 3rem; border-radius: 0 0 32px 32px; margin: -6rem -5rem 3rem -5rem;">
     <div class="header-content">
         <h1 style="color: #00A676 !important; font-size: 3.5rem !important; font-weight: 800 !important; margin: 0 !important; font-family: 'Poppins', sans-serif !important;">QuickList</h1>
         <p style="color: #00A676 !important; font-size: 0.9rem !important; margin-top: 0.5rem !important; font-family: 'Inter', sans-serif !important; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 600; opacity: 0.8;">by ThreadUp</p>
@@ -1154,7 +1154,7 @@ def main():
     
     # Sidebar
     with st.sidebar:
-        st.markdown("### 🌿 About QuickList")
+        st.markdown("### About QuickList")
         st.markdown("""
         Transform product photos into professional listings instantly.
         
@@ -1173,10 +1173,10 @@ def main():
         
         st.markdown("---")
         
-        st.markdown("### ⚡ Quick & Easy")
+        st.markdown("### Quick & Easy")
         st.markdown("""
-        1. Upload product photo
-        2. Enter product details
+        1. Upload or capture product photo
+        2. Add details (all optional)
         3. Generate listing
         4. Download & publish
         
@@ -1189,15 +1189,15 @@ def main():
         **100% Free**  
         No signup required
         
-        🌱 **Sustainable Resale**  
+        **Sustainable Resale**  
         Powered by ThreadUp
         """)
     
     # Main content
     st.markdown("""
     <div class="upload-section">
-        <h2 style="color: #2d5f3f; font-family: 'Poppins', sans-serif; margin-bottom: 1rem;">
-            📸 Upload Your Product Photo
+        <h2 style="color: #00A676; font-family: 'Poppins', sans-serif; margin-bottom: 1rem;">
+            Upload Your Product Photo
         </h2>
         <p style="color: #6b7280; font-size: 1.1rem;">
             Get professional, SEO-optimized listings instantly
@@ -1205,14 +1205,23 @@ def main():
     </div>
     """, unsafe_allow_html=True)
     
-    uploaded_file = st.file_uploader(
-        "Upload Product Image",
-        type=['jpg', 'jpeg', 'png'],
-        help="Upload a clear product photo (JPG, JPEG, or PNG)"
-    )
+    col1, col2 = st.columns(2)
     
-    if uploaded_file is not None:
-        image = Image.open(uploaded_file)
+    with col1:
+        uploaded_file = st.file_uploader(
+            "Upload from Gallery",
+            type=['jpg', 'jpeg', 'png'],
+            help="Upload a product photo from your device"
+        )
+    
+    with col2:
+        camera_file = st.camera_input("Take Photo")
+    
+    # Use whichever input has a file
+    image_file = camera_file if camera_file is not None else uploaded_file
+    
+    if image_file is not None:
+        image = Image.open(image_file)
         
         st.session_state.product_image = image
         
@@ -1222,8 +1231,8 @@ def main():
         
         st.markdown("""
         <div class="section-header">
-            <h2 class="section-title">📝 Product Information</h2>
-            <p class="section-subtitle">Tell us about your product</p>
+            <h2 class="section-title">Product Information</h2>
+            <p class="section-subtitle">Tell us about your product (optional)</p>
         </div>
         """, unsafe_allow_html=True)
         
@@ -1231,9 +1240,9 @@ def main():
         
         with col1:
             product_name = st.text_input(
-                "Product Name",
-                placeholder="e.g., Black Pearl Dress",
-                help="Enter product name"
+                "Product Name (Optional)",
+                placeholder="e.g., Black Pearl Dress (leave blank for AI to detect)",
+                help="Optional - AI will detect from image if left blank"
             )
         
         with col2:
@@ -1266,75 +1275,82 @@ def main():
             height=100
         )
         
-        if product_name:
-            col1, col2, col3 = st.columns([1, 2, 1])
-            
-            with col2:
-                if st.button("✨ Generate Listing", use_container_width=True):
+        col1, col2, col3 = st.columns([1, 2, 1])
+        
+        with col2:
+            if st.button("Generate Listing", use_container_width=True):
+                
+                ai = QuickListAI()
+                
+                # Use detected name if user didn't provide one
+                detected_product_name = product_name.strip() if product_name else ""
+                
+                st.session_state.product_name = detected_product_name
+                st.session_state.target_platform = target_platform
+                
+                # Phase 1: Image Analysis
+                with st.spinner('Analyzing your product...'):
+                    progress = st.progress(0)
                     
-                    ai = QuickListAI()
+                    for i in range(50):
+                        time.sleep(0.02)
+                        progress.progress(i + 1)
                     
-                    st.session_state.product_name = product_name
-                    st.session_state.target_platform = target_platform
+                    analysis = ai.analyze_with_vision_apis(image, detected_product_name)
+                    st.session_state.analysis = analysis
                     
-                    # Phase 1: Image Analysis
-                    with st.spinner('🔍 Analyzing your product...'):
-                        progress = st.progress(0)
-                        
-                        for i in range(50):
-                            time.sleep(0.02)
-                            progress.progress(i + 1)
-                        
-                        analysis = ai.analyze_with_vision_apis(image, product_name)
-                        st.session_state.analysis = analysis
-                        
-                        for i in range(50, 60):
-                            time.sleep(0.02)
-                            progress.progress(i + 1)
-                        
-                        progress.empty()
+                    # If no product name provided, use detected category + type
+                    if not detected_product_name:
+                        detected_product_name = f"{analysis.specific_type}" if analysis.specific_type != "Item" else analysis.category
+                        st.session_state.product_name = detected_product_name
                     
-                    # Phase 2: Generate Description
-                    with st.spinner('✍️ Writing professional description...'):
-                        progress = st.progress(0)
-                        
-                        description = ai.generate_description(
-                            product_name, 
-                            analysis, 
-                            product_features,
-                            image,
-                            target_audience,
-                            price_range
-                        )
-                        
-                        st.session_state.description = description
-                        
-                        for i in range(100):
-                            time.sleep(0.01)
-                            progress.progress(i + 1)
-                        
-                        progress.empty()
+                    for i in range(50, 60):
+                        time.sleep(0.02)
+                        progress.progress(i + 1)
                     
-                    # Phase 3: Keywords
-                    with st.spinner('🎯 Generating SEO keywords...'):
-                        progress = st.progress(0)
-                        
-                        for i in range(100):
-                            time.sleep(0.01)
-                            progress.progress(i + 1)
-                        
-                        keywords = ai.extract_keywords(
-                            product_name,
-                            analysis,
-                            description.description
-                        )
-                        
-                        progress.empty()
+                    progress.empty()
+                
+                # Phase 2: Generate Description
+                with st.spinner('Writing professional description...'):
+                    progress = st.progress(0)
                     
-                    st.session_state.keywords = keywords
-                    st.session_state.show_results = True
+                    description = ai.generate_description(
+                        detected_product_name, 
+                        analysis, 
+                        product_features,
+                        image,
+                        target_audience,
+                        price_range
+                    )
                     
-                    st.success("✅ Your listing is ready!")
+                    st.session_state.description = description
+                    
+                    for i in range(100):
+                        time.sleep(0.01)
+                        progress.progress(i + 1)
+                    
+                    progress.empty()
+                
+                # Phase 3: Keywords
+                with st.spinner('Generating SEO keywords...'):
+                    progress = st.progress(0)
+                    
+                    for i in range(100):
+                        time.sleep(0.01)
+                        progress.progress(i + 1)
+                    
+                    keywords = ai.extract_keywords(
+                        detected_product_name,
+                        analysis,
+                        description.description
+                    )
+                    
+                    progress.empty()
+                
+                st.session_state.keywords = keywords
+                st.session_state.show_results = True
+                
+                st.success("✅ Your listing is ready!")
         
         # Display results
         if ('show_results' in st.session_state and st.session_state.show_results and 
@@ -1349,7 +1365,7 @@ def main():
             # Analysis
             st.markdown("""
             <div class="section-header">
-                <h2 class="section-title">🔍 Product Analysis</h2>
+                <h2 class="section-title">Product Analysis</h2>
                 <p class="section-subtitle">AI-powered insights from your image</p>
             </div>
             """, unsafe_allow_html=True)
@@ -1384,7 +1400,7 @@ def main():
             # Description
             st.markdown("""
             <div class="section-header">
-                <h2 class="section-title">📄 Your Product Description</h2>
+                <h2 class="section-title">Your Product Description</h2>
                 <p class="section-subtitle">Professional listing ready to use</p>
             </div>
             """, unsafe_allow_html=True)
@@ -1405,7 +1421,7 @@ def main():
             # Keywords
             st.markdown("""
             <div class="seo-box">
-                <div class="seo-title">🎯 SEO Keywords</div>
+                <div class="seo-title">SEO Keywords</div>
             """, unsafe_allow_html=True)
             
             st.markdown("**Primary:**")
@@ -1421,7 +1437,7 @@ def main():
             # Export
             st.markdown("""
             <div class="section-header">
-                <h2 class="section-title">💾 Download Listing</h2>
+                <h2 class="section-title">Download Listing</h2>
                 <p class="section-subtitle">Formatted for {}</p>
             </div>
             """.format(target_platform), unsafe_allow_html=True)
@@ -1440,7 +1456,7 @@ def main():
             
             with col2:
                 st.download_button(
-                    label=f"📥 Download for {target_platform}",
+                    label=f"Download for {target_platform}",
                     data=formatted,
                     file_name=f"{product_name.lower().replace(' ', '_')}.txt",
                     mime="text/plain",
@@ -1450,14 +1466,8 @@ def main():
             st.markdown(f"""
             <div class="info-box">
                 <p style="margin: 0; font-weight: 600;">
-                    ✨ Your professional listing is ready! Upload to {target_platform} and start selling.
+                    Your professional listing is ready! Upload to {target_platform} and start selling.
                 </p>
-            </div>
-            """, unsafe_allow_html=True)
-        elif not product_name:
-            st.markdown("""
-            <div class="info-box">
-                <p>👆 Enter product name above to generate your listing</p>
             </div>
             """, unsafe_allow_html=True)
     
@@ -1465,7 +1475,7 @@ def main():
         # How it works
         st.markdown("""
         <div class="section-header">
-            <h2 class="section-title">🚀 How QuickList Works</h2>
+            <h2 class="section-title">How QuickList Works</h2>
             <p class="section-subtitle">Professional AI-powered listings in seconds</p>
         </div>
         """, unsafe_allow_html=True)
@@ -1475,10 +1485,10 @@ def main():
         with col1:
             st.markdown("""
             <div class="metric-box">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">📸</div>
-                <div class="metric-label">Upload Photo</div>
+                <div style="font-size: 3rem; margin-bottom: 1rem;">1</div>
+                <div class="metric-label">Upload or Capture</div>
                 <div style="color: #6b7280; font-size: 0.95rem; margin-top: 0.5rem; line-height: 1.5;">
-                    Upload your product image
+                    Upload from gallery or take a photo
                 </div>
             </div>
             """, unsafe_allow_html=True)
@@ -1486,7 +1496,7 @@ def main():
         with col2:
             st.markdown("""
             <div class="metric-box">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">🤖</div>
+                <div style="font-size: 3rem; margin-bottom: 1rem;">2</div>
                 <div class="metric-label">AI Analysis</div>
                 <div style="color: #6b7280; font-size: 0.95rem; margin-top: 0.5rem; line-height: 1.5;">
                     Professional description generated
@@ -1497,7 +1507,7 @@ def main():
         with col3:
             st.markdown("""
             <div class="metric-box">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">💚</div>
+                <div style="font-size: 3rem; margin-bottom: 1rem;">3</div>
                 <div class="metric-label">Download & Sell</div>
                 <div style="color: #6b7280; font-size: 0.95rem; margin-top: 0.5rem; line-height: 1.5;">
                     Ready for any platform
@@ -1508,7 +1518,7 @@ def main():
         st.markdown("""
         <div class="info-box" style="margin-top: 3rem;">
             <p style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.75rem;">
-                🌟 What You Get:
+                What You Get:
             </p>
             <p style="margin: 0; line-height: 1.8;">
                 • AI-powered product analysis from your image<br>
@@ -1524,7 +1534,7 @@ def main():
         st.markdown("""
         <div class="info-box" style="margin-top: 2rem; border-left-color: #00A676;">
             <p style="margin: 0; font-weight: 600;">
-                🌿 100% Free • No Signup Required • Sustainable Resale by ThreadUp
+                100% Free • No Signup Required • Sustainable Resale by ThreadUp
             </p>
         </div>
         """, unsafe_allow_html=True)
