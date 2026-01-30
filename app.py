@@ -25,33 +25,36 @@ except:
 
 # Page configuration
 st.set_page_config(
-    page_title="QuickList - Professional Product Listings",
-    page_icon="⚡",
+    page_title="QuickList by ThreadUp",
+    page_icon="🌿",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS
+# Custom CSS with ThreadUp-inspired green theme and shaded backgrounds
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap');
     
     :root {
-        --background-color: #ffffff;
-        --text-color: #000000;
+        --primary-green: #2d5f3f;
+        --light-green: #4a8c5f;
+        --accent-green: #6bb77b;
+        --background-cream: #fdfaf6;
+        --text-dark: #1a1a1a;
+        --border-light: #e8e4df;
     }
     
     .stApp {
-        background: #ffffff !important;
-        color: #000000 !important;
+        background: linear-gradient(135deg, #fdfaf6 0%, #f5f2ed 100%) !important;
     }
     
     .stApp > div {
-        background: #ffffff !important;
+        background: transparent !important;
     }
     
     .main {
-        background: #ffffff !important;
+        background: transparent !important;
     }
     
     #MainMenu {visibility: hidden;}
@@ -61,7 +64,8 @@ st.markdown("""
     .main-header {
         position: relative;
         overflow: hidden;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        box-shadow: 0 8px 32px rgba(45, 95, 63, 0.15);
+        border-radius: 0 0 32px 32px !important;
     }
     
     .main-header::before {
@@ -71,7 +75,7 @@ st.markdown("""
         left: 0;
         right: 0;
         bottom: 0;
-        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         z-index: 0;
     }
     
@@ -81,51 +85,44 @@ st.markdown("""
     }
     
     body, p, div, span, label, h1, h2, h3, h4, h5, h6 {
-        color: #000000 !important;
+        color: var(--text-dark) !important;
         font-family: 'Inter', sans-serif;
     }
     
-    section, div[class*="st"], div[data-testid] {
-        background-color: transparent;
-    }
-    
-    .main .block-container {
-        background: #ffffff !important;
-    }
-    
     h1, h2, h3, h4 {
-        font-family: 'Space Grotesk', sans-serif !important;
+        font-family: 'Poppins', sans-serif !important;
         font-weight: 700 !important;
     }
     
     [data-testid="stSidebar"] {
-        background: #f8f8f8;
-        border-right: 1px solid #e5e5e5;
+        background: linear-gradient(180deg, #fdfaf6 0%, #f8f5f0 100%);
+        border-right: 2px solid var(--border-light);
     }
     
     .upload-section {
-        background: #ffffff !important;
-        border: 2px solid #e5e5e5;
-        border-radius: 16px;
+        background: linear-gradient(135deg, #ffffff 0%, #fdfaf6 100%) !important;
+        border: 2px solid var(--border-light);
+        border-radius: 24px;
         padding: 3rem;
         margin: 2rem 0;
         text-align: center;
+        box-shadow: 0 4px 20px rgba(45, 95, 63, 0.08);
     }
     
     .upload-section h2,
     .upload-section p {
-        color: #000000 !important;
+        color: var(--text-dark) !important;
     }
     
     [data-testid="stFileUploader"] {
         background: #ffffff !important;
-        border: 3px dashed #0066cc !important;
-        border-radius: 12px !important;
+        border: 3px dashed var(--accent-green) !important;
+        border-radius: 16px !important;
         padding: 2.5rem !important;
     }
     
     [data-testid="stFileUploader"] label {
-        color: #000000 !important;
+        color: var(--primary-green) !important;
         font-weight: 600 !important;
         font-size: 1.1rem !important;
     }
@@ -140,66 +137,41 @@ st.markdown("""
     
     [data-testid="stFileUploader"] div {
         background: #ffffff !important;
-        color: #000000 !important;
+        color: var(--text-dark) !important;
     }
     
     [data-testid="stFileUploader"] p,
     [data-testid="stFileUploader"] span,
     [data-testid="stFileUploader"] small,
     [data-testid="stFileUploader"] label {
-        color: #000000 !important;
+        color: var(--text-dark) !important;
         background: transparent !important;
-    }
-    
-    [data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"] {
-        background: #ffffff !important;
-        border: 2px dashed #cccccc !important;
-        border-radius: 8px !important;
-    }
-    
-    [data-testid="stFileUploader"] [data-testid="stFileUploaderDropzoneInput"] {
-        background: #ffffff !important;
     }
     
     [data-testid="stFileUploader"] button {
         background: #ffffff !important;
-        color: #0066cc !important;
-        border: 2px solid #0066cc !important;
+        color: var(--primary-green) !important;
+        border: 2px solid var(--primary-green) !important;
         font-weight: 600 !important;
     }
     
     [data-testid="stFileUploader"] button:hover {
-        background: #0066cc !important;
+        background: var(--primary-green) !important;
         color: #ffffff !important;
-    }
-    
-    [data-testid="stFileUploader"] [data-testid="stMarkdownContainer"] {
-        color: #000000 !important;
-        background: transparent !important;
-    }
-    
-    [data-testid="stFileUploader"] [data-testid="stMarkdownContainer"] p {
-        color: #000000 !important;
-        background: transparent !important;
-    }
-    
-    [data-testid="stFileUploader"] [data-testid="stMarkdownContainer"] * {
-        color: #000000 !important;
-        background: transparent !important;
     }
     
     .stButton > button {
-        background: #000000 !important;
+        background: linear-gradient(135deg, var(--primary-green) 0%, var(--light-green) 100%) !important;
         color: #ffffff !important;
         border: none !important;
-        border-radius: 12px !important;
+        border-radius: 14px !important;
         padding: 1.25rem 3rem !important;
         font-size: 1.1rem !important;
         font-weight: 700 !important;
-        font-family: 'Inter', sans-serif !important;
+        font-family: 'Poppins', sans-serif !important;
         cursor: pointer;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.15) !important;
+        box-shadow: 0 4px 16px rgba(45, 95, 63, 0.25) !important;
         text-transform: uppercase;
         letter-spacing: 0.05em;
         width: 100%;
@@ -207,10 +179,9 @@ st.markdown("""
     }
     
     .stButton > button:hover {
-        background: #0066cc !important;
-        color: #ffffff !important;
+        background: linear-gradient(135deg, var(--light-green) 0%, var(--accent-green) 100%) !important;
         transform: translateY(-2px);
-        box-shadow: 0 6px 24px rgba(0,102,204,0.3) !important;
+        box-shadow: 0 6px 24px rgba(74, 140, 95, 0.35) !important;
     }
     
     .stButton > button p,
@@ -221,39 +192,41 @@ st.markdown("""
     
     .stDownloadButton > button {
         background: #ffffff !important;
-        color: #000000 !important;
-        border: 2px solid #000000 !important;
-        border-radius: 12px !important;
+        color: var(--primary-green) !important;
+        border: 2px solid var(--primary-green) !important;
+        border-radius: 14px !important;
         padding: 1rem 2.5rem !important;
         font-weight: 600 !important;
+        transition: all 0.3s ease;
     }
     
     .stDownloadButton > button:hover {
-        background: #000000 !important;
+        background: var(--primary-green) !important;
         color: #ffffff !important;
+        transform: translateY(-2px);
     }
     
     .metric-box {
-        background: #ffffff;
-        border: 2px solid #e5e5e5;
-        border-radius: 12px;
+        background: linear-gradient(135deg, #ffffff 0%, #fdfaf6 100%);
+        border: 2px solid var(--border-light);
+        border-radius: 16px;
         padding: 2rem 1.5rem;
         text-align: center;
         transition: all 0.3s ease;
         height: 100%;
         min-height: 140px;
-        overflow: hidden;
+        box-shadow: 0 2px 12px rgba(45, 95, 63, 0.06);
     }
     
     .metric-box:hover {
-        border-color: #0066cc;
-        box-shadow: 0 8px 24px rgba(0,102,204,0.1);
+        border-color: var(--accent-green);
+        box-shadow: 0 8px 24px rgba(107, 183, 123, 0.15);
         transform: translateY(-4px);
     }
     
     .metric-label {
         font-size: 0.85rem;
-        color: #4a5568 !important;
+        color: #6b7280 !important;
         text-transform: uppercase;
         letter-spacing: 0.1em;
         margin-bottom: 0.75rem;
@@ -263,8 +236,8 @@ st.markdown("""
     .metric-value {
         font-size: 1.3rem;
         font-weight: 700;
-        color: #000000 !important;
-        font-family: 'Space Grotesk', sans-serif;
+        color: var(--primary-green) !important;
+        font-family: 'Poppins', sans-serif;
         line-height: 1.4;
         padding: 0 0.25rem;
         white-space: nowrap;
@@ -274,113 +247,112 @@ st.markdown("""
     }
     
     .description-card {
-        background: #f8f8f8;
-        border: 2px solid #e5e5e5;
-        border-radius: 16px;
+        background: linear-gradient(135deg, #ffffff 0%, #f9f7f4 100%);
+        border: 2px solid var(--border-light);
+        border-radius: 20px;
         padding: 2.5rem;
         margin: 1.5rem 0;
         transition: all 0.3s ease;
+        box-shadow: 0 4px 16px rgba(45, 95, 63, 0.08);
     }
     
     .description-card:hover {
-        border-color: #000000;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+        border-color: var(--accent-green);
+        box-shadow: 0 8px 28px rgba(45, 95, 63, 0.12);
     }
     
     .description-title {
         font-size: 1.5rem;
         font-weight: 700;
-        color: #000000 !important;
+        color: var(--primary-green) !important;
         margin-bottom: 1.5rem;
-        font-family: 'Space Grotesk', sans-serif;
+        font-family: 'Poppins', sans-serif;
     }
     
     .seo-box {
-        background: #ffffff;
-        border: 2px solid #e5e5e5;
-        border-radius: 16px;
+        background: linear-gradient(135deg, #f0f7f3 0%, #ffffff 100%);
+        border: 2px solid var(--border-light);
+        border-radius: 20px;
         padding: 2rem;
         margin: 2rem 0;
+        box-shadow: 0 4px 16px rgba(45, 95, 63, 0.08);
     }
     
     .seo-title {
         font-size: 1.3rem;
         font-weight: 700;
-        color: #000000 !important;
+        color: var(--primary-green) !important;
         margin-bottom: 1.5rem;
-        font-family: 'Space Grotesk', sans-serif;
+        font-family: 'Poppins', sans-serif;
     }
     
     .keyword-tag {
         display: inline-block;
-        background: #f8f8f8;
-        color: #000000 !important;
-        border: 1px solid #e5e5e5;
+        background: linear-gradient(135deg, #e8f5ed 0%, #f0f7f3 100%);
+        color: var(--primary-green) !important;
+        border: 1px solid var(--accent-green);
         padding: 0.5rem 1rem;
-        border-radius: 20px;
+        border-radius: 24px;
         font-size: 0.9rem;
         font-weight: 500;
         margin: 0.4rem 0.4rem 0.4rem 0;
+        transition: all 0.2s ease;
+    }
+    
+    .keyword-tag:hover {
+        background: var(--accent-green);
+        color: #ffffff !important;
+        transform: scale(1.05);
     }
     
     [data-testid="stImage"] {
-        border-radius: 12px;
+        border-radius: 16px;
         overflow: hidden;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        box-shadow: 0 6px 20px rgba(45, 95, 63, 0.12);
     }
     
     [data-testid="stImage"] img {
-        border-radius: 12px;
-    }
-    
-    [data-testid="stImage"] > div {
-        text-align: center;
-    }
-    
-    [data-testid="stImage"] + div,
-    [data-testid="stImage"] figcaption,
-    [data-testid="stImage"] p {
-        color: #000000 !important;
-        text-align: center;
-        margin-top: 0.5rem;
+        border-radius: 16px;
     }
     
     .stProgress > div > div > div > div {
-        background: linear-gradient(90deg, #000000 0%, #0066cc 100%);
+        background: linear-gradient(90deg, var(--primary-green) 0%, var(--accent-green) 100%);
     }
     
     .section-header {
-        background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
-        border-left: 4px solid #0066cc;
-        border-radius: 8px;
+        background: linear-gradient(135deg, #e8f5ed 0%, #f0f7f3 100%);
+        border-left: 5px solid var(--accent-green);
+        border-radius: 12px;
         padding: 2rem 2.5rem;
         margin: 3rem 0 2rem 0;
+        box-shadow: 0 3px 12px rgba(45, 95, 63, 0.08);
     }
     
     .section-title {
         font-size: 2rem;
         font-weight: 800;
-        color: #0066cc !important;
-        font-family: 'Space Grotesk', sans-serif;
+        color: var(--primary-green) !important;
+        font-family: 'Poppins', sans-serif;
         margin: 0;
     }
     
     .section-subtitle {
         font-size: 1.1rem;
-        color: #4a5568 !important;
+        color: #6b7280 !important;
         margin-top: 0.5rem;
     }
     
     .info-box {
-        background: #f8f8f8;
-        border-left: 4px solid #0066cc;
-        border-radius: 8px;
+        background: linear-gradient(135deg, #f0f7f3 0%, #e8f5ed 100%);
+        border-left: 4px solid var(--accent-green);
+        border-radius: 12px;
         padding: 1.5rem 2rem;
         margin: 1.5rem 0;
+        box-shadow: 0 2px 10px rgba(45, 95, 63, 0.06);
     }
     
     .info-box p {
-        color: #000000 !important;
+        color: var(--text-dark) !important;
         line-height: 1.7;
         margin: 0;
     }
@@ -388,7 +360,7 @@ st.markdown("""
     .stTextInput label,
     .stTextArea label,
     .stSelectbox label {
-        color: #000000 !important;
+        color: var(--primary-green) !important;
         font-weight: 600 !important;
         font-size: 1rem !important;
     }
@@ -396,40 +368,37 @@ st.markdown("""
     .stTextInput input,
     .stTextArea textarea {
         background: #ffffff !important;
-        border: 2px solid #e5e5e5 !important;
-        color: #000000 !important;
-        border-radius: 8px !important;
+        border: 2px solid var(--border-light) !important;
+        color: var(--text-dark) !important;
+        border-radius: 10px !important;
     }
     
     .stTextInput input:focus,
     .stTextArea textarea:focus {
-        border-color: #0066cc !important;
-        box-shadow: 0 0 0 3px rgba(0,102,204,0.1) !important;
+        border-color: var(--accent-green) !important;
+        box-shadow: 0 0 0 3px rgba(107, 183, 123, 0.1) !important;
     }
     
     .stSelectbox div[data-baseweb="select"] {
         background: #ffffff !important;
-        border: 2px solid #e5e5e5 !important;
+        border: 2px solid var(--border-light) !important;
+        border-radius: 10px !important;
     }
     
     .stSelectbox div[data-baseweb="select"]:hover {
-        border-color: #0066cc !important;
+        border-color: var(--accent-green) !important;
     }
     
     .stSelectbox div[data-baseweb="select"] > div {
         background: #ffffff !important;
-        color: #000000 !important;
-    }
-    
-    .stSelectbox div[data-baseweb="select"] div[data-baseweb="input"] {
-        color: #000000 !important;
-        background: #ffffff !important;
+        color: var(--text-dark) !important;
     }
     
     [data-baseweb="menu"] {
         background: #ffffff !important;
-        border: 1px solid #e5e5e5 !important;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+        border: 1px solid var(--border-light) !important;
+        box-shadow: 0 4px 16px rgba(45, 95, 63, 0.1) !important;
+        border-radius: 8px !important;
     }
     
     [data-baseweb="menu"] ul {
@@ -438,49 +407,13 @@ st.markdown("""
     
     [data-baseweb="menu"] li {
         background: #ffffff !important;
-        color: #000000 !important;
+        color: var(--text-dark) !important;
         padding: 0.75rem 1rem !important;
     }
     
     [data-baseweb="menu"] li:hover {
-        background: #f0f0f0 !important;
-        color: #000000 !important;
-    }
-    
-    [data-baseweb="menu"] li div,
-    [data-baseweb="menu"] li span,
-    [data-baseweb="menu"] li p {
-        color: #000000 !important;
-        background: transparent !important;
-    }
-    
-    [role="listbox"] {
-        background: #ffffff !important;
-    }
-    
-    [role="option"] {
-        background: #ffffff !important;
-        color: #000000 !important;
-    }
-    
-    [role="option"]:hover {
-        background: #f0f0f0 !important;
-        color: #000000 !important;
-    }
-    
-    [role="option"] * {
-        color: #000000 !important;
-    }
-    
-    .stSelectbox div[data-baseweb="select"] div,
-    .stSelectbox div[data-baseweb="select"] span,
-    .stSelectbox div[data-baseweb="select"] p {
-        color: #000000 !important;
-        background: transparent !important;
-    }
-    
-    .stSelectbox svg {
-        fill: #000000 !important;
+        background: #f0f7f3 !important;
+        color: var(--primary-green) !important;
     }
     
     @media (max-width: 768px) {
@@ -498,16 +431,34 @@ st.markdown("""
             font-size: 1.5rem;
         }
     }
+    
+    .brand-tag {
+        background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.3);
+        color: #ffffff !important;
+        display: inline-block;
+        padding: 0.5rem 1.2rem;
+        border-radius: 24px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-top: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
 </style>
 """, unsafe_allow_html=True)
 
-# Header
+# Header with ThreadUp branding
 st.markdown("""
-<div class="main-header" style="background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%) !important; text-align: center; padding: 3rem; border-radius: 0 0 24px 24px; margin: -6rem -5rem 3rem -5rem;">
+<div class="main-header" style="background: linear-gradient(135deg, #2d5f3f 0%, #4a8c5f 100%) !important; text-align: center; padding: 3rem; border-radius: 0 0 32px 32px; margin: -6rem -5rem 3rem -5rem;">
     <div class="header-content">
-        <h1 style="color: #ffffff !important; font-size: 3.5rem !important; font-weight: 800 !important; margin: 0 !important; font-family: 'Space Grotesk', sans-serif !important;">QuickList</h1>
-        <p style="color: #ffffff !important; font-size: 1.25rem !important; margin-top: 0.75rem !important; font-family: 'Inter', sans-serif !important;">Professional Product Listings in Minutes</p>
-        <span style="background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%) !important; color: #ffffff !important; display: inline-block !important; padding: 0.6rem 1.5rem !important; border-radius: 24px !important; font-size: 0.85rem !important; font-weight: 700 !important; margin-top: 1.25rem !important; text-transform: uppercase !important;">AI-Powered</span>
+        <h1 style="color: #ffffff !important; font-size: 3.5rem !important; font-weight: 800 !important; margin: 0 !important; font-family: 'Poppins', sans-serif !important;">QuickList</h1>
+        <p style="color: #e8f5ed !important; font-size: 0.9rem !important; margin-top: 0.5rem !important; font-family: 'Inter', sans-serif !important; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 600;">by ThreadUp</p>
+        <p style="color: #ffffff !important; font-size: 1.25rem !important; margin-top: 1rem !important; font-family: 'Inter', sans-serif !important; opacity: 0.95;">Professional Product Listings in Seconds</p>
+        <div class="brand-tag">
+            🌿 Powered by AI • Sustainable Resale
+        </div>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -1202,15 +1153,15 @@ def main():
     
     # Sidebar
     with st.sidebar:
-        st.markdown("### About QuickList")
+        st.markdown("### 🌿 About QuickList")
         st.markdown("""
-        Transform product photos into professional listings in 30 seconds.
+        Transform product photos into professional listings instantly.
         
         **What You Get:**
         
         - Professional product description
-        - SEO keywords included
-        - Ready for your store
+        - SEO-optimized keywords
+        - Platform-ready formatting
         
         **Supported Platforms:**
         - Shopify
@@ -1221,14 +1172,14 @@ def main():
         
         st.markdown("---")
         
-        st.markdown("### Quick & Easy")
+        st.markdown("### ⚡ Quick & Easy")
         st.markdown("""
-        1. Upload photo
-        2. Enter product name
+        1. Upload product photo
+        2. Enter product details
         3. Generate listing
-        4. Download
+        4. Download & publish
         
-        Done in 30 seconds
+        **Done in 30 seconds**
         """)
         
         st.markdown("---")
@@ -1236,16 +1187,19 @@ def main():
         st.markdown("""
         **100% Free**  
         No signup required
+        
+        🌱 **Sustainable Resale**  
+        Powered by ThreadUp
         """)
     
     # Main content
     st.markdown("""
     <div class="upload-section">
-        <h2 style="color: #000000; font-family: 'Space Grotesk', sans-serif; margin-bottom: 1rem;">
-            Upload Your Product Photo
+        <h2 style="color: #2d5f3f; font-family: 'Poppins', sans-serif; margin-bottom: 1rem;">
+            📸 Upload Your Product Photo
         </h2>
-        <p style="color: #666666; font-size: 1.1rem;">
-            Get professional listings instantly
+        <p style="color: #6b7280; font-size: 1.1rem;">
+            Get professional, SEO-optimized listings instantly
         </p>
     </div>
     """, unsafe_allow_html=True)
@@ -1267,7 +1221,7 @@ def main():
         
         st.markdown("""
         <div class="section-header">
-            <h2 class="section-title">Product Information</h2>
+            <h2 class="section-title">📝 Product Information</h2>
             <p class="section-subtitle">Tell us about your product</p>
         </div>
         """, unsafe_allow_html=True)
@@ -1315,7 +1269,7 @@ def main():
             col1, col2, col3 = st.columns([1, 2, 1])
             
             with col2:
-                if st.button("Generate Listing", use_container_width=True):
+                if st.button("✨ Generate Listing", use_container_width=True):
                     
                     ai = QuickListAI()
                     
@@ -1323,7 +1277,7 @@ def main():
                     st.session_state.target_platform = target_platform
                     
                     # Phase 1: Image Analysis
-                    with st.spinner('Analyzing your product...'):
+                    with st.spinner('🔍 Analyzing your product...'):
                         progress = st.progress(0)
                         
                         for i in range(50):
@@ -1340,7 +1294,7 @@ def main():
                         progress.empty()
                     
                     # Phase 2: Generate Description
-                    with st.spinner('Writing professional description...'):
+                    with st.spinner('✍️ Writing professional description...'):
                         progress = st.progress(0)
                         
                         description = ai.generate_description(
@@ -1361,7 +1315,7 @@ def main():
                         progress.empty()
                     
                     # Phase 3: Keywords
-                    with st.spinner('Generating SEO keywords...'):
+                    with st.spinner('🎯 Generating SEO keywords...'):
                         progress = st.progress(0)
                         
                         for i in range(100):
@@ -1394,7 +1348,7 @@ def main():
             # Analysis
             st.markdown("""
             <div class="section-header">
-                <h2 class="section-title">Product Analysis</h2>
+                <h2 class="section-title">🔍 Product Analysis</h2>
                 <p class="section-subtitle">AI-powered insights from your image</p>
             </div>
             """, unsafe_allow_html=True)
@@ -1426,10 +1380,10 @@ def main():
                 </div>
                 """, unsafe_allow_html=True)
             
-            # Description (ONE, no label)
+            # Description
             st.markdown("""
             <div class="section-header">
-                <h2 class="section-title">Your Product Description</h2>
+                <h2 class="section-title">📄 Your Product Description</h2>
                 <p class="section-subtitle">Professional listing ready to use</p>
             </div>
             """, unsafe_allow_html=True)
@@ -1450,7 +1404,7 @@ def main():
             # Keywords
             st.markdown("""
             <div class="seo-box">
-                <div class="seo-title">SEO Keywords</div>
+                <div class="seo-title">🎯 SEO Keywords</div>
             """, unsafe_allow_html=True)
             
             st.markdown("**Primary:**")
@@ -1466,7 +1420,7 @@ def main():
             # Export
             st.markdown("""
             <div class="section-header">
-                <h2 class="section-title">Download Listing</h2>
+                <h2 class="section-title">💾 Download Listing</h2>
                 <p class="section-subtitle">Formatted for {}</p>
             </div>
             """.format(target_platform), unsafe_allow_html=True)
@@ -1474,9 +1428,9 @@ def main():
             formatted = format_for_platform(description, keywords, target_platform)
             
             st.markdown(f"""
-            <div style="background: #ffffff; border: 2px solid #e5e5e5; border-radius: 12px; padding: 2rem; margin: 1.5rem 0;">
-                <h3 style="color: #0066cc;">Your Listing</h3>
-                <pre style="color: #000000; background: #f8f8f8; padding: 1.5rem; border-radius: 8px; white-space: pre-wrap; font-size: 0.9rem;">{formatted}</pre>
+            <div style="background: linear-gradient(135deg, #ffffff 0%, #fdfaf6 100%); border: 2px solid #e8e4df; border-radius: 16px; padding: 2rem; margin: 1.5rem 0; box-shadow: 0 4px 16px rgba(45, 95, 63, 0.08);">
+                <h3 style="color: #2d5f3f;">Your Listing</h3>
+                <pre style="color: #1a1a1a; background: #f8f5f0; padding: 1.5rem; border-radius: 8px; white-space: pre-wrap; font-size: 0.9rem; border: 1px solid #e8e4df;">{formatted}</pre>
             </div>
             """, unsafe_allow_html=True)
             
@@ -1485,7 +1439,7 @@ def main():
             
             with col2:
                 st.download_button(
-                    label=f"Download for {target_platform}",
+                    label=f"📥 Download for {target_platform}",
                     data=formatted,
                     file_name=f"{product_name.lower().replace(' ', '_')}.txt",
                     mime="text/plain",
@@ -1495,14 +1449,14 @@ def main():
             st.markdown(f"""
             <div class="info-box">
                 <p style="margin: 0; font-weight: 600;">
-                    Your professional listing is ready! Upload to {target_platform} and start selling.
+                    ✨ Your professional listing is ready! Upload to {target_platform} and start selling.
                 </p>
             </div>
             """, unsafe_allow_html=True)
         elif not product_name:
             st.markdown("""
             <div class="info-box">
-                <p>Enter product name above to generate your listing</p>
+                <p>👆 Enter product name above to generate your listing</p>
             </div>
             """, unsafe_allow_html=True)
     
@@ -1510,7 +1464,7 @@ def main():
         # How it works
         st.markdown("""
         <div class="section-header">
-            <h2 class="section-title">How QuickList Works</h2>
+            <h2 class="section-title">🚀 How QuickList Works</h2>
             <p class="section-subtitle">Professional AI-powered listings in seconds</p>
         </div>
         """, unsafe_allow_html=True)
@@ -1520,9 +1474,9 @@ def main():
         with col1:
             st.markdown("""
             <div class="metric-box">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">1</div>
+                <div style="font-size: 3rem; margin-bottom: 1rem;">📸</div>
                 <div class="metric-label">Upload Photo</div>
-                <div style="color: #666666; font-size: 0.95rem; margin-top: 0.5rem; line-height: 1.5;">
+                <div style="color: #6b7280; font-size: 0.95rem; margin-top: 0.5rem; line-height: 1.5;">
                     Upload your product image
                 </div>
             </div>
@@ -1531,9 +1485,9 @@ def main():
         with col2:
             st.markdown("""
             <div class="metric-box">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">2</div>
+                <div style="font-size: 3rem; margin-bottom: 1rem;">🤖</div>
                 <div class="metric-label">AI Analysis</div>
-                <div style="color: #666666; font-size: 0.95rem; margin-top: 0.5rem; line-height: 1.5;">
+                <div style="color: #6b7280; font-size: 0.95rem; margin-top: 0.5rem; line-height: 1.5;">
                     Professional description generated
                 </div>
             </div>
@@ -1542,9 +1496,9 @@ def main():
         with col3:
             st.markdown("""
             <div class="metric-box">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">3</div>
+                <div style="font-size: 3rem; margin-bottom: 1rem;">💚</div>
                 <div class="metric-label">Download & Sell</div>
-                <div style="color: #666666; font-size: 0.95rem; margin-top: 0.5rem; line-height: 1.5;">
+                <div style="color: #6b7280; font-size: 0.95rem; margin-top: 0.5rem; line-height: 1.5;">
                     Ready for any platform
                 </div>
             </div>
@@ -1553,7 +1507,7 @@ def main():
         st.markdown("""
         <div class="info-box" style="margin-top: 3rem;">
             <p style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.75rem;">
-                What You Get:
+                🌟 What You Get:
             </p>
             <p style="margin: 0; line-height: 1.8;">
                 • AI-powered product analysis from your image<br>
@@ -1567,9 +1521,9 @@ def main():
         """, unsafe_allow_html=True)
         
         st.markdown("""
-        <div class="info-box" style="margin-top: 2rem; border-left-color: #0066cc;">
+        <div class="info-box" style="margin-top: 2rem; border-left-color: #6bb77b;">
             <p style="margin: 0; font-weight: 600;">
-                100% Free • No Signup Required • Professional Results
+                🌿 100% Free • No Signup Required • Sustainable Resale by ThreadUp
             </p>
         </div>
         """, unsafe_allow_html=True)
