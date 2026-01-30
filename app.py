@@ -69,17 +69,6 @@ st.markdown("""
         border-radius: 0 0 32px 32px !important;
     }
     
-    .main-header::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-        z-index: 0;
-    }
-    
     .header-content {
         position: relative;
         z-index: 1;
@@ -1175,7 +1164,7 @@ def main():
         
         st.markdown("### Quick & Easy")
         st.markdown("""
-        1. Upload or capture product photo
+        1. Upload product photo
         2. Add details (all optional)
         3. Generate listing
         4. Download & publish
@@ -1205,23 +1194,14 @@ def main():
     </div>
     """, unsafe_allow_html=True)
     
-    col1, col2 = st.columns(2)
+    uploaded_file = st.file_uploader(
+        "Upload Product Image",
+        type=['jpg', 'jpeg', 'png'],
+        help="Upload a product photo from your device"
+    )
     
-    with col1:
-        uploaded_file = st.file_uploader(
-            "Upload from Gallery",
-            type=['jpg', 'jpeg', 'png'],
-            help="Upload a product photo from your device"
-        )
-    
-    with col2:
-        camera_file = st.camera_input("Take Photo")
-    
-    # Use whichever input has a file
-    image_file = camera_file if camera_file is not None else uploaded_file
-    
-    if image_file is not None:
-        image = Image.open(image_file)
+    if uploaded_file is not None:
+        image = Image.open(uploaded_file)
         
         st.session_state.product_image = image
         
@@ -1486,9 +1466,9 @@ def main():
             st.markdown("""
             <div class="metric-box">
                 <div style="font-size: 3rem; margin-bottom: 1rem;">1</div>
-                <div class="metric-label">Upload or Capture</div>
+                <div class="metric-label">Upload Photo</div>
                 <div style="color: #6b7280; font-size: 0.95rem; margin-top: 0.5rem; line-height: 1.5;">
-                    Upload from gallery or take a photo
+                    Upload your product image
                 </div>
             </div>
             """, unsafe_allow_html=True)
