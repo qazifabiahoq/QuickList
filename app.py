@@ -795,11 +795,11 @@ class QuickListAI:
         
         color = analysis.colors[0] if analysis.colors[0] != "neutral" else ""
         
-        # Build context
+        # Build context with STRICT instructions
         context = f"""Product: {product_name}
 Category: {analysis.category}
 Type: {analysis.specific_type}
-Color: {color}
+DETECTED COLOR: {color if color else 'NOT SPECIFIED'}
 Style: {analysis.style}
 Materials: {', '.join(analysis.materials)}
 Features: {features if features else 'Premium quality'}"""
@@ -809,12 +809,22 @@ Features: {features if features else 'Premium quality'}"""
         if price_range:
             context += f"\nPrice Range: {price_range}"
         
-        # Create prompt for professional e-commerce description
+        # STRICT VALIDATION: Build list of FORBIDDEN colors (all colors except detected one)
+        all_colors = ['red', 'blue', 'green', 'yellow', 'orange', 'purple', 'pink', 'brown', 'white', 'black', 'gray', 'grey', 'beige', 'navy', 'maroon', 'burgundy', 'crimson', 'scarlet']
+        forbidden_colors = [c for c in all_colors if c != color.lower()] if color else []
+        
+        # Create EXTREMELY strict prompt
         prompt = f"""Write a professional e-commerce product description for this {analysis.specific_type.lower()}.
 
 {context}
 
-Write 150-200 words that balance emotional appeal with practical benefits. Be specific, engaging, and persuasive.
+CRITICAL RULES - FOLLOW EXACTLY:
+1. COLOR: {"Use ONLY '" + color + "' as the color. DO NOT mention: " + ", ".join(forbidden_colors) if color else "Do NOT mention any specific color"}
+2. MATERIALS: Use ONLY these materials: {', '.join(analysis.materials)}
+3. STYLE: Use ONLY this style: {analysis.style}
+4. Write 150-200 words that balance emotional appeal with practical benefits
+
+DO NOT invent colors, materials, or attributes not listed above.
 
 Respond ONLY with valid JSON (no markdown, no extra text):
 {{"title": "compelling product title", "description": "engaging professional description", "bullet_points": ["key benefit 1", "key benefit 2", "key benefit 3", "key benefit 4", "key benefit 5"], "meta_description": "SEO meta under 160 chars"}}"""
@@ -836,6 +846,14 @@ Respond ONLY with valid JSON (no markdown, no extra text):
                 )
                 
                 parsed = json.loads(completion.choices[0].message.content)
+                
+                # VALIDATION: Check for forbidden colors in output
+                generated_text = (parsed.get('title', '') + ' ' + parsed.get('description', '')).lower()
+                if color and any(forbidden in generated_text for forbidden in forbidden_colors):
+                    # Color hallucination detected - use fallback
+                    print(f"⚠️ COLOR HALLUCINATION DETECTED! Generated text contains forbidden colors.")
+                    raise ValueError("Color validation failed")
+                
                 return ProductDescription(
                     title=parsed.get('title', product_name),
                     description=parsed.get('description', ''),
@@ -843,6 +861,7 @@ Respond ONLY with valid JSON (no markdown, no extra text):
                     meta_description=parsed.get('meta_description', '')[:160]
                 )
             except Exception as e:
+                print(f"Groq failed: {e}")
                 pass
         
         # TIER 2: DeepInfra
@@ -862,6 +881,12 @@ Respond ONLY with valid JSON (no markdown, no extra text):
                     cleaned = QuickListAI.clean_json_response(generated)
                     parsed = json.loads(cleaned)
                     
+                    # VALIDATION: Check for forbidden colors
+                    generated_text = (parsed.get('title', '') + ' ' + parsed.get('description', '')).lower()
+                    if color and any(forbidden in generated_text for forbidden in forbidden_colors):
+                        print(f"⚠️ DeepInfra COLOR HALLUCINATION DETECTED!")
+                        raise ValueError("Color validation failed")
+                    
                     return ProductDescription(
                         title=parsed.get('title', product_name),
                         description=parsed.get('description', ''),
@@ -869,6 +894,7 @@ Respond ONLY with valid JSON (no markdown, no extra text):
                         meta_description=parsed.get('meta_description', '')[:160]
                     )
         except Exception as e:
+            print(f"DeepInfra failed: {e}")
             pass
         
         # TIER 3: Together AI
@@ -893,6 +919,12 @@ Respond ONLY with valid JSON (no markdown, no extra text):
                     cleaned = QuickListAI.clean_json_response(generated)
                     parsed = json.loads(cleaned)
                     
+                    # VALIDATION: Check for forbidden colors
+                    generated_text = (parsed.get('title', '') + ' ' + parsed.get('description', '')).lower()
+                    if color and any(forbidden in generated_text for forbidden in forbidden_colors):
+                        print(f"⚠️ Together AI COLOR HALLUCINATION DETECTED!")
+                        raise ValueError("Color validation failed")
+                    
                     return ProductDescription(
                         title=parsed.get('title', product_name),
                         description=parsed.get('description', ''),
@@ -900,6 +932,7 @@ Respond ONLY with valid JSON (no markdown, no extra text):
                         meta_description=parsed.get('meta_description', '')[:160]
                     )
         except Exception as e:
+            print(f"Together AI failed: {e}")
             pass
         
         # TIER 4: Pollinations
@@ -919,6 +952,12 @@ Respond ONLY with valid JSON (no markdown, no extra text):
                 cleaned = QuickListAI.clean_json_response(generated)
                 parsed = json.loads(cleaned)
                 
+                # VALIDATION: Check for forbidden colors
+                generated_text = (parsed.get('title', '') + ' ' + parsed.get('description', '')).lower()
+                if color and any(forbidden in generated_text for forbidden in forbidden_colors):
+                    print(f"⚠️ Pollinations COLOR HALLUCINATION DETECTED!")
+                    raise ValueError("Color validation failed")
+                
                 return ProductDescription(
                     title=parsed.get('title', product_name),
                     description=parsed.get('description', ''),
@@ -926,6 +965,7 @@ Respond ONLY with valid JSON (no markdown, no extra text):
                     meta_description=parsed.get('meta_description', '')[:160]
                 )
         except Exception as e:
+            print(f"Pollinations failed: {e}")
             pass
         
         # TIER 5: HuggingFace Qwen
@@ -948,6 +988,12 @@ Respond ONLY with valid JSON (no markdown, no extra text):
                     cleaned = QuickListAI.clean_json_response(generated)
                     parsed = json.loads(cleaned)
                     
+                    # VALIDATION: Check for forbidden colors
+                    generated_text = (parsed.get('title', '') + ' ' + parsed.get('description', '')).lower()
+                    if color and any(forbidden in generated_text for forbidden in forbidden_colors):
+                        print(f"⚠️ Qwen COLOR HALLUCINATION DETECTED!")
+                        raise ValueError("Color validation failed")
+                    
                     return ProductDescription(
                         title=parsed.get('title', product_name),
                         description=parsed.get('description', ''),
@@ -955,6 +1001,7 @@ Respond ONLY with valid JSON (no markdown, no extra text):
                         meta_description=parsed.get('meta_description', '')[:160]
                     )
         except Exception as e:
+            print(f"Qwen failed: {e}")
             pass
         
         # TIER 6: HuggingFace Mistral
@@ -977,6 +1024,12 @@ Respond ONLY with valid JSON (no markdown, no extra text):
                     cleaned = QuickListAI.clean_json_response(generated)
                     parsed = json.loads(cleaned)
                     
+                    # VALIDATION: Check for forbidden colors
+                    generated_text = (parsed.get('title', '') + ' ' + parsed.get('description', '')).lower()
+                    if color and any(forbidden in generated_text for forbidden in forbidden_colors):
+                        print(f"⚠️ Mistral COLOR HALLUCINATION DETECTED!")
+                        raise ValueError("Color validation failed")
+                    
                     return ProductDescription(
                         title=parsed.get('title', product_name),
                         description=parsed.get('description', ''),
@@ -984,24 +1037,55 @@ Respond ONLY with valid JSON (no markdown, no extra text):
                         meta_description=parsed.get('meta_description', '')[:160]
                     )
         except Exception as e:
+            print(f"Mistral failed: {e}")
             pass
         
-        # FINAL FALLBACK: Simple template
+        # FINAL FALLBACK: Simple template using ONLY detected attributes
         # Don't duplicate color if it's already in product name
         color_text = ""
         if color and color.lower() not in product_name.lower():
             color_text = f"{color} "
         
+        # Build description using ONLY detected attributes
+        desc_parts = []
+        desc_parts.append(f"Experience exceptional quality with this {color_text}{product_name.lower()}.")
+        
+        if analysis.materials and analysis.materials[0] not in ["Premium", "Quality"]:
+            desc_parts.append(f"Crafted from {analysis.materials[0].lower()}, this {analysis.specific_type.lower()} combines durability with comfort.")
+        
+        if analysis.style:
+            desc_parts.append(f"Features {analysis.style.lower()} design that stands out.")
+        
+        if features:
+            desc_parts.append(features)
+        else:
+            desc_parts.append("Perfect for any occasion.")
+        
+        final_description = " ".join(desc_parts)
+        
+        # Build bullet points using ONLY detected attributes
+        bullet_points = []
+        
+        if analysis.materials and analysis.materials[0] not in ["Premium", "Quality"]:
+            bullet_points.append(f"{analysis.materials[0]} construction for durability")
+        else:
+            bullet_points.append("Premium quality construction")
+        
+        if analysis.style:
+            bullet_points.append(f"{analysis.style} design that stands out")
+        
+        if color:
+            bullet_points.append(f"Beautiful {color} styling")
+        else:
+            bullet_points.append("Classic styling")
+        
+        bullet_points.append("Quality craftsmanship ensures long-lasting wear")
+        bullet_points.append("Perfect addition to your collection")
+        
         return ProductDescription(
             title=f"{analysis.style} {color_text}{product_name}".strip(),
-            description=f"Experience exceptional quality with this {color_text}{product_name.lower()}. Crafted from {analysis.materials[0].lower()}, this {analysis.specific_type.lower()} combines {analysis.style.lower()} design with premium craftsmanship. {features if features else 'Perfect for any occasion.'}",
-            bullet_points=[
-                f"{analysis.materials[0]} construction for durability",
-                f"{analysis.style} design that stands out",
-                f"Versatile {color if color else 'classic'} styling",
-                "Quality craftsmanship ensures long-lasting wear",
-                "Perfect addition to your collection"
-            ],
+            description=final_description,
+            bullet_points=bullet_points,
             meta_description=f"{product_name} - {analysis.style} {analysis.specific_type.lower()}"[:160]
         )
     
@@ -1278,6 +1362,10 @@ def main():
                     
                     analysis = ai.analyze_with_vision_apis(image, detected_product_name)
                     st.session_state.analysis = analysis
+                    
+                    # DEBUG: Show what was detected
+                    detected_color = analysis.colors[0] if analysis.colors[0] != "neutral" else "Not detected"
+                    st.info(f"🔍 **AI Vision Detected:** Color: **{detected_color}** | Category: **{analysis.category}** | Type: **{analysis.specific_type}** | Style: **{analysis.style}**")
                     
                     # If no product name provided, use detected category + type
                     if not detected_product_name:
