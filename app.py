@@ -433,10 +433,9 @@ st.markdown("""
     }
     
     .brand-tag {
-        background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.1) 100%);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255,255,255,0.3);
-        color: #ffffff !important;
+        background: linear-gradient(135deg, #e8f5ed 0%, #d4ede0 100%);
+        border: 1px solid rgba(255,255,255,0.4);
+        color: #2d5f3f !important;
         display: inline-block;
         padding: 0.5rem 1.2rem;
         border-radius: 24px;
@@ -445,6 +444,7 @@ st.markdown("""
         margin-top: 1rem;
         text-transform: uppercase;
         letter-spacing: 0.1em;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
 </style>
 """, unsafe_allow_html=True)
