@@ -25,13 +25,13 @@ except:
 
 # Page configuration
 st.set_page_config(
-    page_title="QuickList by ThreadUp",
+    page_title="QuickList by thredUP",
     page_icon="🌿",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS with ThreadUp-inspired green theme and shaded backgrounds
+# Custom CSS with thredUP-inspired green theme and shaded backgrounds
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap');
@@ -439,12 +439,12 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Header with ThreadUp branding
+# Header with thredUP branding
 st.markdown("""
 <div class="main-header" style="background: linear-gradient(135deg, #E8F5ED 0%, #D4EDE0 100%) !important; text-align: center; padding: 3rem; border-radius: 0 0 32px 32px; margin: -6rem -5rem 3rem -5rem;">
     <div class="header-content">
         <h1 style="color: #00A676 !important; font-size: 3.5rem !important; font-weight: 800 !important; margin: 0 !important; font-family: 'Poppins', sans-serif !important;">QuickList</h1>
-        <p style="color: #00A676 !important; font-size: 0.9rem !important; margin-top: 0.5rem !important; font-family: 'Inter', sans-serif !important; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 600; opacity: 0.8;">by ThreadUp</p>
+        <p style="color: #00A676 !important; font-size: 0.9rem !important; margin-top: 0.5rem !important; font-family: 'Inter', sans-serif !important; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 600; opacity: 0.8;">by thredUP</p>
         <p style="color: #1a1a1a !important; font-size: 1.25rem !important; margin-top: 1rem !important; font-family: 'Inter', sans-serif !important; opacity: 0.85;">Professional Product Listings in Seconds</p>
         <div class="brand-tag">
             🌿 Powered by AI • Sustainable Resale
@@ -1263,7 +1263,7 @@ def main():
         No signup required
         
         **Sustainable Resale**  
-        Powered by ThreadUp
+        Powered by thredUP
         """)
     
     # Main content
@@ -1602,7 +1602,7 @@ def main():
         st.markdown("""
         <div class="info-box" style="margin-top: 2rem; border-left-color: #00A676;">
             <p style="margin: 0; font-weight: 600;">
-                100% Free • No Signup Required • Sustainable Resale by ThreadUp
+                100% Free • No Signup Required • Sustainable Resale by thredUP
             </p>
         </div>
         """, unsafe_allow_html=True)
