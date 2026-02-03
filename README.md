@@ -1,4 +1,4 @@
-# QuickList by ThreadUp
+# QuickList by thredUP
 ### Generative AI Solution for Automated Product Listing Creation in Peer-to-Peer Resale
 
 **MMAI 5090 F: Business Applications of AI II**  
@@ -11,33 +11,33 @@ Dr. Divinus Oppong-Tawiah | February 11, 2026
 
 This project emerged from real-world frustration experienced by team member Qazi Fabia Hoq during previous work involving product tagging and categorization. Spending 5-10 minutes per item to create proper product listings, ensure accurate categorization, and optimize for searchability revealed a critical inefficiency plaguing e-commerce platforms.
 
-ThreadUp presented the perfect case study: North America's largest resale marketplace losing sellers to competitors due to this exact listing friction problem.
+thredUP presented the perfect case study: North America's largest resale marketplace losing sellers to competitors due to this exact listing friction problem.
 
 ---
 
-## Business Problem: ThreadUp's Seller Churn Crisis
+## Business Problem: thredUP's Seller Churn Crisis
 
 ### Company Background
 
-ThreadUp generates $322 million in annual revenue operating the largest online resale marketplace for secondhand apparel in North America. The company built its business on managed consignment where sellers mail clothing and ThreadUp handles listing, photography, pricing, and fulfillment.
+thredUP generates $322 million in annual revenue operating the largest online resale marketplace for secondhand apparel in North America. The company built its business on managed consignment where sellers mail clothing and thredUP handles listing, photography, pricing, and fulfillment.
 
 ### The Critical Problem
 
 In November 2025, CEO James Reinhart announced a strategic pivot toward peer-to-peer selling, acknowledging the company was losing sellers to competitors. Research revealed sellers were strategically splitting inventory across platforms based on item value.
 
-**Low-value items** went to ThreadUp consignment because individual listing effort wasn't worthwhile. **High-value, premium pieces** went to peer-to-peer platforms like Poshmark, Mercari, and Depop where sellers controlled pricing, listed instantly, and captured higher payouts.
+**Low-value items** went to thredUP consignment because individual listing effort wasn't worthwhile. **High-value, premium pieces** went to peer-to-peer platforms like Poshmark, Mercari, and Depop where sellers controlled pricing, listed instantly, and captured higher payouts.
 
 The fundamental issue: creating quality peer-to-peer listings requires 5-10 minutes of manual effort per item. For sellers with inventories of 50-100 items, this effort barrier becomes prohibitive.
 
 ### The Negative Spiral
 
-ThreadUp was hemorrhaging its most profitable inventory. Without premium inventory, ThreadUp couldn't attract buyers seeking high-quality pieces. Lower inventory quality reduced buyer traffic, making the platform less attractive to sellers, perpetuating the cycle.
+thredUP was hemorrhaging its most profitable inventory. Without premium inventory, thredUP couldn't attract buyers seeking high-quality pieces. Lower inventory quality reduced buyer traffic, making the platform less attractive to sellers, perpetuating the cycle.
 
 ### Why Peer-to-Peer Will Fail Without AI
 
 The fundamental tension persists: consignment offers convenience but low payouts, while peer-to-peer offers control but requires manual effort. No platform has solved this.
 
-ThreadUp's pivot to peer-to-peer will fail unless they eliminate listing friction. Without solving this core problem, peer-to-peer simply replicates the same churn on a different business model.
+thredUP's pivot to peer-to-peer will fail unless they eliminate listing friction. Without solving this core problem, peer-to-peer simply replicates the same churn on a different business model.
 
 ---
 
@@ -88,7 +88,7 @@ QuickList combines four core AI components with human-in-the-loop quality assura
 | Component | Technology | Purpose | Why This Choice |
 |-----------|-----------|---------|-----------------|
 | **Generative AI (CORE)** | Llama 3.3 70B via Groq + GPT-4 fallback | Generate unique product descriptions, titles, features, keywords | LLMs create natural language content; open-source reduces costs; Groq achieves <2s latency |
-| **Computer Vision** | Fine-tuned CLIP model on ThreadUp's 172M items | Extract product attributes from images | Zero-shot handles fashion diversity; fine-tuning on professional labels improves accuracy dramatically |
+| **Computer Vision** | Fine-tuned CLIP model on thredUP's 172M items | Extract product attributes from images | Zero-shot handles fashion diversity; fine-tuning on professional labels improves accuracy dramatically |
 | **Rule-Based Validation** | Custom validation rules + hallucination detection | Prevent AI errors and ensure factual accuracy | Catches color mismatches, missing fields, compliance violations before content reaches sellers |
 | **Pricing ML** | XGBoost trained on 172M transactions | Recommend optimal price ranges with explanations | Interpretable feature importance builds seller trust; efficient on transaction history |
 | **Human Review Queue** | Manual review workflow | Quality assurance for low-confidence predictions | Hybrid approach maintains quality while achieving scale |
@@ -101,11 +101,11 @@ QuickList combines four core AI components with human-in-the-loop quality assura
 
 **Why Llama 3.3 70B for production**: 
 
-Open-source licensing eliminates per-token costs at scale, providing significant cost advantages. Groq's custom Language Processing Unit (LPU) hardware achieves generation latency under 2 seconds, critical for mobile user experience. Quality is comparable to GPT-4 on structured content generation tasks while being significantly more cost-effective for high-volume applications. At 1.6 million listings annually, GPT-4 would cost approximately $48,000 versus $3,200 for Groq-hosted Llama. Additionally, self-hosted open-source models keep ThreadUp's proprietary product data private rather than sending it to external API providers.
+Open-source licensing eliminates per-token costs at scale, providing significant cost advantages. Groq's custom Language Processing Unit (LPU) hardware achieves generation latency under 2 seconds, critical for mobile user experience. Quality is comparable to GPT-4 on structured content generation tasks while being significantly more cost-effective for high-volume applications. At 1.6 million listings annually, GPT-4 would cost approximately $48,000 versus $3,200 for Groq-hosted Llama. Additionally, self-hosted open-source models keep thredUP's proprietary product data private rather than sending it to external API providers.
 
 **What the generative AI creates**: 
 
-SEO-optimized product titles incorporating detected attributes and search keywords. Professional descriptions (150-200 words) balancing emotional appeal with practical benefits, written in ThreadUp's brand voice emphasizing sustainability. Bullet points highlighting key features and benefits in scannable format. Meta descriptions optimized for search engines under 160 characters. Primary and long-tail keywords for platform SEO.
+SEO-optimized product titles incorporating detected attributes and search keywords. Professional descriptions (150-200 words) balancing emotional appeal with practical benefits, written in thredUP's brand voice emphasizing sustainability. Bullet points highlighting key features and benefits in scannable format. Meta descriptions optimized for search engines under 160 characters. Primary and long-tail keywords for platform SEO.
 
 **Prompt engineering to control generation quality**: 
 
@@ -119,21 +119,21 @@ Generative models are instructed to output valid JSON with specific fields (titl
 
 Primary generation through Groq Enterprise API with guaranteed SLA and dedicated throughput. Fallback to OpenAI GPT-4 Turbo API for approximately 5% of listings requiring highest quality or when Groq experiences issues. Response format enforced as JSON for reliable parsing. Generation parameters tuned for optimal output: temperature 0.7 balances creativity with consistency, top-p 0.9 uses nucleus sampling, max tokens 700 allows complete listings while controlling costs.
 
-**Fine-tuning on ThreadUp's best-performing listings**: 
+**Fine-tuning on thredUP's best-performing listings**: 
 
-After initial deployment, production system would fine-tune Llama 3.3 70B on ThreadUp's highest-converting product descriptions from historical data. This creates a custom generative model that inherently writes in ThreadUp's brand voice and generates descriptions proven to drive sales. Fine-tuning dataset would include 50,000-100,000 professionally-written descriptions with associated conversion metrics, creating a model specialized for sustainable fashion resale.
+After initial deployment, production system would fine-tune Llama 3.3 70B on thredUP's highest-converting product descriptions from historical data. This creates a custom generative model that inherently writes in thredUP's brand voice and generates descriptions proven to drive sales. Fine-tuning dataset would include 50,000-100,000 professionally-written descriptions with associated conversion metrics, creating a model specialized for sustainable fashion resale.
 
 ### Component 2: Computer Vision for Attribute Detection
 
-**Production Technology**: CLIP (Contrastive Language-Image Pretraining) model fine-tuned on ThreadUp's 172 million items with professional assessments, deployed on ThreadUp GPU infrastructure with Google Cloud Vision API as fallback.
+**Production Technology**: CLIP (Contrastive Language-Image Pretraining) model fine-tuned on thredUP's 172 million items with professional assessments, deployed on thredUP GPU infrastructure with Google Cloud Vision API as fallback.
 
 **Why CLIP with fine-tuning**: 
 
 Fashion resale involves enormous product diversity including vintage items, international brands, and niche styles impossible to comprehensively pre-label. Traditional CNNs like ResNet or EfficientNet require supervised training on every possible category. CLIP performs zero-shot classification by understanding relationships between images and text descriptions, generalizing to new items immediately without retraining. However, vanilla CLIP lacks domain expertise in fashion attribute detection and condition assessment.
 
-**ThreadUp's critical advantage through fine-tuning**:
+**thredUP's critical advantage through fine-tuning**:
 
-ThreadUp's 172 million item consignment history includes professional assessments by trained specialists. Each item has verified labels: exact category using standardized taxonomy (not user guesses), material composition verified by physical inspection (distinguishing silk from polyester from blends), condition grades using consistent criteria across all items (like new, gently used, visible wear), brand identification and authentication (verified designer vs fast fashion), and color assessment by trained eyes (navy vs black vs charcoal).
+thredUP's 172 million item consignment history includes professional assessments by trained specialists. Each item has verified labels: exact category using standardized taxonomy (not user guesses), material composition verified by physical inspection (distinguishing silk from polyester from blends), condition grades using consistent criteria across all items (like new, gently used, visible wear), brand identification and authentication (verified designer vs fast fashion), and color assessment by trained eyes (navy vs black vs charcoal).
 
 This professional ground truth data enables supervised fine-tuning of CLIP that dramatically improves accuracy on challenging attributes. Fine-tuned CLIP learns to distinguish silk from satin from polyester based on visual texture cues. It accurately assesses condition (tiny pulls vs significant wear). It recognizes designer construction details vs mass-market finishing. It handles subtle color differences critical for fashion.
 
@@ -141,7 +141,7 @@ This professional ground truth data enables supervised fine-tuning of CLIP that 
 
 **Fine-tuning process and cost**:
 
-Starting with OpenAI's pre-trained CLIP ViT-L/14 model, ThreadUp would fine-tune on their 172 million professionally-labeled images. Training infrastructure requires GPU cluster (AWS P3 instances or equivalent) for approximately 2-4 weeks. Total cost including compute, data preparation, and engineering ranges from $75,000 to $150,000 one-time investment. Result is a custom CLIP model that achieves 10-20% higher accuracy than vanilla CLIP on fashion-specific attributes, creating sustainable competitive advantage worth millions.
+Starting with OpenAI's pre-trained CLIP ViT-L/14 model, thredUP would fine-tune on their 172 million professionally-labeled images. Training infrastructure requires GPU cluster (AWS P3 instances or equivalent) for approximately 2-4 weeks. Total cost including compute, data preparation, and engineering ranges from $75,000 to $150,000 one-time investment. Result is a custom CLIP model that achieves 10-20% higher accuracy than vanilla CLIP on fashion-specific attributes, creating sustainable competitive advantage worth millions.
 
 **What vision detects**: 
 
@@ -167,13 +167,13 @@ Category and type consistency checks that title and description align with detec
 
 Description length verification ensures 150-200 word target (not too short appearing low-effort, not too long reducing readability). Keyword density analysis prevents keyword stuffing that hurts SEO. Readability scoring using Flesch reading ease targets scores above 60 for broad accessibility. Sentiment analysis ensures positive, professional tone without overly salesy language.
 
-**Compliance validation using ThreadUp's historical policy data**:
+**Compliance validation using thredUP's historical policy data**:
 
-Scans for prohibited terms compiled from years of policy enforcement (unauthorized brand name mentions, profanity, medical claims). Checks policy violations based on ThreadUp's content guidelines (health claims, guarantees, misleading statements). Detects potential trademark infringement before listings go live. Flags sensitive categories requiring extra review (children's items, swimwear, undergarments).
+Scans for prohibited terms compiled from years of policy enforcement (unauthorized brand name mentions, profanity, medical claims). Checks policy violations based on thredUP's content guidelines (health claims, guarantees, misleading statements). Detects potential trademark infringement before listings go live. Flags sensitive categories requiring extra review (children's items, swimwear, undergarments).
 
 **Pricing validation using transaction history**:
 
-Compares suggested prices against historical ranges for detected category and brand using ThreadUp's 172 million transaction database. Luxury brands (Gucci, Prada, Chanel) with prices under $50 automatically flagged as likely errors. Budget brands with premium pricing flagged for verification. Outlier detection catches prices more than 2 standard deviations from category mean.
+Compares suggested prices against historical ranges for detected category and brand using thredUP's 172 million transaction database. Luxury brands (Gucci, Prada, Chanel) with prices under $50 automatically flagged as likely errors. Budget brands with premium pricing flagged for verification. Outlier detection catches prices more than 2 standard deviations from category mean.
 
 **High-value triggers routing to human review**:
 
@@ -181,7 +181,7 @@ Luxury brand detection (250+ designer brands) automatically routes to specialist
 
 ### Component 4: Pricing Recommendation Engine
 
-**Production Technology**: XGBoost gradient boosting model trained on ThreadUp's 172 million transaction history, retrained weekly on fresh data.
+**Production Technology**: XGBoost gradient boosting model trained on thredUP's 172 million transaction history, retrained weekly on fresh data.
 
 **Why XGBoost over deep learning for pricing**: 
 
@@ -189,13 +189,13 @@ Interpretability is critical for seller trust. Sellers need to understand why a 
 
 Deep learning models function as black boxes providing no explanation. A neural network saying "list at $62" without rationale leads to sellers distrusting and overriding recommendations, defeating the tool's purpose. Additionally, XGBoost trains efficiently on structured tabular data (transaction records) while neural networks are overkill for this problem type.
 
-**Training on ThreadUp's proprietary transaction data**:
+**Training on thredUP's proprietary transaction data**:
 
 The model trains on 172 million historical transactions including actual sale prices (what items sold for, not just asking prices which may never sell). Time-to-sale data (how many days from listing to purchase, indicating price accuracy). Seasonal patterns (winter coats sell higher November-February, swimwear peaks May-July). Geographic demand variations (designer brands command premium in urban markets, practical items in suburban). Seller tier effects (established sellers achieve higher prices than new sellers for identical items).
 
 **How pricing recommendations work**:
 
-For each new listing, the system queries ThreadUp's transaction database to find recent comparable sales (same category, similar brand tier, comparable condition, similar materials, same geographic region). XGBoost model processes listing attributes and comparable sales data to generate optimal price range with confidence interval, typically $X to $Y representing 25th to 75th percentile of comparable sales. Explanatory context accompanies recommendations: "Similar items sold for $45-65. Premium for silk material (+$12). Seasonal demand high (+$8). Excellent condition (+$5)."
+For each new listing, the system queries thredUP's transaction database to find recent comparable sales (same category, similar brand tier, comparable condition, similar materials, same geographic region). XGBoost model processes listing attributes and comparable sales data to generate optimal price range with confidence interval, typically $X to $Y representing 25th to 75th percentile of comparable sales. Explanatory context accompanies recommendations: "Similar items sold for $45-65. Premium for silk material (+$12). Seasonal demand high (+$8). Excellent condition (+$5)."
 
 **Weekly retraining on fresh data**:
 
@@ -235,15 +235,15 @@ Weekly retraining incorporates curated feedback from previous week. Monthly majo
 
 ---
 
-## How ThreadUp's Proprietary Data Powers QuickList
+## How thredUP's Proprietary Data Powers QuickList
 
 ### Data as Competitive Moat
 
-ThreadUp's 172 million item consignment history provides multiple competitive advantages that competitors cannot easily replicate.
+thredUP's 172 million item consignment history provides multiple competitive advantages that competitors cannot easily replicate.
 
 **Vision model training data (172 million professionally-labeled images)**:
 
-Professional product photos shot with standardized lighting, neutral backgrounds, and consistent angles. Verified attribute labels from trained specialists following standardized criteria, not user-generated guesses. Expert annotations include exact category placement in ThreadUp's hierarchical taxonomy (evening gowns vs cocktail dresses vs casual dresses), material composition verified through physical inspection and tag reading (100% silk vs silk-polyester blend vs polyester), condition grades assessed using identical criteria across all 172 million items (like new requires zero wear signs, gently used allows minor wear, etc.), brand identification and authentication (designer logos verified, construction quality assessed, counterfeit detection).
+Professional product photos shot with standardized lighting, neutral backgrounds, and consistent angles. Verified attribute labels from trained specialists following standardized criteria, not user-generated guesses. Expert annotations include exact category placement in thredUP's hierarchical taxonomy (evening gowns vs cocktail dresses vs casual dresses), material composition verified through physical inspection and tag reading (100% silk vs silk-polyester blend vs polyester), condition grades assessed using identical criteria across all 172 million items (like new requires zero wear signs, gently used allows minor wear, etc.), brand identification and authentication (designer logos verified, construction quality assessed, counterfeit detection).
 
 **Generative model training data (best-performing descriptions)**:
 
@@ -269,7 +269,7 @@ Hire and train hundreds of product assessment specialists. Inspect and professio
 
 Shopify's AI product tagging improves continuously using merchant correction data. When merchants edit AI-generated tags, that feedback trains the model. Shopify has tens of millions of products with merchant corrections, creating a data advantage competitors cannot easily replicate.
 
-QuickList implements the same principle at larger scale with richer data. ThreadUp has 172 million items with professional assessments, far exceeding typical e-commerce data quality.
+QuickList implements the same principle at larger scale with richer data. thredUP has 172 million items with professional assessments, far exceeding typical e-commerce data quality.
 
 ---
 
@@ -315,10 +315,10 @@ This repository contains a proof-of-concept demonstrating QuickList's capabiliti
 
 | Component | Demo Technology | Limitations |
 |-----------|----------------|-------------|
-| Computer Vision | Google Cloud Vision (1000/month free tier), Amazon Rekognition (5000/month free first year), CLIP via HuggingFace Inference API | Not fine-tuned on ThreadUp data; rate limited; lower accuracy than production |
-| Generative AI | Groq free tier (Llama 3.3 70B), DeepInfra, Together AI, Pollinations, HuggingFace (Qwen 2.5 72B, Mistral 7B) | 6-tier fallback compensates for free tier unreliability; generic prompts not optimized for ThreadUp |
+| Computer Vision | Google Cloud Vision (1000/month free tier), Amazon Rekognition (5000/month free first year), CLIP via HuggingFace Inference API | Not fine-tuned on thredUP data; rate limited; lower accuracy than production |
+| Generative AI | Groq free tier (Llama 3.3 70B), DeepInfra, Together AI, Pollinations, HuggingFace (Qwen 2.5 72B, Mistral 7B) | 6-tier fallback compensates for free tier unreliability; generic prompts not optimized for thredUP |
 | Validation | Color hallucination prevention, basic content checks | Same validation logic as production |
-| Pricing | Mock XGBoost with placeholder logic | Cannot provide accurate pricing without access to ThreadUp's transaction database |
+| Pricing | Mock XGBoost with placeholder logic | Cannot provide accurate pricing without access to thredUP's transaction database |
 | Infrastructure | Single Streamlit instance running locally or on Streamlit Cloud | No scaling, no database persistence, no monitoring, no user accounts |
 
 **Purpose of demo**: Validates that the technical approach works end-to-end. Proves that multi-tier fallback AI can achieve reliability even with free APIs. Demonstrates user experience and interface flow. Provides working foundation for production build. Shows investors and stakeholders a functioning prototype.
@@ -327,9 +327,9 @@ This repository contains a proof-of-concept demonstrating QuickList's capabiliti
 
 ### Production System Additions
 
-**Fine-tuned models trained on ThreadUp's proprietary data**:
+**Fine-tuned models trained on thredUP's proprietary data**:
 
-CLIP fine-tuning on 172 million professionally-labeled images costs $75K-150K one-time, requires 2-4 weeks on GPU cluster, improves accuracy by 10-20% on fashion attributes. Llama 3.3 70B fine-tuning on ThreadUp's 50K-100K best-performing descriptions costs $20K-40K, creates custom model writing in ThreadUp's brand voice. XGBoost training on 172 million transactions provides accurate pricing impossible without this data.
+CLIP fine-tuning on 172 million professionally-labeled images costs $75K-150K one-time, requires 2-4 weeks on GPU cluster, improves accuracy by 10-20% on fashion attributes. Llama 3.3 70B fine-tuning on thredUP's 50K-100K best-performing descriptions costs $20K-40K, creates custom model writing in thredUP's brand voice. XGBoost training on 172 million transactions provides accurate pricing impossible without this data.
 
 **Paid API tiers with guaranteed SLA**:
 
@@ -367,7 +367,7 @@ SOC 2 certification process. GDPR compliance including data portability and dele
 
 ### Revenue Opportunity
 
-Capturing just 2% of the market represents 1.6 million sellers listing 10 items yearly at $25 average, generating $400 million in gross merchandise value annually. At ThreadUp's 15% transaction fee, this translates to $60 million in annual revenue, nearly doubling current quarterly revenue of approximately $80 million.
+Capturing just 2% of the market represents 1.6 million sellers listing 10 items yearly at $25 average, generating $400 million in gross merchandise value annually. At thredUP's 15% transaction fee, this translates to $60 million in annual revenue, nearly doubling current quarterly revenue of approximately $80 million.
 
 ### Return on Investment
 
@@ -377,13 +377,13 @@ Initial investment of $850K to $2.1M with first-year revenue approximately $30 m
 
 **Threat of new entrants diminishes** because QuickList creates an operational moat requiring significant investment ($850K-$2.1M initial), proprietary training data (172 million professionally-labeled items), and time to accumulate (3-5 years minimum to build equivalent dataset).
 
-**Supplier bargaining power decreases** as sellers become dependent on QuickList for efficient listing, creating switching costs that prevent them from leaving ThreadUp for competitors. Sellers build inventory on ThreadUp, optimize workflows around QuickList, and achieve higher sales through better listings.
+**Supplier bargaining power decreases** as sellers become dependent on QuickList for efficient listing, creating switching costs that prevent them from leaving thredUP for competitors. Sellers build inventory on thredUP, optimize workflows around QuickList, and achieve higher sales through better listings.
 
 **Buyer bargaining power shifts favorably** through reduced information asymmetry as AI-generated descriptions are consistent, complete, and trustworthy compared to variable-quality manual listings on competitor platforms.
 
-**Threat of substitutes weakens** because 30-second listing process is faster than all alternatives: manual listing on Poshmark/Mercari (5-10 minutes), traditional ThreadUp consignment (wait time for processing), bulk listing services (expensive, inconsistent quality).
+**Threat of substitutes weakens** because 30-second listing process is faster than all alternatives: manual listing on Poshmark/Mercari (5-10 minutes), traditional thredUP consignment (wait time for processing), bulk listing services (expensive, inconsistent quality).
 
-**Competitive rivalry shifts in ThreadUp's favor** because competitors lack meaningful listing technology differentiation and cannot easily replicate the data advantage (172M professional assessments) or the generative AI implementation quality.
+**Competitive rivalry shifts in thredUP's favor** because competitors lack meaningful listing technology differentiation and cannot easily replicate the data advantage (172M professional assessments) or the generative AI implementation quality.
 
 ---
 
@@ -415,7 +415,7 @@ QuickList represents an efficiency-focused generative AI investment with clearly
 
 **Augments existing workflow rather than replacing humans**: QuickList reduces listing time from 5-10 minutes to 30 seconds while keeping sellers in control. Sellers review AI-generated listings and can edit any field. This human-in-the-loop approach ensures quality while achieving efficiency gains. Similar to how Shopify's AI product tagging assists merchants rather than making final decisions.
 
-**Measurable business metrics enable early validation**: Listing time and cost per item are already tracked operational metrics at ThreadUp. Business impact can be validated within weeks through Phase 1 pilot with 500 sellers, reducing investment risk. Unlike speculative AI projects with unclear ROI timelines, QuickList shows results immediately.
+**Measurable business metrics enable early validation**: Listing time and cost per item are already tracked operational metrics at thredUP. Business impact can be validated within weeks through Phase 1 pilot with 500 sellers, reducing investment risk. Unlike speculative AI projects with unclear ROI timelines, QuickList shows results immediately.
 
 **Intermediate value realization through process improvements**: Faster and more standardized listings improve operational predictability, supporting downstream functions. Consistent attribute tagging improves search and recommendation algorithms. SEO-optimized descriptions increase organic traffic. Better pricing recommendations reduce time-to-sale. Value is realized through measurable process improvements, not just eventual revenue gains.
 
@@ -451,11 +451,11 @@ A/B testing demonstrates measurable conversion improvements providing data-drive
 
 **Competitive response risks mitigated by sustainable advantages**:
 
-Proprietary datasets create multi-year lead time for competitors attempting to replicate. ThreadUp's 172 million professionally-labeled items accumulated over years cannot be quickly recreated. Competitors would need to implement professional assessment operations (costly), accumulate years of verified data (time-consuming), and fine-tune models (expensive). Combined barrier estimated at $50M+ and 3-5 years minimum.
+Proprietary datasets create multi-year lead time for competitors attempting to replicate. thredUP's 172 million professionally-labeled items accumulated over years cannot be quickly recreated. Competitors would need to implement professional assessment operations (costly), accumulate years of verified data (time-consuming), and fine-tune models (expensive). Combined barrier estimated at $50M+ and 3-5 years minimum.
 
-Patent protection on specific implementations of generative AI for product listings. While core technologies (CLIP, LLMs) are public, ThreadUp can patent novel approaches to validation, active learning integration, and hybrid human-AI workflows. Patents create additional barriers even if competitors acquire training data.
+Patent protection on specific implementations of generative AI for product listings. While core technologies (CLIP, LLMs) are public, thredUP can patent novel approaches to validation, active learning integration, and hybrid human-AI workflows. Patents create additional barriers even if competitors acquire training data.
 
-Continuous innovation maintains advantage as competitors eventually catch up. By the time competitors deploy basic AI listing tools, ThreadUp is already several versions ahead with superior accuracy, faster generation, and better integration. Innovation roadmap includes features like automated product photography recommendations, dynamic pricing adjusting to real-time demand, and personalized listing optimization based on seller history.
+Continuous innovation maintains advantage as competitors eventually catch up. By the time competitors deploy basic AI listing tools, thredUP is already several versions ahead with superior accuracy, faster generation, and better integration. Innovation roadmap includes features like automated product photography recommendations, dynamic pricing adjusting to real-time demand, and personalized listing optimization based on seller history.
 
 **Platform quality risks managed through multi-layer controls**:
 
@@ -503,15 +503,15 @@ Seller satisfaction measured through Net Promoter Score specifically for QuickLi
 
 **Proceed with QuickList implementation.**
 
-The decision to implement QuickList represents ThreadUp's optimal path to stopping sellers from leaving the platform, recapturing premium inventory currently lost to peer-to-peer competitors, establishing defensible competitive advantages through proprietary data and generative AI implementation, and positioning as the innovation leader in AI-powered resale commerce.
+The decision to implement QuickList represents thredUP's optimal path to stopping sellers from leaving the platform, recapturing premium inventory currently lost to peer-to-peer competitors, establishing defensible competitive advantages through proprietary data and generative AI implementation, and positioning as the innovation leader in AI-powered resale commerce.
 
-QuickList is a **generative AI solution** at its core. Large language models create unique, persuasive product descriptions that cannot be generated through traditional AI approaches. This content generation capability, combined with computer vision attribute detection and machine learning pricing, solves ThreadUp's fundamental business problem: listing friction preventing sellers from efficiently listing high-value inventory.
+QuickList is a **generative AI solution** at its core. Large language models create unique, persuasive product descriptions that cannot be generated through traditional AI approaches. This content generation capability, combined with computer vision attribute detection and machine learning pricing, solves thredUP's fundamental business problem: listing friction preventing sellers from efficiently listing high-value inventory.
 
 The combination of **zero-shot computer vision fine-tuned on 172 million professional assessments**, **efficient large language models with strict validation preventing hallucinations**, **interpretable pricing models building seller trust**, and **continuous improvement through active learning on real usage data** creates a production-ready system that solves a real business problem with measurable ROI.
 
-ThreadUp's unique competitive advantage lies in its proprietary data. Competitors cannot easily replicate 172 million professionally-labeled items accumulated through years of consignment operations. This data enables model fine-tuning that dramatically improves accuracy, creating a sustainable moat protecting ThreadUp's investment.
+thredUP's unique competitive advantage lies in its proprietary data. Competitors cannot easily replicate 172 million professionally-labeled items accumulated through years of consignment operations. This data enables model fine-tuning that dramatically improves accuracy, creating a sustainable moat protecting thredUP's investment.
 
-QuickList is not speculative AI research. It is an operational efficiency investment with clear metrics, early validation opportunities through phased rollout, measurable intermediate value through process improvements, and a realistic path to positive return on investment within 18 months. Initial investment of $850K to $2.1M generates estimated $60 million in annual revenue at full deployment, nearly doubling ThreadUp's quarterly revenue.
+QuickList is not speculative AI research. It is an operational efficiency investment with clear metrics, early validation opportunities through phased rollout, measurable intermediate value through process improvements, and a realistic path to positive return on investment within 18 months. Initial investment of $850K to $2.1M generates estimated $60 million in annual revenue at full deployment, nearly doubling thredUP's quarterly revenue.
 
 The phased 12-week rollout enables risk mitigation through early validation, iterative refinement based on real feedback, and gradual scaling as accuracy and reliability improve. Multiple layers of quality assurance including confidence scoring, rule-based validation, and human review maintain listing quality while achieving 90%+ automation rates.
 
@@ -536,6 +536,6 @@ Esha Malhi
 
 This repository contains a proof-of-concept Streamlit demo application using free-tier APIs to validate QuickList's technical approach. The demo demonstrates end-to-end functionality from image upload to complete listing generation, validates multi-tier AI fallback reliability, and provides a working foundation for production implementation.
 
-Production deployment would require paid API tiers with guaranteed SLA, fine-tuned models trained on ThreadUp's proprietary 172 million item dataset, production cloud infrastructure with auto-scaling and monitoring, human review workflows and quality assurance processes, A/B testing framework for continuous optimization, and active learning pipelines incorporating real usage feedback as detailed throughout this document.
+Production deployment would require paid API tiers with guaranteed SLA, fine-tuned models trained on thredUP's proprietary 172 million item dataset, production cloud infrastructure with auto-scaling and monitoring, human review workflows and quality assurance processes, A/B testing framework for continuous optimization, and active learning pipelines incorporating real usage feedback as detailed throughout this document.
 
 **License**: Academic project for educational purposes.
