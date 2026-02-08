@@ -97,13 +97,12 @@ st.markdown("""
         position: absolute;
         top: 0;
         left: 0;
-        width: 60%;
+        width: 100%;
         height: 100%;
         background: linear-gradient(
-            90deg,
-            rgba(250, 248, 243, 0.95) 0%,
-            rgba(250, 248, 243, 0.85) 70%,
-            rgba(250, 248, 243, 0) 100%
+            135deg,
+            rgba(250, 248, 243, 0.75) 0%,
+            rgba(255, 254, 249, 0.70) 100%
         );
     }
     
@@ -114,10 +113,9 @@ st.markdown("""
         display: flex;
         flex-direction: column;
         justify-content: center;
-        align-items: flex-start;
-        text-align: left;
-        padding: 4rem 2rem 4rem 6rem;
-        max-width: 55%;
+        align-items: center;
+        text-align: center;
+        padding: 4rem 2rem;
     }
     
     .brand-logo {
@@ -180,7 +178,7 @@ st.markdown("""
     }
     
     [data-testid="stSidebar"] h3 {
-        color: var(--primary) !important;
+        color: #1A1A1A !important;
         font-size: 1.4rem;
         margin-bottom: 1rem;
         border-bottom: 2px solid var(--secondary);
@@ -233,7 +231,7 @@ st.markdown("""
     }
     
     [data-testid="stFileUploader"] label {
-        color: var(--primary) !important;
+        color: #1A1A1A !important;
         font-weight: 600 !important;
     }
     
@@ -365,7 +363,7 @@ st.markdown("""
     .metric-value {
         font-family: 'Playfair Display', serif;
         font-size: 1.2rem;
-        color: var(--primary) !important;
+        color: #1A1A1A !important;
         font-weight: 700;
         line-height: 1.4;
         word-wrap: break-word;
@@ -398,7 +396,7 @@ st.markdown("""
     .content-title {
         font-family: 'Playfair Display', serif;
         font-size: 1.8rem;
-        color: var(--primary) !important;
+        color: #1A1A1A !important;
         font-weight: 700;
         margin-bottom: 1.5rem;
     }
@@ -415,7 +413,7 @@ st.markdown("""
     .seo-title {
         font-family: 'Playfair Display', serif;
         font-size: 1.6rem;
-        color: var(--primary) !important;
+        color: #1A1A1A !important;
         font-weight: 700;
         margin-bottom: 1.5rem;
     }
@@ -423,7 +421,7 @@ st.markdown("""
     .keyword-badge {
         display: inline-block;
         background: white;
-        color: var(--primary) !important;
+        color: #1A1A1A !important;
         border: 2px solid var(--secondary);
         padding: 0.6rem 1.3rem;
         border-radius: 30px;
@@ -450,7 +448,7 @@ st.markdown("""
     .stTextInput label,
     .stTextArea label,
     .stSelectbox label {
-        color: var(--primary) !important;
+        color: #1A1A1A !important;
         font-weight: 600 !important;
         font-size: 1rem !important;
     }
@@ -573,22 +571,6 @@ st.markdown("""
             height: 60vh;
             margin: -1rem -1rem 2rem -1rem;
             border-radius: 0 0 32px 32px;
-        }
-        
-        .hero-overlay {
-            width: 100%;
-            background: linear-gradient(
-                180deg,
-                rgba(250, 248, 243, 0.95) 0%,
-                rgba(250, 248, 243, 0.85) 100%
-            );
-        }
-        
-        .hero-content {
-            align-items: center;
-            text-align: center;
-            padding: 4rem 2rem;
-            max-width: 100%;
         }
         
         .brand-logo {
