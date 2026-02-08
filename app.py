@@ -25,436 +25,503 @@ except:
 
 # Page configuration
 st.set_page_config(
-    page_title="QuickList by thredUP",
-    page_icon="🌿",
+    page_title="QuickList - thredUP Product Tagging",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS with thredUP-inspired green theme and shaded backgrounds
+# Custom CSS - Premium Fashion Design
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap');
     
     :root {
-        --primary-green: #00A676;
-        --light-green: #2FB56A;
-        --accent-green: #4CC38A;
-        --mint-bg: #F0FDF8;
-        --background-cream: #FAFAFA;
-        --text-dark: #1a1a1a;
-        --border-light: #E5E5E5;
+        --primary: #2D5F3F;
+        --secondary: #6CBF00;
+        --accent: #88D66C;
+        --cream: #FAF8F3;
+        --ivory: #FFFEF9;
+        --charcoal: #1A1A1A;
+        --sage: #B8C5B4;
+        --gold: #D4AF37;
+    }
+    
+    /* Remove default padding */
+    .main .block-container {
+        padding-top: 1rem;
+        padding-bottom: 3rem;
+        max-width: 1400px;
     }
     
     .stApp {
-        background: linear-gradient(135deg, #FAFAFA 0%, #F5F5F5 100%) !important;
+        background: linear-gradient(180deg, var(--ivory) 0%, var(--cream) 100%);
     }
     
-    .stApp > div {
-        background: transparent !important;
-    }
-    
-    .main {
-        background: transparent !important;
-    }
-    
+    /* Hide Streamlit branding */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
     
-    .main-header {
-        position: relative;
-        overflow: hidden;
-        box-shadow: 0 8px 32px rgba(0, 166, 118, 0.12);
-        border-radius: 0 0 32px 32px !important;
-    }
-    
-    .header-content {
-        position: relative;
-        z-index: 1;
-    }
-    
-    body, p, div, span, label, h1, h2, h3, h4, h5, h6 {
-        color: var(--text-dark) !important;
-        font-family: 'Inter', sans-serif;
-    }
-    
+    /* Typography */
     h1, h2, h3, h4 {
-        font-family: 'Poppins', sans-serif !important;
-        font-weight: 700 !important;
+        font-family: 'Playfair Display', serif !important;
+        color: var(--charcoal) !important;
     }
     
-    [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #FAFAFA 0%, #F5F5F5 100%);
-        border-right: 2px solid var(--border-light);
+    body, p, div, span, label {
+        font-family: 'Inter', sans-serif;
+        color: var(--charcoal) !important;
     }
     
-    .upload-section {
-        background: #FFFFFF !important;
-        border: 2px solid var(--border-light);
-        border-radius: 24px;
-        padding: 3rem;
-        margin: 2rem 0;
-        text-align: center;
-        box-shadow: 0 4px 20px rgba(0, 166, 118, 0.08);
+    /* Premium Hero Section */
+    .hero-container {
+        position: relative;
+        margin: -1rem -5rem 4rem -5rem;
+        height: 85vh;
+        overflow: hidden;
+        border-radius: 0 0 48px 48px;
+        box-shadow: 0 20px 60px rgba(45, 95, 63, 0.15);
     }
     
-    .upload-section h2,
-    .upload-section p {
-        color: var(--text-dark) !important;
-    }
-    
-    [data-testid="stFileUploader"] {
-        background: #ffffff !important;
-        border: 3px dashed var(--accent-green) !important;
-        border-radius: 16px !important;
-        padding: 2.5rem !important;
-    }
-    
-    [data-testid="stFileUploader"] label {
-        color: var(--primary-green) !important;
-        font-weight: 600 !important;
-        font-size: 1.1rem !important;
-    }
-    
-    [data-testid="stFileUploader"] section {
-        background: #ffffff !important;
-    }
-    
-    [data-testid="stFileUploader"] section > div {
-        background: #ffffff !important;
-    }
-    
-    [data-testid="stFileUploader"] div {
-        background: #ffffff !important;
-        color: var(--text-dark) !important;
-    }
-    
-    [data-testid="stFileUploader"] p,
-    [data-testid="stFileUploader"] span,
-    [data-testid="stFileUploader"] small,
-    [data-testid="stFileUploader"] label {
-        color: var(--text-dark) !important;
-        background: transparent !important;
-    }
-    
-    [data-testid="stFileUploader"] button {
-        background: #ffffff !important;
-        color: var(--primary-green) !important;
-        border: 2px solid var(--primary-green) !important;
-        font-weight: 600 !important;
-    }
-    
-    [data-testid="stFileUploader"] button:hover {
-        background: var(--primary-green) !important;
-        color: #ffffff !important;
-    }
-    
-    .stButton > button {
-        background: linear-gradient(135deg, var(--primary-green) 0%, var(--light-green) 100%) !important;
-        color: #ffffff !important;
-        border: none !important;
-        border-radius: 14px !important;
-        padding: 1.25rem 3rem !important;
-        font-size: 1.1rem !important;
-        font-weight: 700 !important;
-        font-family: 'Poppins', sans-serif !important;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 16px rgba(45, 95, 63, 0.25) !important;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
+    .hero-image {
+        position: absolute;
+        top: 0;
+        left: 0;
         width: 100%;
-        height: 65px !important;
+        height: 100%;
+        object-fit: cover;
+        filter: brightness(0.75);
+    }
+    
+    .hero-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+            135deg,
+            rgba(45, 95, 63, 0.85) 0%,
+            rgba(108, 191, 0, 0.75) 100%
+        );
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 2;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+    
+    .brand-logo {
+        font-family: 'Playfair Display', serif;
+        font-size: 7rem;
+        font-weight: 900;
+        color: white !important;
+        letter-spacing: 0.15em;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        line-height: 1.1;
+    }
+    
+    .brand-subtitle {
+        font-family: 'Inter', sans-serif;
+        font-size: 1.1rem;
+        color: rgba(255, 255, 255, 0.95) !important;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+        font-weight: 500;
+        margin-bottom: 2rem;
+    }
+    
+    .hero-tagline {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.2rem;
+        color: white !important;
+        font-weight: 500;
+        margin-bottom: 1.5rem;
+        font-style: italic;
+        max-width: 700px;
+    }
+    
+    .hero-description {
+        font-size: 1.15rem;
+        color: rgba(255, 255, 255, 0.9) !important;
+        max-width: 600px;
+        line-height: 1.7;
+        margin-bottom: 2.5rem;
+    }
+    
+    .eco-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        padding: 1rem 2rem;
+        border-radius: 50px;
+        color: white !important;
+        font-weight: 600;
+        font-size: 1rem;
+        letter-spacing: 0.05em;
+    }
+    
+    /* Sidebar Styling */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, var(--ivory) 0%, var(--cream) 100%);
+        border-right: 1px solid rgba(45, 95, 63, 0.1);
+    }
+    
+    [data-testid="stSidebar"] h3 {
+        color: var(--primary) !important;
+        font-size: 1.4rem;
+        margin-bottom: 1rem;
+        border-bottom: 2px solid var(--secondary);
+        padding-bottom: 0.5rem;
+    }
+    
+    /* Upload Section */
+    .upload-zone {
+        background: white;
+        border: 3px dashed var(--secondary);
+        border-radius: 32px;
+        padding: 4rem 3rem;
+        text-align: center;
+        margin: 3rem 0;
+        transition: all 0.4s ease;
+        box-shadow: 0 10px 40px rgba(45, 95, 63, 0.08);
+    }
+    
+    .upload-zone:hover {
+        border-color: var(--primary);
+        box-shadow: 0 15px 50px rgba(45, 95, 63, 0.15);
+        transform: translateY(-4px);
+    }
+    
+    .upload-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.2rem;
+        color: var(--primary) !important;
+        margin-bottom: 1rem;
+        font-weight: 700;
+    }
+    
+    .upload-subtitle {
+        font-size: 1.1rem;
+        color: #666 !important;
+        margin-bottom: 2rem;
+    }
+    
+    /* File Uploader Styling */
+    [data-testid="stFileUploader"] {
+        background: transparent !important;
+        border: none !important;
+    }
+    
+    [data-testid="stFileUploader"] > div {
+        background: white !important;
+        border: 2px solid var(--sage) !important;
+        border-radius: 20px !important;
+        padding: 2rem !important;
+    }
+    
+    [data-testid="stFileUploader"] label {
+        color: var(--primary) !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Primary Button */
+    .stButton > button {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 16px !important;
+        padding: 1.5rem 4rem !important;
+        font-size: 1.2rem !important;
+        font-weight: 700 !important;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 24px rgba(45, 95, 63, 0.25) !important;
+        font-family: 'Inter', sans-serif !important;
     }
     
     .stButton > button:hover {
-        background: linear-gradient(135deg, var(--light-green) 0%, var(--accent-green) 100%) !important;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 24px rgba(74, 140, 95, 0.35) !important;
+        background: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%) !important;
+        transform: translateY(-3px);
+        box-shadow: 0 12px 32px rgba(108, 191, 0, 0.35) !important;
     }
     
-    .stButton > button p,
-    .stButton > button span,
-    .stButton > button div {
-        color: #ffffff !important;
-    }
-    
+    /* Download Button */
     .stDownloadButton > button {
-        background: #ffffff !important;
-        color: var(--primary-green) !important;
-        border: 2px solid var(--primary-green) !important;
-        border-radius: 14px !important;
-        padding: 1rem 2.5rem !important;
+        background: white !important;
+        color: var(--primary) !important;
+        border: 2px solid var(--primary) !important;
+        border-radius: 16px !important;
+        padding: 1.25rem 3rem !important;
         font-weight: 600 !important;
         transition: all 0.3s ease;
     }
     
     .stDownloadButton > button:hover {
-        background: var(--primary-green) !important;
-        color: #ffffff !important;
+        background: var(--primary) !important;
+        color: white !important;
         transform: translateY(-2px);
     }
     
-    .metric-box {
-        background: #FFFFFF;
-        border: 2px solid var(--border-light);
-        border-radius: 16px;
-        padding: 2rem 1.5rem;
+    /* Section Headers */
+    .section-divider {
+        margin: 4rem 0 2.5rem 0;
         text-align: center;
-        transition: all 0.3s ease;
-        height: 100%;
-        min-height: 140px;
-        box-shadow: 0 2px 12px rgba(0, 166, 118, 0.06);
     }
     
-    .metric-box:hover {
-        border-color: var(--accent-green);
-        box-shadow: 0 8px 24px rgba(0, 166, 118, 0.15);
-        transform: translateY(-4px);
+    .section-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.8rem;
+        color: var(--primary) !important;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+    }
+    
+    .section-subtitle {
+        font-size: 1.15rem;
+        color: #666 !important;
+        font-style: italic;
+    }
+    
+    /* Metric Cards */
+    .metric-card {
+        background: white;
+        border: 1px solid rgba(45, 95, 63, 0.1);
+        border-radius: 24px;
+        padding: 2.5rem 2rem;
+        text-align: center;
+        transition: all 0.4s ease;
+        height: 100%;
+        box-shadow: 0 5px 20px rgba(45, 95, 63, 0.05);
+    }
+    
+    .metric-card:hover {
+        border-color: var(--secondary);
+        box-shadow: 0 12px 40px rgba(108, 191, 0, 0.15);
+        transform: translateY(-6px);
     }
     
     .metric-label {
         font-size: 0.85rem;
-        color: #6b7280 !important;
+        color: #888 !important;
         text-transform: uppercase;
-        letter-spacing: 0.1em;
-        margin-bottom: 0.75rem;
-        font-weight: 700;
+        letter-spacing: 0.15em;
+        margin-bottom: 1rem;
+        font-weight: 600;
     }
     
     .metric-value {
-        font-size: 1.3rem;
+        font-family: 'Playfair Display', serif;
+        font-size: 1.8rem;
+        color: var(--primary) !important;
         font-weight: 700;
-        color: var(--primary-green) !important;
-        font-family: 'Poppins', sans-serif;
-        line-height: 1.4;
-        padding: 0 0.25rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 100%;
+        line-height: 1.3;
     }
     
-    .description-card {
-        background: #FFFFFF;
-        border: 2px solid var(--border-light);
+    /* Description Card */
+    .content-card {
+        background: white;
+        border-left: 5px solid var(--secondary);
         border-radius: 20px;
-        padding: 2.5rem;
-        margin: 1.5rem 0;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 16px rgba(0, 166, 118, 0.08);
-    }
-    
-    .description-card:hover {
-        border-color: var(--accent-green);
-        box-shadow: 0 8px 28px rgba(0, 166, 118, 0.12);
-    }
-    
-    .description-title {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--primary-green) !important;
-        margin-bottom: 1.5rem;
-        font-family: 'Poppins', sans-serif;
-    }
-    
-    .seo-box {
-        background: linear-gradient(135deg, #E8F5ED 0%, #D4EDE0 100%);
-        border: 2px solid var(--border-light);
-        border-radius: 20px;
-        padding: 2rem;
+        padding: 3rem;
         margin: 2rem 0;
-        box-shadow: 0 4px 16px rgba(0, 166, 118, 0.08);
+        box-shadow: 0 8px 30px rgba(45, 95, 63, 0.08);
+        transition: all 0.3s ease;
+    }
+    
+    .content-card:hover {
+        box-shadow: 0 12px 40px rgba(45, 95, 63, 0.12);
+        transform: translateY(-3px);
+    }
+    
+    .content-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.8rem;
+        color: var(--primary) !important;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+    }
+    
+    /* SEO Box */
+    .seo-container {
+        background: linear-gradient(135deg, #F0F7F3 0%, #E8F5ED 100%);
+        border-radius: 24px;
+        padding: 3rem;
+        margin: 2.5rem 0;
+        box-shadow: 0 8px 30px rgba(45, 95, 63, 0.08);
     }
     
     .seo-title {
-        font-size: 1.3rem;
+        font-family: 'Playfair Display', serif;
+        font-size: 1.6rem;
+        color: var(--primary) !important;
         font-weight: 700;
-        color: var(--primary-green) !important;
         margin-bottom: 1.5rem;
-        font-family: 'Poppins', sans-serif;
     }
     
-    .keyword-tag {
+    .keyword-badge {
         display: inline-block;
-        background: #FFFFFF;
-        color: var(--primary-green) !important;
-        border: 2px solid var(--primary-green);
-        padding: 0.5rem 1rem;
-        border-radius: 24px;
+        background: white;
+        color: var(--primary) !important;
+        border: 2px solid var(--secondary);
+        padding: 0.6rem 1.3rem;
+        border-radius: 30px;
         font-size: 0.9rem;
         font-weight: 500;
-        margin: 0.4rem 0.4rem 0.4rem 0;
-        transition: all 0.2s ease;
+        margin: 0.4rem;
+        transition: all 0.3s ease;
     }
     
-    .keyword-tag:hover {
-        background: var(--primary-green);
-        color: #ffffff !important;
+    .keyword-badge:hover {
+        background: var(--secondary);
+        color: white !important;
         transform: scale(1.05);
     }
     
+    /* Image Styling */
     [data-testid="stImage"] {
-        border-radius: 16px;
+        border-radius: 20px;
         overflow: hidden;
-        box-shadow: 0 6px 20px rgba(0, 166, 118, 0.12);
+        box-shadow: 0 10px 35px rgba(45, 95, 63, 0.15);
     }
     
-    [data-testid="stImage"] img {
-        border-radius: 16px;
-    }
-    
-    .stProgress > div > div > div > div {
-        background: linear-gradient(90deg, var(--primary-green) 0%, var(--accent-green) 100%);
-    }
-    
-    .section-header {
-        background: linear-gradient(135deg, #E8F5ED 0%, #D4EDE0 100%);
-        border-left: 5px solid var(--primary-green);
-        border-radius: 12px;
-        padding: 2rem 2.5rem;
-        margin: 3rem 0 2rem 0;
-        box-shadow: 0 3px 12px rgba(0, 166, 118, 0.08);
-    }
-    
-    .section-title {
-        font-size: 2rem;
-        font-weight: 800;
-        color: var(--primary-green) !important;
-        font-family: 'Poppins', sans-serif;
-        margin: 0;
-    }
-    
-    .section-subtitle {
-        font-size: 1.1rem;
-        color: #6b7280 !important;
-        margin-top: 0.5rem;
-    }
-    
-    .info-box {
-        background: linear-gradient(135deg, #E8F5ED 0%, #D4EDE0 100%);
-        border-left: 4px solid var(--primary-green);
-        border-radius: 12px;
-        padding: 1.5rem 2rem;
-        margin: 1.5rem 0;
-        box-shadow: 0 2px 10px rgba(0, 166, 118, 0.06);
-    }
-    
-    .info-box p {
-        color: var(--text-dark) !important;
-        line-height: 1.7;
-        margin: 0;
-    }
-    
+    /* Input Fields */
     .stTextInput label,
     .stTextArea label,
     .stSelectbox label {
-        color: var(--primary-green) !important;
+        color: var(--primary) !important;
         font-weight: 600 !important;
         font-size: 1rem !important;
     }
     
     .stTextInput input,
     .stTextArea textarea {
-        background: #ffffff !important;
-        border: 2px solid var(--border-light) !important;
-        color: var(--text-dark) !important;
-        border-radius: 10px !important;
+        background: white !important;
+        border: 2px solid rgba(45, 95, 63, 0.15) !important;
+        border-radius: 12px !important;
+        color: var(--charcoal) !important;
     }
     
     .stTextInput input:focus,
     .stTextArea textarea:focus {
-        border-color: var(--accent-green) !important;
-        box-shadow: 0 0 0 3px rgba(107, 183, 123, 0.1) !important;
+        border-color: var(--secondary) !important;
+        box-shadow: 0 0 0 3px rgba(108, 191, 0, 0.1) !important;
     }
     
     .stSelectbox div[data-baseweb="select"] {
-        background: #ffffff !important;
-        border: 2px solid var(--border-light) !important;
-        border-radius: 10px !important;
+        background: white !important;
+        border: 2px solid rgba(45, 95, 63, 0.15) !important;
+        border-radius: 12px !important;
     }
     
-    .stSelectbox div[data-baseweb="select"]:hover {
-        border-color: var(--accent-green) !important;
+    /* Info Box */
+    .info-banner {
+        background: linear-gradient(135deg, #F0F7F3 0%, #E8F5ED 100%);
+        border-left: 4px solid var(--secondary);
+        border-radius: 16px;
+        padding: 2rem 2.5rem;
+        margin: 2rem 0;
     }
     
-    .stSelectbox div[data-baseweb="select"] > div {
-        background: #ffffff !important;
-        color: var(--text-dark) !important;
+    .info-banner p {
+        margin: 0;
+        line-height: 1.7;
+        color: var(--charcoal) !important;
     }
     
-    [data-baseweb="menu"] {
-        background: #ffffff !important;
-        border: 1px solid var(--border-light) !important;
-        box-shadow: 0 4px 16px rgba(45, 95, 63, 0.1) !important;
-        border-radius: 8px !important;
+    /* Feature Grid */
+    .feature-step {
+        text-align: center;
+        padding: 2rem;
     }
     
-    [data-baseweb="menu"] ul {
-        background: #ffffff !important;
+    .step-number {
+        font-family: 'Playfair Display', serif;
+        font-size: 4rem;
+        color: var(--secondary) !important;
+        font-weight: 700;
+        margin-bottom: 1rem;
     }
     
-    [data-baseweb="menu"] li {
-        background: #ffffff !important;
-        color: var(--text-dark) !important;
-        padding: 0.75rem 1rem !important;
+    .step-title {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--primary) !important;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
     }
     
-    [data-baseweb="menu"] li:hover {
-        background: #f0f7f3 !important;
-        color: var(--primary-green) !important;
+    .step-description {
+        color: #666 !important;
+        font-size: 0.95rem;
+        line-height: 1.6;
     }
     
+    /* Progress Bar */
+    .stProgress > div > div > div > div {
+        background: linear-gradient(90deg, var(--secondary) 0%, var(--accent) 100%);
+    }
+    
+    /* Responsive */
     @media (max-width: 768px) {
-        .main-header {
-            padding: 2rem 1.5rem;
-            margin: -6rem -1rem 2rem -1rem;
+        .hero-container {
+            height: 60vh;
+            margin: -1rem -1rem 2rem -1rem;
+            border-radius: 0 0 32px 32px;
         }
         
-        .metric-box {
-            padding: 1.5rem 1rem;
-            min-height: 120px;
+        .brand-logo {
+            font-size: 3.5rem;
         }
         
-        .metric-value {
+        .hero-tagline {
             font-size: 1.5rem;
         }
-    }
-    
-    .brand-tag {
-        background: #FFFFFF;
-        border: 2px solid #00A676;
-        color: #00A676 !important;
-        display: inline-block;
-        padding: 0.6rem 1.4rem;
-        border-radius: 24px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        margin-top: 1.25rem;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        box-shadow: 0 2px 12px rgba(0, 166, 118, 0.15);
+        
+        .metric-card {
+            padding: 2rem 1.5rem;
+        }
     }
 </style>
 """, unsafe_allow_html=True)
 
-# Header with thredUP branding
+# Hero Section with Premium Fashion Image
 st.markdown("""
-<div class="main-header" style="background: linear-gradient(135deg, #E8F5ED 0%, #D4EDE0 100%) !important; text-align: center; padding: 3rem; border-radius: 0 0 32px 32px; margin: -6rem -5rem 3rem -5rem;">
-    <div class="header-content">
-        <h1 style="color: #00A676 !important; font-size: 3.5rem !important; font-weight: 800 !important; margin: 0 !important; font-family: 'Poppins', sans-serif !important;">QuickList</h1>
-        <p style="color: #00A676 !important; font-size: 0.9rem !important; margin-top: 0.5rem !important; font-family: 'Inter', sans-serif !important; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 600; opacity: 0.8;">by thredUP</p>
-        <p style="color: #1a1a1a !important; font-size: 1.25rem !important; margin-top: 1rem !important; font-family: 'Inter', sans-serif !important; opacity: 0.85;">Professional Product Listings in Seconds</p>
-        <div class="brand-tag">
-            🌿 Powered by AI • Sustainable Resale
+<div class="hero-container">
+    <img src="https://images.unsplash.com/photo-1558769132-cb1aea1f5e62?w=1600&q=80" 
+         class="hero-image" 
+         alt="Sustainable Fashion">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <div class="brand-logo">THREDUP</div>
+        <div class="brand-subtitle">QuickList</div>
+        <div class="hero-tagline">Where Fashion Meets Sustainability</div>
+        <div class="hero-description">
+            AI-powered product listing generation for thredUP marketplace.
+            Advanced image analysis and professional copywriting in seconds.
+        </div>
+        <div class="eco-badge">
+            Sustainable Resale Technology
         </div>
     </div>
 </div>
 """, unsafe_allow_html=True)
 
 
-# Data classes
+# Data classes (UNCHANGED)
 @dataclass
 class ProductAnalysis:
     category: str
@@ -1229,59 +1296,48 @@ def main():
     with st.sidebar:
         st.markdown("### About QuickList")
         st.markdown("""
-        Transform product photos into professional listings instantly.
+        Professional AI-powered product listings for thredUP.
         
-        **What You Get:**
-        
-        - Professional product description
-        - SEO-optimized keywords
-        - Platform-ready formatting
-        
-        **Supported Platforms:**
-        - Shopify
-        - Amazon
-        - Etsy
-        - WooCommerce
+        **Features:**
+        - AI-analyzed product attributes
+        - Professional SEO descriptions
+        - Optimized keywords & tags
+        - Ready-to-use listings
         """)
         
         st.markdown("---")
         
-        st.markdown("### Quick & Easy")
+        st.markdown("### Process")
         st.markdown("""
         1. Upload product photo
-        2. Add details (all optional)
-        3. Generate listing
+        2. AI analyzes attributes
+        3. Generate professional listing
         4. Download & publish
         
-        **Done in 30 seconds**
+        *Typical completion: 30 seconds*
         """)
         
         st.markdown("---")
         
         st.markdown("""
-        **100% Free**  
-        No signup required
-        
-        **Sustainable Resale**  
-        Powered by thredUP
+        **Internal Tool**  
+        thredUP Product Tagging
         """)
     
     # Main content
     st.markdown("""
-    <div class="upload-section">
-        <h2 style="color: #00A676; font-family: 'Poppins', sans-serif; margin-bottom: 1rem;">
-            Upload Your Product Photo
-        </h2>
-        <p style="color: #6b7280; font-size: 1.1rem;">
-            Get professional, SEO-optimized listings instantly
-        </p>
+    <div class="upload-zone">
+        <div class="upload-title">Upload Product Photo</div>
+        <div class="upload-subtitle">
+            Generate professional listing with AI analysis
+        </div>
     </div>
     """, unsafe_allow_html=True)
     
     uploaded_file = st.file_uploader(
-        "Upload Product Image",
+        "Choose product image",
         type=['jpg', 'jpeg', 'png'],
-        help="Upload a product photo from your device"
+        help="Upload a clear product photo"
     )
     
     if uploaded_file is not None:
@@ -1294,48 +1350,38 @@ def main():
             st.image(image, caption="Your Product", width=500)
         
         st.markdown("""
-        <div class="section-header">
-            <h2 class="section-title">Product Information</h2>
-            <p class="section-subtitle">Tell us about your product (optional)</p>
+        <div class="section-divider">
+            <div class="section-title">Product Details</div>
+            <div class="section-subtitle">Help us create the perfect listing</div>
         </div>
         """, unsafe_allow_html=True)
         
-        col1, col2 = st.columns([1, 1])
-        
-        with col1:
-            product_name = st.text_input(
-                "Product Name (Optional)",
-                placeholder="e.g., Black Pearl Dress (leave blank for AI to detect)",
-                help="Optional - AI will detect from image if left blank"
-            )
-        
-        with col2:
-            target_platform = st.selectbox(
-                "Target Platform",
-                ['Shopify', 'Amazon', 'Etsy', 'WooCommerce'],
-                help="Choose platform"
-            )
+        product_name = st.text_input(
+            "Product Name (Optional)",
+            placeholder="e.g., Vintage Silk Dress",
+            help="AI will detect if left blank"
+        )
         
         col1, col2 = st.columns([1, 1])
         
         with col1:
             target_audience = st.text_input(
                 "Target Audience (Optional)",
-                placeholder="e.g., young professionals, fashion enthusiasts",
-                help="Who is this product for?"
+                placeholder="e.g., sustainable fashion enthusiasts",
+                help="Who will love this product?"
             )
         
         with col2:
             price_range = st.selectbox(
                 "Price Range (Optional)",
                 ['', 'Budget ($0-$50)', 'Mid-Range ($50-$150)', 'Premium ($150-$500)', 'Luxury ($500+)'],
-                help="Price positioning"
+                help="Product price positioning"
             )
         
         product_features = st.text_area(
-            "Key Features (Optional but Recommended)",
-            placeholder="e.g., elegant V-neck design, midi length, breathable fabric, machine washable",
-            help="Specific features make better descriptions",
+            "Key Features (Optional)",
+            placeholder="e.g., elegant V-neck, midi length, breathable fabric",
+            help="Specific features improve quality",
             height=100
         )
         
@@ -1346,14 +1392,12 @@ def main():
                 
                 ai = QuickListAI()
                 
-                # Use detected name if user didn't provide one
                 detected_product_name = product_name.strip() if product_name else ""
                 
                 st.session_state.product_name = detected_product_name
-                st.session_state.target_platform = target_platform
                 
                 # Phase 1: Image Analysis
-                with st.spinner('Analyzing your product...'):
+                with st.spinner('Analyzing product image...'):
                     progress = st.progress(0)
                     
                     for i in range(50):
@@ -1363,11 +1407,9 @@ def main():
                     analysis = ai.analyze_with_vision_apis(image, detected_product_name)
                     st.session_state.analysis = analysis
                     
-                    # DEBUG: Show what was detected
                     detected_color = analysis.colors[0] if analysis.colors[0] != "neutral" else "Not detected"
-                    st.info(f"🔍 **AI Vision Detected:** Color: **{detected_color}** | Category: **{analysis.category}** | Type: **{analysis.specific_type}** | Style: **{analysis.style}**")
+                    st.info(f"AI Detection: Color: {detected_color} | Category: {analysis.category} | Type: {analysis.specific_type} | Style: {analysis.style}")
                     
-                    # If no product name provided, use detected category + type
                     if not detected_product_name:
                         detected_product_name = f"{analysis.specific_type}" if analysis.specific_type != "Item" else analysis.category
                         st.session_state.product_name = detected_product_name
@@ -1379,7 +1421,7 @@ def main():
                     progress.empty()
                 
                 # Phase 2: Generate Description
-                with st.spinner('Writing professional description...'):
+                with st.spinner('Generating product description...'):
                     progress = st.progress(0)
                     
                     description = ai.generate_description(
@@ -1418,7 +1460,7 @@ def main():
                 st.session_state.keywords = keywords
                 st.session_state.show_results = True
                 
-                st.success("✅ Your listing is ready!")
+                st.success("Listing generated successfully")
         
         # Display results
         if ('show_results' in st.session_state and st.session_state.show_results and 
@@ -1427,14 +1469,13 @@ def main():
             analysis = st.session_state.analysis
             description = st.session_state.description
             keywords = st.session_state.keywords
-            target_platform = st.session_state.target_platform
             product_name = st.session_state.product_name
             
             # Analysis
             st.markdown("""
-            <div class="section-header">
-                <h2 class="section-title">Product Analysis</h2>
-                <p class="section-subtitle">AI-powered insights from your image</p>
+            <div class="section-divider">
+                <div class="section-title">AI Analysis</div>
+                <div class="section-subtitle">Detected from your image</div>
             </div>
             """, unsafe_allow_html=True)
             
@@ -1443,7 +1484,7 @@ def main():
             with col1:
                 display_category = f"{analysis.category}" + (f" - {analysis.specific_type}" if analysis.specific_type and analysis.specific_type != "Item" else "")
                 st.markdown(f"""
-                <div class="metric-box">
+                <div class="metric-card">
                     <div class="metric-label">Category</div>
                     <div class="metric-value">{display_category}</div>
                 </div>
@@ -1451,7 +1492,7 @@ def main():
             
             with col2:
                 st.markdown(f"""
-                <div class="metric-box">
+                <div class="metric-card">
                     <div class="metric-label">Style</div>
                     <div class="metric-value">{analysis.style}</div>
                 </div>
@@ -1459,23 +1500,23 @@ def main():
             
             with col3:
                 st.markdown(f"""
-                <div class="metric-box">
+                <div class="metric-card">
                     <div class="metric-label">Materials</div>
-                    <div class="metric-value" style="font-size: 1.1rem;">{', '.join(analysis.materials)}</div>
+                    <div class="metric-value" style="font-size: 1.4rem;">{', '.join(analysis.materials)}</div>
                 </div>
                 """, unsafe_allow_html=True)
             
             # Description
             st.markdown("""
-            <div class="section-header">
-                <h2 class="section-title">Your Product Description</h2>
-                <p class="section-subtitle">Professional listing ready to use</p>
+            <div class="section-divider">
+                <div class="section-title">Your Listing</div>
+                <div class="section-subtitle">Professional & SEO-optimized</div>
             </div>
             """, unsafe_allow_html=True)
             
             st.markdown(f"""
-            <div class="description-card">
-                <div class="description-title">Product Listing</div>
+            <div class="content-card">
+                <div class="content-title">Product Description</div>
             """, unsafe_allow_html=True)
             
             st.markdown(f"**Title:**\n{description.title}")
@@ -1488,34 +1529,34 @@ def main():
             
             # Keywords
             st.markdown("""
-            <div class="seo-box">
+            <div class="seo-container">
                 <div class="seo-title">SEO Keywords</div>
             """, unsafe_allow_html=True)
             
-            st.markdown("**Primary:**")
-            keywords_html = " ".join([f'<span class="keyword-tag">{kw}</span>' for kw in keywords['primary']])
+            st.markdown("**Primary Keywords:**")
+            keywords_html = " ".join([f'<span class="keyword-badge">{kw}</span>' for kw in keywords['primary']])
             st.markdown(keywords_html, unsafe_allow_html=True)
             
-            st.markdown("**Long-tail:**")
-            longtail_html = " ".join([f'<span class="keyword-tag">{kw}</span>' for kw in keywords['long_tail'][:10]])
+            st.markdown("<br>**Long-tail Keywords:**", unsafe_allow_html=True)
+            longtail_html = " ".join([f'<span class="keyword-badge">{kw}</span>' for kw in keywords['long_tail'][:10]])
             st.markdown(longtail_html, unsafe_allow_html=True)
             
             st.markdown('</div>', unsafe_allow_html=True)
             
             # Export
-            st.markdown("""
-            <div class="section-header">
-                <h2 class="section-title">Download Listing</h2>
-                <p class="section-subtitle">Formatted for {}</p>
+            st.markdown(f"""
+            <div class="section-divider">
+                <div class="section-title">Download Listing</div>
+                <div class="section-subtitle">Ready for thredUP</div>
             </div>
-            """.format(target_platform), unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
             
-            formatted = format_for_platform(description, keywords, target_platform)
+            formatted = format_for_platform(description, keywords, "Shopify")  # Use Shopify format as default
             
             st.markdown(f"""
-            <div style="background: #FFFFFF; border: 2px solid #E5E5E5; border-radius: 16px; padding: 2rem; margin: 1.5rem 0; box-shadow: 0 4px 16px rgba(0, 166, 118, 0.08);">
-                <h3 style="color: #00A676;">Your Listing</h3>
-                <pre style="color: #1a1a1a; background: #F8F8F8; padding: 1.5rem; border-radius: 8px; white-space: pre-wrap; font-size: 0.9rem; border: 1px solid #E5E5E5;">{formatted}</pre>
+            <div class="content-card">
+                <h3 style="color: var(--primary);">Your thredUP Listing</h3>
+                <pre style="background: #F8F8F8; padding: 2rem; border-radius: 12px; white-space: pre-wrap; font-size: 0.9rem; color: var(--charcoal);">{formatted}</pre>
             </div>
             """, unsafe_allow_html=True)
             
@@ -1524,17 +1565,17 @@ def main():
             
             with col2:
                 st.download_button(
-                    label=f"Download for {target_platform}",
+                    label="Download Listing",
                     data=formatted,
-                    file_name=f"{product_name.lower().replace(' ', '_')}.txt",
+                    file_name=f"{product_name.lower().replace(' ', '_')}_listing.txt",
                     mime="text/plain",
                     use_container_width=True
                 )
             
             st.markdown(f"""
-            <div class="info-box">
-                <p style="margin: 0; font-weight: 600;">
-                    Your professional listing is ready! Upload to {target_platform} and start selling.
+            <div class="info-banner">
+                <p style="font-weight: 600;">
+                    Listing ready for thredUP platform
                 </p>
             </div>
             """, unsafe_allow_html=True)
@@ -1542,9 +1583,9 @@ def main():
     else:
         # How it works
         st.markdown("""
-        <div class="section-header">
-            <h2 class="section-title">How QuickList Works</h2>
-            <p class="section-subtitle">Professional AI-powered listings in seconds</p>
+        <div class="section-divider">
+            <div class="section-title">Process Overview</div>
+            <div class="section-subtitle">Three-step listing generation</div>
         </div>
         """, unsafe_allow_html=True)
         
@@ -1552,57 +1593,93 @@ def main():
         
         with col1:
             st.markdown("""
-            <div class="metric-box">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">1</div>
-                <div class="metric-label">Upload Photo</div>
-                <div style="color: #6b7280; font-size: 0.95rem; margin-top: 0.5rem; line-height: 1.5;">
-                    Upload your product image
+            <div class="metric-card feature-step">
+                <div class="step-number">1</div>
+                <div class="step-title">Upload Photo</div>
+                <div class="step-description">
+                    Upload your product image - any angle, any lighting
                 </div>
             </div>
             """, unsafe_allow_html=True)
         
         with col2:
             st.markdown("""
-            <div class="metric-box">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">2</div>
-                <div class="metric-label">AI Analysis</div>
-                <div style="color: #6b7280; font-size: 0.95rem; margin-top: 0.5rem; line-height: 1.5;">
-                    Professional description generated
+            <div class="metric-card feature-step">
+                <div class="step-number">2</div>
+                <div class="step-title">AI Analysis</div>
+                <div class="step-description">
+                    Our AI detects attributes and generates professional copy
                 </div>
             </div>
             """, unsafe_allow_html=True)
         
         with col3:
             st.markdown("""
-            <div class="metric-box">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">3</div>
-                <div class="metric-label">Download & Sell</div>
-                <div style="color: #6b7280; font-size: 0.95rem; margin-top: 0.5rem; line-height: 1.5;">
-                    Ready for any platform
+            <div class="metric-card feature-step">
+                <div class="step-number">3</div>
+                <div class="step-title">Download & Sell</div>
+                <div class="step-description">
+                    Get platform-ready listings instantly
                 </div>
             </div>
             """, unsafe_allow_html=True)
         
         st.markdown("""
-        <div class="info-box" style="margin-top: 3rem;">
-            <p style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.75rem;">
-                What You Get:
+        <div class="info-banner" style="margin-top: 3rem;">
+            <p style="font-size: 1.15rem; font-weight: 600; margin-bottom: 1rem;">
+                Output Includes:
             </p>
-            <p style="margin: 0; line-height: 1.8;">
-                • AI-powered product analysis from your image<br>
-                • Professional product description<br>
-                • Search-optimized keywords for better visibility<br>
-                • Platform-ready formatting (Shopify, Amazon, Etsy, WooCommerce)<br>
-                • Complete listing in under 30 seconds<br>
-                • Download and deploy instantly
+            <p style="margin: 0; line-height: 1.9;">
+                • AI-powered visual analysis<br>
+                • Professional product descriptions<br>
+                • SEO-optimized keywords & tags<br>
+                • Complete listing generation in ~30 seconds<br>
+                • Downloadable text format
             </p>
         </div>
         """, unsafe_allow_html=True)
         
+        # Before/After Example Section
         st.markdown("""
-        <div class="info-box" style="margin-top: 2rem; border-left-color: #00A676;">
-            <p style="margin: 0; font-weight: 600;">
-                100% Free • No Signup Required • Sustainable Resale by thredUP
+        <div class="section-divider" style="margin-top: 4rem;">
+            <div class="section-title">Quality Comparison</div>
+            <div class="section-subtitle">Standard vs AI-generated listings</div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("""
+            <div class="content-card">
+                <h3 style="color: #999;">Before</h3>
+                <p style="color: #666;">
+                    "Black dress for sale. Used condition. Size M. $30."
+                </p>
+                <p style="font-size: 0.85rem; color: #999; font-style: italic;">
+                    Minimal details • No optimization • Limited appeal
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col2:
+            st.markdown("""
+            <div class="content-card">
+                <h3 style="color: var(--secondary);">After</h3>
+                <p style="color: var(--charcoal);">
+                    "Elegant Black Silk Evening Dress - Timeless sophistication meets sustainable style. 
+                    This stunning dress features premium silk construction..."
+                </p>
+                <p style="font-size: 0.85rem; color: var(--secondary); font-weight: 600;">
+                    SEO optimized • Professional copy • Platform ready
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        st.markdown("""
+        <div class="info-banner" style="margin-top: 2rem; background: linear-gradient(135deg, #E8F5ED 0%, #D4EDE0 100%); border-left-color: var(--secondary);">
+            <p style="margin: 0; font-weight: 600; font-size: 1.1rem;">
+                Internal Product Tagging Tool • thredUP
             </p>
         </div>
         """, unsafe_allow_html=True)
