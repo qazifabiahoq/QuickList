@@ -112,13 +112,14 @@ st.markdown("""
         position: relative;
         z-index: 2;
         height: 100%;
+        width: 55%;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
         text-align: center;
-        padding: 4rem 2rem;
-        max-width: 55%;
+        padding: 4rem 3rem;
+        margin-left: 0;
     }
     
     .brand-logo {
@@ -149,15 +150,17 @@ st.markdown("""
         font-weight: 500;
         margin-bottom: 1.5rem;
         font-style: italic;
-        max-width: 700px;
+        max-width: 500px;
+        text-align: center;
     }
     
     .hero-description {
         font-size: 1.15rem;
         color: #666 !important;
-        max-width: 600px;
+        max-width: 450px;
         line-height: 1.7;
         margin-bottom: 2.5rem;
+        text-align: center;
     }
     
     .eco-badge {
@@ -586,7 +589,7 @@ st.markdown("""
         }
         
         .hero-content {
-            max-width: 100%;
+            width: 100%;
             padding: 2rem 1.5rem;
         }
         
