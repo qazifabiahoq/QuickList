@@ -90,6 +90,7 @@ st.markdown("""
         width: 100%;
         height: 100%;
         object-fit: cover;
+        object-position: right center;
         filter: brightness(1.05);
         opacity: 0.4;
     }
@@ -101,9 +102,10 @@ st.markdown("""
         width: 100%;
         height: 100%;
         background: linear-gradient(
-            135deg,
-            rgba(250, 248, 243, 0.85) 0%,
-            rgba(255, 254, 249, 0.80) 100%
+            90deg,
+            rgba(250, 248, 243, 0.95) 0%,
+            rgba(250, 248, 243, 0.85) 50%,
+            rgba(250, 248, 243, 0.3) 100%
         );
     }
     
