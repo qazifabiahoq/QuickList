@@ -97,12 +97,14 @@ st.markdown("""
         position: absolute;
         top: 0;
         left: 0;
-        width: 100%;
+        width: 55%;
         height: 100%;
         background: linear-gradient(
-            135deg,
-            rgba(250, 248, 243, 0.75) 0%,
-            rgba(255, 254, 249, 0.70) 100%
+            90deg,
+            rgba(250, 248, 243, 0.98) 0%,
+            rgba(250, 248, 243, 0.95) 70%,
+            rgba(250, 248, 243, 0.3) 95%,
+            rgba(250, 248, 243, 0) 100%
         );
     }
     
@@ -116,6 +118,7 @@ st.markdown("""
         align-items: center;
         text-align: center;
         padding: 4rem 2rem;
+        max-width: 55%;
     }
     
     .brand-logo {
@@ -403,7 +406,7 @@ st.markdown("""
     
     /* SEO Box */
     .seo-container {
-        background: linear-gradient(135deg, #F0F7F3 0%, #E8F5ED 100%);
+        background: #C8E6C9;
         border-radius: 24px;
         padding: 3rem;
         margin: 2.5rem 0;
@@ -571,6 +574,20 @@ st.markdown("""
             height: 60vh;
             margin: -1rem -1rem 2rem -1rem;
             border-radius: 0 0 32px 32px;
+        }
+        
+        .hero-overlay {
+            width: 100%;
+            background: linear-gradient(
+                180deg,
+                rgba(250, 248, 243, 0.95) 0%,
+                rgba(250, 248, 243, 0.85) 100%
+            );
+        }
+        
+        .hero-content {
+            max-width: 100%;
+            padding: 2rem 1.5rem;
         }
         
         .brand-logo {
@@ -1700,11 +1717,11 @@ def main():
                 <div class="content-title">Product Description</div>
             """, unsafe_allow_html=True)
             
-            st.markdown(f"**Title:**\n{description.title}")
-            st.markdown(f"**Description:**\n{description.description}")
-            st.markdown("**Key Features:**")
+            st.markdown(f"<span style='color: #1A1A1A; font-weight: 600;'>Title:</span><br>{description.title}", unsafe_allow_html=True)
+            st.markdown(f"<br><span style='color: #1A1A1A; font-weight: 600;'>Description:</span><br>{description.description}", unsafe_allow_html=True)
+            st.markdown("<br><span style='color: #1A1A1A; font-weight: 600;'>Key Features:</span>", unsafe_allow_html=True)
             for bp in description.bullet_points:
-                st.markdown(f"• {bp}")
+                st.markdown(f"<span style='color: #1A1A1A;'>• {bp}</span>", unsafe_allow_html=True)
             
             st.markdown('</div>', unsafe_allow_html=True)
             
@@ -1714,11 +1731,11 @@ def main():
                 <div class="seo-title">SEO Keywords</div>
             """, unsafe_allow_html=True)
             
-            st.markdown("**Primary Keywords:**")
+            st.markdown("<span style='color: #1A1A1A; font-weight: 600; font-size: 1.05rem;'>Primary Keywords:</span>", unsafe_allow_html=True)
             keywords_html = " ".join([f'<span class="keyword-badge">{kw}</span>' for kw in keywords['primary']])
             st.markdown(keywords_html, unsafe_allow_html=True)
             
-            st.markdown("<br>**Long-tail Keywords:**", unsafe_allow_html=True)
+            st.markdown("<br><span style='color: #1A1A1A; font-weight: 600; font-size: 1.05rem;'>Long-tail Keywords:</span>", unsafe_allow_html=True)
             longtail_html = " ".join([f'<span class="keyword-badge">{kw}</span>' for kw in keywords['long_tail'][:10]])
             st.markdown(longtail_html, unsafe_allow_html=True)
             
