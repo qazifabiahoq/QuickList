@@ -76,8 +76,8 @@ st.markdown("""
     /* Premium Hero Section */
     .hero-container {
         position: relative;
-        margin: -1rem -5rem 4rem -5rem;
-        height: 85vh;
+        margin: -1rem -5rem 3rem -5rem;
+        height: 50vh;
         overflow: hidden;
         border-radius: 0 0 48px 48px;
         box-shadow: 0 20px 60px rgba(45, 95, 63, 0.15);
@@ -92,7 +92,7 @@ st.markdown("""
         object-fit: cover;
         object-position: right center;
         filter: brightness(1.05);
-        opacity: 0.4;
+        opacity: 0.75;
     }
     
     .hero-overlay {
@@ -175,6 +175,41 @@ st.markdown("""
         font-size: 1rem;
         letter-spacing: 0.05em;
     }
+    
+    /* Photo Showcase Cards */
+    .photo-showcase {
+        display: flex;
+        gap: 2rem;
+        justify-content: center;
+        margin: 4rem auto;
+        max-width: 1200px;
+        padding: 0 2rem;
+    }
+    
+    .photo-card {
+        flex: 1;
+        max-width: 350px;
+        background: white;
+        border: 3px solid #C8E6C9;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(45, 95, 63, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .photo-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 50px rgba(45, 95, 63, 0.2);
+        border-color: #B8C5B4;
+    }
+    
+    .photo-card img {
+        width: 100%;
+        height: 400px;
+        object-fit: cover;
+        display: block;
+    }
+    
     
     /* Sidebar Styling */
     [data-testid="stSidebar"] {
@@ -573,7 +608,7 @@ st.markdown("""
     /* Responsive */
     @media (max-width: 768px) {
         .hero-container {
-            height: 60vh;
+            height: 45vh;
             margin: -1rem -1rem 2rem -1rem;
             border-radius: 0 0 32px 32px;
         }
@@ -590,6 +625,21 @@ st.markdown("""
             font-size: 1.5rem;
         }
         
+        .photo-showcase {
+            flex-direction: column;
+            gap: 1.5rem;
+            padding: 0 1rem;
+            margin: 2rem auto;
+        }
+        
+        .photo-card {
+            max-width: 100%;
+        }
+        
+        .photo-card img {
+            height: 350px;
+        }
+        
         .metric-card {
             padding: 2rem 1.5rem;
         }
@@ -600,24 +650,33 @@ st.markdown("""
 # Hero Section with Premium Fashion Image
 st.markdown("""
 <div class="hero-container">
-    <img src="https://images.pexels.com/photos/1926769/pexels-photo-1926769.jpeg?auto=compress&cs=tinysrgb&w=1600" 
-         class="hero-image" 
-         alt="Sustainable Fashion">
-    <div class="hero-overlay"></div>
+    <div class="hero-overlay" style="background: linear-gradient(180deg, rgba(250, 248, 243, 0.98) 0%, rgba(250, 248, 243, 0.95) 100%);"></div>
     <div class="hero-content">
         <div class="brand-logo">THREDUP</div>
         <div class="brand-subtitle">QuickList</div>
         <div class="hero-tagline">Where Fashion Meets Sustainability</div>
         <div class="hero-description">
-            AI-powered product listing generation for thredUP marketplace.
-            Advanced image analysis and professional copywriting in seconds.
-        </div>
-        <div class="eco-badge">
-            Sustainable Resale Technology
+            AI-powered product listing generation
         </div>
     </div>
 </div>
-""", unsafe_allow_html=True)
+
+<div class="photo-showcase">
+    <div class="photo-card">
+        <img src="data:image/jpeg;base64,{}" alt="Fashion showcase">
+    </div>
+    <div class="photo-card">
+        <img src="data:image/jpeg;base64,{}" alt="Fashion showcase">
+    </div>
+    <div class="photo-card">
+        <img src="data:image/jpeg;base64,{}" alt="Fashion showcase">
+    </div>
+</div>
+""".format(
+    base64.b64encode(open('/mnt/user-data/uploads/pexels-ezz7-925402.jpg', 'rb').read()).decode(),
+    base64.b64encode(open('/mnt/user-data/uploads/pexels-dynamicwang-18108804.jpg', 'rb').read()).decode(),
+    base64.b64encode(open('/mnt/user-data/uploads/pexels-semih-akdag-171532967-32007386.jpg', 'rb').read()).decode()
+), unsafe_allow_html=True)
 
 
 # Data classes (UNCHANGED)
