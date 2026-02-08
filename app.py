@@ -36,9 +36,9 @@ st.markdown("""
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap');
     
     :root {
-        --primary: #77DD77;
-        --secondary: #77DD77;
-        --accent: #98D8C8;
+        --primary: #B0E5B0;
+        --secondary: #B0E5B0;
+        --accent: #C1E1C1;
         --cream: #FAF8F3;
         --ivory: #FFFEF9;
         --charcoal: #1A1A1A;
@@ -256,7 +256,7 @@ st.markdown("""
     }
     
     [data-testid="stFileUploader"] button {
-        background: #77DD77 !important;
+        background: #B0E5B0 !important;
         color: white !important;
         border: none !important;
         font-weight: 600 !important;
@@ -265,13 +265,13 @@ st.markdown("""
     }
     
     [data-testid="stFileUploader"] button:hover {
-        background: #98D8C8 !important;
+        background: #C1E1C1 !important;
         color: white !important;
     }
     
     /* Primary Button */
     .stButton > button {
-        background: #77DD77 !important;
+        background: #B0E5B0 !important;
         color: white !important;
         border: none !important;
         border-radius: 16px !important;
@@ -281,21 +281,21 @@ st.markdown("""
         text-transform: uppercase;
         letter-spacing: 0.1em;
         transition: all 0.3s ease;
-        box-shadow: 0 8px 24px rgba(119, 221, 119, 0.25) !important;
+        box-shadow: 0 8px 24px rgba(176, 229, 176, 0.25) !important;
         font-family: 'Inter', sans-serif !important;
     }
     
     .stButton > button:hover {
-        background: #98D8C8 !important;
+        background: #C1E1C1 !important;
         transform: translateY(-2px);
-        box-shadow: 0 10px 28px rgba(119, 221, 119, 0.30) !important;
+        box-shadow: 0 10px 28px rgba(176, 229, 176, 0.30) !important;
     }
     
     /* Download Button */
     .stDownloadButton > button {
         background: white !important;
-        color: #77DD77 !important;
-        border: 2px solid #77DD77 !important;
+        color: #B0E5B0 !important;
+        border: 2px solid #B0E5B0 !important;
         border-radius: 16px !important;
         padding: 1.25rem 3rem !important;
         font-weight: 600 !important;
@@ -303,7 +303,7 @@ st.markdown("""
     }
     
     .stDownloadButton > button:hover {
-        background: #77DD77 !important;
+        background: #B0E5B0 !important;
         color: white !important;
         transform: translateY(-2px);
     }
@@ -382,9 +382,10 @@ st.markdown("""
         margin: 2rem 0;
         box-shadow: 0 8px 30px rgba(45, 95, 63, 0.08);
         transition: all 0.3s ease;
-        min-height: 200px;
+        min-height: 240px;
         display: flex;
         flex-direction: column;
+        justify-content: space-between;
     }
     
     .content-card:hover {
@@ -557,7 +558,7 @@ st.markdown("""
     
     /* Progress Bar */
     .stProgress > div > div > div > div {
-        background: #77DD77;
+        background: #B0E5B0;
     }
     
     /* Responsive */
@@ -942,7 +943,7 @@ class QuickListAI:
     @staticmethod
     def generate_description(product_name: str, analysis: ProductAnalysis, 
                             features: str, image: Image.Image,
-                            target_audience: str = "", price_range: str = "") -> ProductDescription:
+                            target_audience: str = "", price: str = "") -> ProductDescription:
         """Generate ONE professional description using multi-AI fallback"""
         
         color = analysis.colors[0] if analysis.colors[0] != "neutral" else ""
@@ -958,8 +959,8 @@ Features: {features if features else 'Premium quality'}"""
         
         if target_audience:
             context += f"\nTarget Audience: {target_audience}"
-        if price_range:
-            context += f"\nPrice Range: {price_range}"
+        if price:
+            context += f"\nPrice: {price}"
         
         # STRICT VALIDATION: Build list of FORBIDDEN colors (all colors except detected one)
         all_colors = ['red', 'blue', 'green', 'yellow', 'orange', 'purple', 'pink', 'brown', 'white', 'black', 'gray', 'grey', 'beige', 'navy', 'maroon', 'burgundy', 'crimson', 'scarlet']
@@ -975,6 +976,8 @@ CRITICAL RULES - FOLLOW EXACTLY:
 2. MATERIALS: Use ONLY these materials: {', '.join(analysis.materials)}
 3. STYLE: Use ONLY this style: {analysis.style}
 4. Write 150-200 words that balance emotional appeal with practical benefits
+5. DO NOT use em dashes (—) - use regular hyphens (-) or periods instead
+6. {"Consider the price point of " + price + " in your tone" if price else ""}
 
 DO NOT invent colors, materials, or attributes not listed above.
 
@@ -1243,7 +1246,7 @@ Respond ONLY with valid JSON (no markdown, no extra text):
     
     @staticmethod
     def extract_keywords(product_name: str, analysis: ProductAnalysis, description: str) -> Dict[str, List[str]]:
-        """Generate SEO keywords"""
+        """Generate SEO keywords using AI for better specificity"""
         
         base = product_name.lower()
         category = analysis.category.lower()
@@ -1252,46 +1255,135 @@ Respond ONLY with valid JSON (no markdown, no extra text):
         color = analysis.colors[0] if analysis.colors[0] != "neutral" else ""
         specific = analysis.specific_type.lower()
         
+        # Try AI-powered keyword generation first
+        try:
+            if GROQ_API_KEY and HAS_GROQ:
+                client = Groq(api_key=GROQ_API_KEY)
+                
+                prompt = f"""Generate SEO keywords for this product:
+Product: {product_name}
+Category: {category}
+Type: {specific}
+Color: {color if color else 'not specified'}
+Style: {style}
+Material: {material}
+Description: {description[:200]}
+
+Generate 2 lists:
+1. Primary keywords (8 keywords): Specific product identifiers, brand-style terms, material+product combos
+2. Long-tail keywords (12 keywords): Detailed search phrases people actually use when shopping
+
+Focus on:
+- Actual shopping search terms (not generic)
+- Specific attributes (color, material, style)
+- Purchase intent phrases
+- Resale/secondhand market terms where relevant
+
+Respond ONLY with JSON:
+{{"primary": ["keyword1", "keyword2", ...], "long_tail": ["long phrase 1", "long phrase 2", ...]}}"""
+                
+                completion = client.chat.completions.create(
+                    model="llama-3.3-70b-versatile",
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.6,
+                    max_tokens=400,
+                    response_format={"type": "json_object"}
+                )
+                
+                result = json.loads(completion.choices[0].message.content)
+                
+                # Validate and clean keywords
+                primary_kw = [kw.lower().strip() for kw in result.get('primary', [])[:8] if kw.strip()]
+                long_tail_kw = [kw.lower().strip() for kw in result.get('long_tail', [])[:12] if kw.strip()]
+                
+                if len(primary_kw) >= 5 and len(long_tail_kw) >= 8:
+                    return {'primary': primary_kw, 'long_tail': long_tail_kw}
+        except Exception as e:
+            print(f"AI keyword generation failed: {e}")
+            pass
+        
+        # Fallback: Enhanced template-based generation
         primary = [base]
         
+        # Add specific color+product combinations
         if color and color not in base:
             primary.append(f"{color} {base}")
+            if specific and specific != base:
+                primary.append(f"{color} {specific}")
         
-        primary.extend([
-            f"{style} {base}",
-            f"premium {base}",
-            f"best {base}",
-        ])
+        # Add style combinations
+        if style and style not in ["modern", "premium"]:
+            primary.append(f"{style} {base}")
+            if color:
+                primary.append(f"{style} {color} {specific}")
         
-        if material and material not in ["premium", "quality"] and material not in base:
+        # Add material combinations if meaningful
+        if material and material not in ["premium", "quality", "fabric"] and material not in base:
             primary.append(f"{material} {base}")
+            if color:
+                primary.append(f"{color} {material} {base}")
         
+        # Add category-specific terms
         if category != "product" and specific and specific not in base:
             primary.append(f"{specific} {category.split()[0].lower()}")
         
-        # Remove duplicates
-        primary = list(dict.fromkeys(primary[:8]))
-        
-        long_tail = [
-            f"buy {base} online",
-            f"best {base} for sale",
-            f"where to buy {base}",
-        ]
-        
-        if color and color not in base:
-            long_tail.append(f"{color} {base} for sale")
-        
-        long_tail.extend([
-            f"{style} {base} reviews",
-            f"affordable {base}",
-            f"professional grade {base}",
-            f"durable {base}",
-            f"top rated {base}",
+        # Add resale-specific terms
+        primary.extend([
+            f"pre-owned {base}",
+            f"secondhand {base}"
         ])
         
-        if specific and specific not in base:
-            long_tail.append(f"best {specific} for {category.split()[0].lower()}")
+        # Remove duplicates, keep first 8
+        primary = list(dict.fromkeys(primary[:8]))
         
+        # Long-tail: More specific shopping intent
+        long_tail = []
+        
+        # Purchase intent
+        long_tail.extend([
+            f"buy {base} online",
+            f"where to buy {base}",
+            f"{base} for sale near me"
+        ])
+        
+        # Color-specific
+        if color and color not in base:
+            long_tail.extend([
+                f"{color} {base} for sale",
+                f"best {color} {specific} online",
+                f"buy {color} {base} secondhand"
+            ])
+        
+        # Style-specific
+        if style and style not in ["modern", "premium"]:
+            long_tail.extend([
+                f"{style} {base} reviews",
+                f"best {style} {specific}",
+                f"affordable {style} {base}"
+            ])
+        
+        # Material-specific
+        if material and material not in ["premium", "quality", "fabric"]:
+            long_tail.extend([
+                f"{material} {base} online",
+                f"buy {material} {specific}"
+            ])
+        
+        # Resale/sustainable
+        long_tail.extend([
+            f"sustainable {base}",
+            f"eco-friendly {specific}",
+            f"thrift {base} online"
+        ])
+        
+        # Quality/condition
+        long_tail.extend([
+            f"high quality {base}",
+            f"gently used {base}",
+            f"like new {specific}"
+        ])
+        
+        # Remove duplicates, keep first 12
         long_tail = list(dict.fromkeys(long_tail[:12]))
         
         return {'primary': primary, 'long_tail': long_tail}
@@ -1457,10 +1549,10 @@ def main():
             )
         
         with col2:
-            price_range = st.selectbox(
-                "Price Range (Optional)",
-                ['', 'Budget ($0-$50)', 'Mid-Range ($50-$150)', 'Premium ($150-$500)', 'Luxury ($500+)'],
-                help="Product price positioning"
+            price = st.text_input(
+                "Price (Optional)",
+                placeholder="e.g., $45",
+                help="Product price"
             )
         
         product_features = st.text_area(
@@ -1515,7 +1607,7 @@ def main():
                         product_features,
                         image,
                         target_audience,
-                        price_range
+                        price
                     )
                     
                     st.session_state.description = description
@@ -1752,7 +1844,7 @@ def main():
             <div class="content-card">
                 <h3 style="color: var(--secondary);">After</h3>
                 <p style="color: var(--charcoal);">
-                    "Elegant Black Silk Evening Dress - Timeless sophistication meets sustainable style. 
+                    "Elegant Black Silk Evening Dress. Timeless sophistication meets sustainable style. 
                     This stunning dress features premium silk construction..."
                 </p>
                 <p style="font-size: 0.85rem; color: var(--secondary); font-weight: 600;">
