@@ -81,6 +81,9 @@ st.markdown("""
         overflow: hidden;
         border-radius: 0 0 48px 48px;
         box-shadow: 0 20px 60px rgba(45, 95, 63, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
     }
     
     .hero-image {
@@ -90,6 +93,7 @@ st.markdown("""
         width: 100%;
         height: 100%;
         object-fit: cover;
+        object-position: right center;
         filter: brightness(1.05);
     }
     
@@ -97,13 +101,13 @@ st.markdown("""
         position: absolute;
         top: 0;
         left: 0;
-        width: 55%;
+        width: 60%;
         height: 100%;
         background: linear-gradient(
             90deg,
-            rgba(250, 248, 243, 0.98) 0%,
-            rgba(250, 248, 243, 0.95) 70%,
-            rgba(250, 248, 243, 0.3) 95%,
+            rgba(250, 248, 243, 1) 0%,
+            rgba(250, 248, 243, 0.98) 60%,
+            rgba(250, 248, 243, 0.5) 90%,
             rgba(250, 248, 243, 0) 100%
         );
     }
@@ -111,15 +115,13 @@ st.markdown("""
     .hero-content {
         position: relative;
         z-index: 2;
-        height: 100%;
-        width: 55%;
+        width: 50%;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
         text-align: center;
         padding: 4rem 3rem;
-        margin-left: 0;
     }
     
     .brand-logo {
