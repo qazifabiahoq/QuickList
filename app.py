@@ -36,9 +36,9 @@ st.markdown("""
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap');
     
     :root {
-        --primary: #2D5F3F;
-        --secondary: #6CBF00;
-        --accent: #88D66C;
+        --primary: #00A676;
+        --secondary: #00A676;
+        --accent: #2FB56A;
         --cream: #FAF8F3;
         --ivory: #FFFEF9;
         --charcoal: #1A1A1A;
@@ -90,7 +90,7 @@ st.markdown("""
         width: 100%;
         height: 100%;
         object-fit: cover;
-        filter: brightness(0.75);
+        filter: brightness(1.05);
     }
     
     .hero-overlay {
@@ -101,8 +101,8 @@ st.markdown("""
         height: 100%;
         background: linear-gradient(
             135deg,
-            rgba(45, 95, 63, 0.85) 0%,
-            rgba(108, 191, 0, 0.75) 100%
+            rgba(250, 248, 243, 0.92) 0%,
+            rgba(240, 247, 243, 0.88) 100%
         );
     }
     
@@ -122,17 +122,17 @@ st.markdown("""
         font-family: 'Playfair Display', serif;
         font-size: 7rem;
         font-weight: 900;
-        color: white !important;
+        color: var(--primary) !important;
         letter-spacing: 0.15em;
         margin-bottom: 0.5rem;
-        text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         line-height: 1.1;
     }
     
     .brand-subtitle {
         font-family: 'Inter', sans-serif;
         font-size: 1.1rem;
-        color: rgba(255, 255, 255, 0.95) !important;
+        color: var(--secondary) !important;
         letter-spacing: 0.25em;
         text-transform: uppercase;
         font-weight: 500;
@@ -142,7 +142,7 @@ st.markdown("""
     .hero-tagline {
         font-family: 'Playfair Display', serif;
         font-size: 2.2rem;
-        color: white !important;
+        color: var(--charcoal) !important;
         font-weight: 500;
         margin-bottom: 1.5rem;
         font-style: italic;
@@ -151,7 +151,7 @@ st.markdown("""
     
     .hero-description {
         font-size: 1.15rem;
-        color: rgba(255, 255, 255, 0.9) !important;
+        color: #666 !important;
         max-width: 600px;
         line-height: 1.7;
         margin-bottom: 2.5rem;
@@ -161,12 +161,11 @@ st.markdown("""
         display: inline-flex;
         align-items: center;
         gap: 0.75rem;
-        background: rgba(255, 255, 255, 0.15);
-        backdrop-filter: blur(10px);
-        border: 2px solid rgba(255, 255, 255, 0.3);
+        background: white;
+        border: 2px solid var(--secondary);
         padding: 1rem 2rem;
         border-radius: 50px;
-        color: white !important;
+        color: var(--primary) !important;
         font-weight: 600;
         font-size: 1rem;
         letter-spacing: 0.05em;
@@ -220,15 +219,15 @@ st.markdown("""
     
     /* File Uploader Styling */
     [data-testid="stFileUploader"] {
-        background: transparent !important;
-        border: none !important;
+        background: white !important;
+        border: 3px dashed var(--secondary) !important;
+        border-radius: 20px !important;
+        padding: 2rem !important;
     }
     
     [data-testid="stFileUploader"] > div {
         background: white !important;
-        border: 2px solid var(--sage) !important;
-        border-radius: 20px !important;
-        padding: 2rem !important;
+        border: none !important;
     }
     
     [data-testid="stFileUploader"] label {
@@ -236,9 +235,43 @@ st.markdown("""
         font-weight: 600 !important;
     }
     
+    [data-testid="stFileUploader"] section {
+        background: white !important;
+    }
+    
+    [data-testid="stFileUploader"] section > div {
+        background: white !important;
+    }
+    
+    [data-testid="stFileUploader"] div {
+        background: white !important;
+        color: var(--charcoal) !important;
+    }
+    
+    [data-testid="stFileUploader"] p,
+    [data-testid="stFileUploader"] span,
+    [data-testid="stFileUploader"] small {
+        color: var(--charcoal) !important;
+        background: transparent !important;
+    }
+    
+    [data-testid="stFileUploader"] button {
+        background: var(--secondary) !important;
+        color: white !important;
+        border: none !important;
+        font-weight: 600 !important;
+        padding: 0.75rem 1.5rem !important;
+        border-radius: 10px !important;
+    }
+    
+    [data-testid="stFileUploader"] button:hover {
+        background: var(--primary) !important;
+        color: white !important;
+    }
+    
     /* Primary Button */
     .stButton > button {
-        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%) !important;
+        background: #00A676 !important;
         color: white !important;
         border: none !important;
         border-radius: 16px !important;
@@ -248,21 +281,21 @@ st.markdown("""
         text-transform: uppercase;
         letter-spacing: 0.1em;
         transition: all 0.3s ease;
-        box-shadow: 0 8px 24px rgba(45, 95, 63, 0.25) !important;
+        box-shadow: 0 8px 24px rgba(0, 166, 118, 0.25) !important;
         font-family: 'Inter', sans-serif !important;
     }
     
     .stButton > button:hover {
-        background: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%) !important;
-        transform: translateY(-3px);
-        box-shadow: 0 12px 32px rgba(108, 191, 0, 0.35) !important;
+        background: #2FB56A !important;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 28px rgba(0, 166, 118, 0.30) !important;
     }
     
     /* Download Button */
     .stDownloadButton > button {
         background: white !important;
-        color: var(--primary) !important;
-        border: 2px solid var(--primary) !important;
+        color: #00A676 !important;
+        border: 2px solid #00A676 !important;
         border-radius: 16px !important;
         padding: 1.25rem 3rem !important;
         font-weight: 600 !important;
@@ -270,7 +303,7 @@ st.markdown("""
     }
     
     .stDownloadButton > button:hover {
-        background: var(--primary) !important;
+        background: #00A676 !important;
         color: white !important;
         transform: translateY(-2px);
     }
@@ -304,7 +337,12 @@ st.markdown("""
         text-align: center;
         transition: all 0.4s ease;
         height: 100%;
+        min-height: 180px;
         box-shadow: 0 5px 20px rgba(45, 95, 63, 0.05);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
     }
     
     .metric-card:hover {
@@ -324,10 +362,14 @@ st.markdown("""
     
     .metric-value {
         font-family: 'Playfair Display', serif;
-        font-size: 1.8rem;
+        font-size: 1.4rem;
         color: var(--primary) !important;
         font-weight: 700;
         line-height: 1.3;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
+        max-width: 100%;
     }
     
     /* Description Card */
@@ -339,6 +381,9 @@ st.markdown("""
         margin: 2rem 0;
         box-shadow: 0 8px 30px rgba(45, 95, 63, 0.08);
         transition: all 0.3s ease;
+        min-height: 280px;
+        display: flex;
+        flex-direction: column;
     }
     
     .content-card:hover {
@@ -426,6 +471,45 @@ st.markdown("""
         border-radius: 12px !important;
     }
     
+    .stSelectbox div[data-baseweb="select"]:hover {
+        border-color: var(--secondary) !important;
+    }
+    
+    .stSelectbox div[data-baseweb="select"] > div {
+        background: white !important;
+        color: var(--charcoal) !important;
+    }
+    
+    .stSelectbox [data-baseweb="select"] span {
+        color: var(--charcoal) !important;
+    }
+    
+    .stSelectbox [data-baseweb="select"] svg {
+        color: var(--charcoal) !important;
+    }
+    
+    [data-baseweb="menu"] {
+        background: white !important;
+        border: 1px solid rgba(45, 95, 63, 0.15) !important;
+        box-shadow: 0 4px 16px rgba(45, 95, 63, 0.1) !important;
+        border-radius: 8px !important;
+    }
+    
+    [data-baseweb="menu"] ul {
+        background: white !important;
+    }
+    
+    [data-baseweb="menu"] li {
+        background: white !important;
+        color: var(--charcoal) !important;
+        padding: 0.75rem 1rem !important;
+    }
+    
+    [data-baseweb="menu"] li:hover {
+        background: #f0f7f3 !important;
+        color: var(--primary) !important;
+    }
+    
     /* Info Box */
     .info-banner {
         background: linear-gradient(135deg, #F0F7F3 0%, #E8F5ED 100%);
@@ -472,7 +556,7 @@ st.markdown("""
     
     /* Progress Bar */
     .stProgress > div > div > div > div {
-        background: linear-gradient(90deg, var(--secondary) 0%, var(--accent) 100%);
+        background: #00A676;
     }
     
     /* Responsive */
