@@ -81,9 +81,6 @@ st.markdown("""
         overflow: hidden;
         border-radius: 0 0 48px 48px;
         box-shadow: 0 20px 60px rgba(45, 95, 63, 0.15);
-        display: flex;
-        align-items: center;
-        justify-content: center;
     }
     
     .hero-image {
@@ -93,36 +90,33 @@ st.markdown("""
         width: 100%;
         height: 100%;
         object-fit: cover;
-        object-position: 65% center;
         filter: brightness(1.05);
+        opacity: 0.4;
     }
     
     .hero-overlay {
         position: absolute;
         top: 0;
         left: 0;
-        width: 65%;
+        width: 100%;
         height: 100%;
         background: linear-gradient(
-            90deg,
-            rgba(250, 248, 243, 0.98) 0%,
-            rgba(250, 248, 243, 0.95) 50%,
-            rgba(250, 248, 243, 0.6) 85%,
-            rgba(250, 248, 243, 0) 100%
+            135deg,
+            rgba(250, 248, 243, 0.85) 0%,
+            rgba(255, 254, 249, 0.80) 100%
         );
     }
     
     .hero-content {
         position: relative;
         z-index: 2;
-        width: 60%;
+        height: 100%;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
         text-align: center;
-        padding: 4rem 3rem;
-        margin-right: 20%;
+        padding: 4rem 2rem;
     }
     
     .brand-logo {
@@ -153,14 +147,14 @@ st.markdown("""
         font-weight: 500;
         margin-bottom: 1.5rem;
         font-style: italic;
-        max-width: 500px;
+        max-width: 700px;
         text-align: center;
     }
     
     .hero-description {
         font-size: 1.15rem;
         color: #666 !important;
-        max-width: 450px;
+        max-width: 600px;
         line-height: 1.7;
         margin-bottom: 2.5rem;
         text-align: center;
@@ -582,17 +576,7 @@ st.markdown("""
             border-radius: 0 0 32px 32px;
         }
         
-        .hero-overlay {
-            width: 100%;
-            background: linear-gradient(
-                180deg,
-                rgba(250, 248, 243, 0.95) 0%,
-                rgba(250, 248, 243, 0.85) 100%
-            );
-        }
-        
         .hero-content {
-            width: 100%;
             padding: 2rem 1.5rem;
         }
         
