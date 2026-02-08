@@ -36,9 +36,9 @@ st.markdown("""
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap');
     
     :root {
-        --primary: #B0E5B0;
-        --secondary: #B0E5B0;
-        --accent: #C1E1C1;
+        --primary: #C8E6C9;
+        --secondary: #C8E6C9;
+        --accent: #D4EDE0;
         --cream: #FAF8F3;
         --ivory: #FFFEF9;
         --charcoal: #1A1A1A;
@@ -122,7 +122,7 @@ st.markdown("""
         font-family: 'Playfair Display', serif;
         font-size: 7rem;
         font-weight: 900;
-        color: var(--primary) !important;
+        color: #1A1A1A !important;
         letter-spacing: 0.15em;
         margin-bottom: 0.5rem;
         text-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -256,7 +256,7 @@ st.markdown("""
     }
     
     [data-testid="stFileUploader"] button {
-        background: #B0E5B0 !important;
+        background: #C8E6C9 !important;
         color: white !important;
         border: none !important;
         font-weight: 600 !important;
@@ -265,13 +265,13 @@ st.markdown("""
     }
     
     [data-testid="stFileUploader"] button:hover {
-        background: #C1E1C1 !important;
+        background: #D4EDE0 !important;
         color: white !important;
     }
     
     /* Primary Button */
     .stButton > button {
-        background: #B0E5B0 !important;
+        background: #C8E6C9 !important;
         color: white !important;
         border: none !important;
         border-radius: 16px !important;
@@ -281,21 +281,21 @@ st.markdown("""
         text-transform: uppercase;
         letter-spacing: 0.1em;
         transition: all 0.3s ease;
-        box-shadow: 0 8px 24px rgba(176, 229, 176, 0.25) !important;
+        box-shadow: 0 8px 24px rgba(200, 230, 201, 0.25) !important;
         font-family: 'Inter', sans-serif !important;
     }
     
     .stButton > button:hover {
-        background: #C1E1C1 !important;
+        background: #D4EDE0 !important;
         transform: translateY(-2px);
-        box-shadow: 0 10px 28px rgba(176, 229, 176, 0.30) !important;
+        box-shadow: 0 10px 28px rgba(200, 230, 201, 0.30) !important;
     }
     
     /* Download Button */
     .stDownloadButton > button {
         background: white !important;
-        color: #B0E5B0 !important;
-        border: 2px solid #B0E5B0 !important;
+        color: #C8E6C9 !important;
+        border: 2px solid #C8E6C9 !important;
         border-radius: 16px !important;
         padding: 1.25rem 3rem !important;
         font-weight: 600 !important;
@@ -303,7 +303,7 @@ st.markdown("""
     }
     
     .stDownloadButton > button:hover {
-        background: #B0E5B0 !important;
+        background: #C8E6C9 !important;
         color: white !important;
         transform: translateY(-2px);
     }
@@ -558,7 +558,7 @@ st.markdown("""
     
     /* Progress Bar */
     .stProgress > div > div > div > div {
-        background: #B0E5B0;
+        background: #C8E6C9;
     }
     
     /* Responsive */
