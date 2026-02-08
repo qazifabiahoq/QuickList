@@ -587,7 +587,7 @@ st.markdown("""
 # Hero Section with Premium Fashion Image
 st.markdown("""
 <div class="hero-container">
-    <img src="https://images.unsplash.com/photo-1558769132-cb1aea1f5e62?w=1600&q=80" 
+    <img src="https://images.pexels.com/photos/1926769/pexels-photo-1926769.jpeg?auto=compress&cs=tinysrgb&w=1600" 
          class="hero-image" 
          alt="Sustainable Fashion">
     <div class="hero-overlay"></div>
