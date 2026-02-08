@@ -132,7 +132,7 @@ st.markdown("""
     .brand-subtitle {
         font-family: 'Inter', sans-serif;
         font-size: 1.1rem;
-        color: var(--secondary) !important;
+        color: #1A1A1A !important;
         letter-spacing: 0.25em;
         text-transform: uppercase;
         font-weight: 500;
@@ -206,7 +206,7 @@ st.markdown("""
     .upload-title {
         font-family: 'Playfair Display', serif;
         font-size: 2.2rem;
-        color: var(--primary) !important;
+        color: #1A1A1A !important;
         margin-bottom: 1rem;
         font-weight: 700;
     }
@@ -544,7 +544,7 @@ st.markdown("""
     .step-title {
         font-weight: 700;
         font-size: 1.1rem;
-        color: var(--primary) !important;
+        color: #1A1A1A !important;
         margin-bottom: 0.5rem;
         text-transform: uppercase;
         letter-spacing: 0.05em;
