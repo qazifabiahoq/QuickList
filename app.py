@@ -663,20 +663,16 @@ st.markdown("""
 
 <div class="photo-showcase">
     <div class="photo-card">
-        <img src="data:image/jpeg;base64,{}" alt="Fashion showcase">
+        <img src="https://images.pexels.com/photos/925402/pexels-photo-925402.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Fashion showcase">
     </div>
     <div class="photo-card">
-        <img src="data:image/jpeg;base64,{}" alt="Fashion showcase">
+        <img src="https://images.pexels.com/photos/18108804/pexels-photo-18108804.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Fashion showcase">
     </div>
     <div class="photo-card">
-        <img src="data:image/jpeg;base64,{}" alt="Fashion showcase">
+        <img src="https://images.pexels.com/photos/32007386/pexels-photo-32007386.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Fashion showcase">
     </div>
 </div>
-""".format(
-    base64.b64encode(open('/mnt/user-data/uploads/pexels-ezz7-925402.jpg', 'rb').read()).decode(),
-    base64.b64encode(open('/mnt/user-data/uploads/pexels-dynamicwang-18108804.jpg', 'rb').read()).decode(),
-    base64.b64encode(open('/mnt/user-data/uploads/pexels-semih-akdag-171532967-32007386.jpg', 'rb').read()).decode()
-), unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
 
 # Data classes (UNCHANGED)
