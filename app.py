@@ -817,48 +817,81 @@ class QuickListAI:
     
     @staticmethod
     def _parse_google_vision(labels: List[str], objects: List[str], product_name: str) -> tuple:
-        """Parse Google Vision labels to category with improved accuracy"""
+        """Parse Google Vision labels with comprehensive fashion detection"""
         all_tags = ' '.join(labels + objects).lower()
         prod_lower = product_name.lower()
         combined = all_tags + ' ' + prod_lower
         
-        # Clothing - check specific items BEFORE generic ones
-        # Check blouse/shirt/top FIRST before dress
-        if any(term in combined for term in ['blouse', 'shirt', 'top', 'tee', 't-shirt', 'tank']):
+        # COMPREHENSIVE CLOTHING DETECTION - Check specific items FIRST
+        
+        # TOPS
+        if any(term in combined for term in [
+            'blouse', 'shirt', 'top', 'tee', 't-shirt', 'tank', 'cami', 'camisole',
+            'crop top', 'tube top', 'halter', 'bodysuit', 'bustier', 'corset',
+            'tunic', 'henley', 'polo', 'button-up', 'peplum'
+        ]):
             return "Apparel & Fashion", "Top"
-        elif any(term in combined for term in ['dress', 'gown', 'frock', 'maxi']):
+        
+        # DRESSES
+        elif any(term in combined for term in [
+            'dress', 'gown', 'frock', 'maxi', 'midi', 'mini', 'sundress',
+            'wrap dress', 'bodycon', 'shift', 'a-line', 'sheath', 'cocktail'
+        ]):
             return "Apparel & Fashion", "Dress"
-        elif any(term in combined for term in ['skirt', 'mini skirt']):
+        
+        # SKIRTS
+        elif any(term in combined for term in [
+            'skirt', 'mini skirt', 'midi skirt', 'maxi skirt', 'pencil skirt',
+            'pleated skirt', 'tennis skirt', 'skort'
+        ]):
             return "Apparel & Fashion", "Skirt"
-        elif any(term in combined for term in ['pants', 'jeans', 'trousers', 'slacks', 'leggings']):
+        
+        # PANTS
+        elif any(term in combined for term in [
+            'pants', 'jeans', 'trousers', 'slacks', 'chinos', 'leggings',
+            'joggers', 'sweatpants', 'cargo', 'palazzo', 'culottes', 'wide leg',
+            'skinny', 'mom jeans', 'boyfriend jeans'
+        ]):
             return "Apparel & Fashion", "Pants"
-        elif any(term in combined for term in ['jacket', 'coat', 'blazer', 'cardigan', 'sweater']):
+        
+        # SHORTS
+        elif any(term in combined for term in [
+            'shorts', 'bermuda', 'cutoffs', 'bike shorts'
+        ]):
+            return "Apparel & Fashion", "Shorts"
+        
+        # OUTERWEAR
+        elif any(term in combined for term in [
+            'jacket', 'coat', 'blazer', 'cardigan', 'sweater', 'pullover',
+            'hoodie', 'sweatshirt', 'bomber', 'denim jacket', 'leather jacket',
+            'parka', 'puffer', 'peacoat', 'trench', 'windbreaker', 'cape',
+            'vest', 'kimono', 'fleece', 'teddy coat'
+        ]):
             return "Apparel & Fashion", "Jacket"
         
-        # Electronics
-        elif any(term in combined for term in ['headphones', 'earbuds', 'earphones']):
-            return "Electronics", "Headphones"
-        elif any(term in combined for term in ['phone', 'smartphone', 'mobile']):
-            return "Electronics", "Smartphone"
-        elif any(term in combined for term in ['laptop', 'computer', 'notebook']):
-            return "Electronics", "Laptop"
+        # JUMPSUITS
+        elif any(term in combined for term in [
+            'jumpsuit', 'romper', 'playsuit', 'overall', 'coverall'
+        ]):
+            return "Apparel & Fashion", "Jumpsuit"
         
-        # Furniture
-        elif any(term in combined for term in ['chair', 'seat']):
-            return "Furniture", "Chair"
-        elif any(term in combined for term in ['table', 'desk']):
-            return "Furniture", "Table"
-        elif any(term in combined for term in ['sofa', 'couch']):
-            return "Furniture", "Sofa"
+        # BAGS
+        elif any(term in combined for term in [
+            'bag', 'purse', 'handbag', 'tote', 'clutch', 'satchel', 'crossbody',
+            'messenger', 'backpack', 'duffel', 'bucket bag', 'fanny pack'
+        ]):
+            return "Bags & Accessories", "Bag"
         
-        # Accessories
-        elif any(term in combined for term in ['bag', 'purse', 'handbag', 'tote']):
-            return "Bags & Luggage", "Bag"
-        elif any(term in combined for term in ['shoes', 'sneakers', 'boots', 'heels', 'sandals']):
+        # SHOES
+        elif any(term in combined for term in [
+            'shoes', 'sneakers', 'boots', 'heels', 'sandals', 'pumps', 'stilettos',
+            'platforms', 'wedges', 'ankle boots', 'combat boots', 'trainers',
+            'loafers', 'oxfords', 'flats', 'espadrilles', 'mules'
+        ]):
             return "Footwear", "Shoes"
         
-        # If clothing-related but no specific match, default to clothing
-        elif any(term in combined for term in ['clothing', 'apparel', 'fashion', 'wear']):
+        # Generic clothing fallback
+        elif any(term in combined for term in ['clothing', 'apparel', 'fashion', 'wear', 'garment']):
             return "Apparel & Fashion", "Clothing"
         
         # Default
@@ -871,48 +904,75 @@ class QuickListAI:
     
     @staticmethod
     def _rgb_to_color_name(r: int, g: int, b: int) -> str:
-        """Convert RGB to color name with improved accuracy"""
+        """Convert RGB to color name with comprehensive accuracy"""
         # Check for black/very dark
         if r < 50 and g < 50 and b < 50:
             return "black"
         
-        # Check for white/off-white - improved threshold
-        # If all RGB values are high and close to each other, it's white
-        if min(r, g, b) > 180 and max(r, g, b) - min(r, g, b) < 30:
+        # Check for white/off-white
+        if min(r, g, b) > 200 and max(r, g, b) - min(r, g, b) < 25:
             return "white"
         
-        # Check for gray (RGB values close to each other but not too light or dark)
-        if max(r, g, b) - min(r, g, b) < 30 and min(r, g, b) > 50 and max(r, g, b) < 180:
+        # Check for cream/ivory (warm whites)
+        if r > 220 and g > 215 and b > 200 and r > b:
+            return "white"
+        
+        # Check for gray (RGB values close to each other)
+        if max(r, g, b) - min(r, g, b) < 30 and min(r, g, b) > 50 and max(r, g, b) < 200:
             return "gray"
         
-        # For actual colors, need significant dominance
-        # Calculate how much one channel dominates
+        # Calculate dominance for color detection
         values = sorted([r, g, b], reverse=True)
         dominance = values[0] - values[1]
         
-        # Need at least 30 point difference to call it a specific color
-        if dominance < 30:
+        # Need at least 25 point difference for specific colors
+        if dominance < 25:
             return "neutral"
         
-        # Now check which color dominates
+        # RED family
         if r > g and r > b:
-            if r > 150 and g < 100 and b < 100:
+            if r > 180 and g < 100 and b < 100:
                 return "red"
-            elif r > 150 and g > 100 and b < 100:
+            elif r > 150 and g > 100 and b < 80:
                 return "brown"
+            elif r > 200 and g > 150 and b > 150:
+                return "pink"
+            elif r > 180 and g > 120 and b < 120:
+                return "orange"
             else:
                 return "pink"
+        
+        # GREEN family
         elif g > r and g > b:
-            return "green"
-        elif b > r and b > g:
-            if b > 150 and r < 100 and g < 100:
-                return "blue"
+            if g > 150 and r < 100 and b < 100:
+                return "green"
+            elif g > 180 and r > 150 and b < 100:
+                return "yellow"
+            elif g > r and b > r and abs(g - b) < 40:
+                return "teal"
             else:
+                return "green"
+        
+        # BLUE family
+        elif b > r and b > g:
+            if b > 180 and r < 100 and g < 100:
+                return "blue"
+            elif b > 150 and r > 100 and g < b - 30:
+                return "purple"
+            elif b > 200 and g > 180:
                 return "light blue"
+            else:
+                return "blue"
+        
+        # YELLOW/ORANGE
         elif r > 150 and g > 150 and b < 100:
-            return "yellow"
-        else:
-            return "neutral"
+            if r > g:
+                return "orange"
+            else:
+                return "yellow"
+        
+        # Fallback
+        return "neutral"
     
     @staticmethod
     def _extract_dominant_color(image: Image.Image) -> str:
@@ -924,34 +984,75 @@ class QuickListAI:
     
     @staticmethod
     def _detect_materials_style(labels: List[str], category: str) -> tuple:
-        """Detect materials and style from labels"""
-        materials = ["Premium", "Quality"]
-        style = "Modern"
+        """Comprehensive material and style detection from labels"""
+        materials = ["Quality", "Fabric"]
+        style = "Classic"
         
-        # Materials
-        if category == "Apparel & Fashion":
-            if any(mat in ' '.join(labels) for mat in ['silk', 'satin']):
-                materials = ["Silk", "Premium Fabric"]
-            elif any(mat in ' '.join(labels) for mat in ['cotton', 'cloth']):
-                materials = ["Cotton", "Soft Fabric"]
-            elif any(mat in ' '.join(labels) for mat in ['leather']):
-                materials = ["Leather", "Premium Material"]
-            else:
-                materials = ["Fabric", "Quality Material"]
+        all_labels = ' '.join(labels).lower()
         
-        # Style
-        if any(s in ' '.join(labels) for s in ['elegant', 'formal', 'luxury']):
+        # COMPREHENSIVE MATERIAL DETECTION
+        if any(mat in all_labels for mat in ['silk', 'satin', 'charmeuse']):
+            materials = ["Silk", "Luxurious"]
+        elif any(mat in all_labels for mat in ['cotton', 'organic']):
+            materials = ["Cotton", "Breathable"]
+        elif any(mat in all_labels for mat in ['linen', 'flax']):
+            materials = ["Linen", "Natural"]
+        elif any(mat in all_labels for mat in ['wool', 'cashmere', 'merino']):
+            materials = ["Wool", "Warm"]
+        elif any(mat in all_labels for mat in ['leather', 'suede', 'nubuck']):
+            materials = ["Leather", "Premium"]
+        elif any(mat in all_labels for mat in ['denim', 'chambray']):
+            materials = ["Denim", "Durable"]
+        elif any(mat in all_labels for mat in ['velvet', 'velour', 'plush']):
+            materials = ["Velvet", "Plush"]
+        elif any(mat in all_labels for mat in ['chiffon', 'georgette', 'sheer']):
+            materials = ["Chiffon", "Lightweight"]
+        elif any(mat in all_labels for mat in ['knit', 'sweater', 'cable']):
+            materials = ["Knit", "Cozy"]
+        elif any(mat in all_labels for mat in ['polyester', 'poly']):
+            materials = ["Polyester", "Wrinkle-resistant"]
+        elif any(mat in all_labels for mat in ['stretch', 'spandex', 'lycra']):
+            materials = ["Stretch", "Comfortable"]
+        elif any(mat in all_labels for mat in ['sequin', 'glitter', 'sparkle']):
+            materials = ["Sequin", "Sparkling"]
+        elif any(mat in all_labels for mat in ['lace', 'crochet', 'eyelet']):
+            materials = ["Lace", "Delicate"]
+        elif any(mat in all_labels for mat in ['mesh', 'net', 'tulle']):
+            materials = ["Mesh", "Sheer"]
+        elif any(mat in all_labels for mat in ['fleece', 'sherpa', 'teddy']):
+            materials = ["Fleece", "Warm"]
+        elif category == "Apparel & Fashion":
+            materials = ["Fabric", "Quality Material"]
+        
+        # COMPREHENSIVE STYLE DETECTION
+        if any(s in all_labels for s in ['elegant', 'formal', 'evening', 'sophisticated', 'luxury', 'cocktail']):
             style = "Elegant"
-        elif any(s in ' '.join(labels) for s in ['casual', 'everyday']):
+        elif any(s in all_labels for s in ['casual', 'everyday', 'comfortable', 'relaxed']):
             style = "Casual"
-        elif any(s in ' '.join(labels) for s in ['vintage', 'classic']):
-            style = "Classic"
+        elif any(s in all_labels for s in ['vintage', 'retro', 'classic', 'antique', 'throwback']):
+            style = "Vintage"
+        elif any(s in all_labels for s in ['modern', 'contemporary', 'trendy', 'fashion-forward', 'chic']):
+            style = "Modern"
+        elif any(s in all_labels for s in ['boho', 'bohemian', 'hippie', 'festival', 'free spirit']):
+            style = "Boho"
+        elif any(s in all_labels for s in ['romantic', 'feminine', 'delicate', 'soft', 'dreamy']):
+            style = "Romantic"
+        elif any(s in all_labels for s in ['edgy', 'bold', 'statement', 'punk', 'grunge']):
+            style = "Edgy"
+        elif any(s in all_labels for s in ['preppy', 'classic', 'collegiate', 'ivy league']):
+            style = "Preppy"
+        elif any(s in all_labels for s in ['athletic', 'sporty', 'activewear', 'performance']):
+            style = "Athletic"
+        elif any(s in all_labels for s in ['minimalist', 'minimal', 'simple', 'clean']):
+            style = "Minimalist"
+        elif any(s in all_labels for s in ['glamorous', 'glam', 'sparkle', 'luxe']):
+            style = "Glamorous"
         
         return materials, style
     
     @staticmethod
     def _analyze_with_clip(image: Image.Image, product_name: str) -> ProductAnalysis:
-        """Fallback CLIP analysis"""
+        """Fallback CLIP analysis with comprehensive fashion detection"""
         try:
             buffered = io.BytesIO()
             image.save(buffered, format="PNG")
@@ -962,12 +1063,91 @@ class QuickListAI:
             
             prod_lower = product_name.lower()
             
-            # Detect category
+            # COMPREHENSIVE GARMENT DETECTION
+            category = "Apparel & Fashion"
+            specific_type = "Clothing"
+            
+            if prod_lower:
+                # TOPS
+                if any(term in prod_lower for term in [
+                    'blouse', 'shirt', 'top', 'tee', 't-shirt', 'tank', 'cami', 'camisole', 
+                    'crop top', 'tube top', 'halter', 'bodysuit', 'bustier', 'corset',
+                    'tunic', 'henley', 'polo', 'button-up', 'button-down', 'peplum'
+                ]):
+                    specific_type = "Top"
+                
+                # DRESSES
+                elif any(term in prod_lower for term in [
+                    'dress', 'gown', 'frock', 'maxi', 'midi', 'mini', 'slip dress',
+                    'sundress', 'shift dress', 'wrap dress', 'bodycon', 'fit and flare',
+                    'a-line', 'sheath', 'smock dress', 'pinafore', 'kaftan', 'muumuu',
+                    'ball gown', 'cocktail dress', 'evening gown', 'tea dress'
+                ]):
+                    specific_type = "Dress"
+                
+                # BOTTOMS
+                elif any(term in prod_lower for term in [
+                    'pants', 'jeans', 'trousers', 'slacks', 'chinos', 'khakis',
+                    'leggings', 'joggers', 'sweatpants', 'cargo pants', 'palazzo',
+                    'culottes', 'capris', 'wide leg', 'straight leg', 'skinny',
+                    'flare', 'bootcut', 'boyfriend jeans', 'mom jeans', 'baggy',
+                    'skirt', 'mini skirt', 'midi skirt', 'maxi skirt', 'pencil skirt',
+                    'pleated skirt', 'circle skirt', 'tennis skirt', 'skort', 'sarong',
+                    'shorts', 'bermuda', 'cutoffs', 'hot pants', 'bike shorts'
+                ]):
+                    if 'skirt' in prod_lower or 'skort' in prod_lower or 'sarong' in prod_lower:
+                        specific_type = "Skirt"
+                    elif 'short' in prod_lower:
+                        specific_type = "Shorts"
+                    else:
+                        specific_type = "Pants"
+                
+                # OUTERWEAR
+                elif any(term in prod_lower for term in [
+                    'jacket', 'coat', 'blazer', 'cardigan', 'sweater', 'pullover',
+                    'hoodie', 'sweatshirt', 'bomber', 'denim jacket', 'jean jacket',
+                    'leather jacket', 'moto jacket', 'parka', 'puffer', 'peacoat',
+                    'trench', 'raincoat', 'windbreaker', 'anorak', 'cape', 'poncho',
+                    'shrug', 'bolero', 'vest', 'gilet', 'kimono', 'duster',
+                    'overcoat', 'topcoat', 'car coat', 'barn jacket', 'varsity jacket',
+                    'track jacket', 'fleece', 'teddy coat', 'shearling', 'fur coat'
+                ]):
+                    specific_type = "Jacket"
+                
+                # JUMPSUITS & ROMPERS
+                elif any(term in prod_lower for term in [
+                    'jumpsuit', 'romper', 'playsuit', 'overall', 'coverall', 'onesie'
+                ]):
+                    specific_type = "Jumpsuit"
+                
+                # BAGS
+                elif any(term in prod_lower for term in [
+                    'bag', 'purse', 'handbag', 'tote', 'clutch', 'satchel', 'hobo',
+                    'crossbody', 'messenger', 'shoulder bag', 'backpack', 'rucksack',
+                    'duffel', 'weekender', 'bucket bag', 'saddle bag', 'baguette',
+                    'pouch', 'wristlet', 'wallet', 'coin purse', 'fanny pack', 'belt bag'
+                ]):
+                    category = "Bags & Accessories"
+                    specific_type = "Bag"
+                
+                # SHOES
+                elif any(term in prod_lower for term in [
+                    'shoes', 'heels', 'pumps', 'stilettos', 'platforms', 'wedges',
+                    'boots', 'ankle boots', 'knee boots', 'combat boots', 'chelsea boots',
+                    'sneakers', 'trainers', 'athletic shoes', 'running shoes',
+                    'sandals', 'slides', 'flip flops', 'thongs', 'mules', 'clogs',
+                    'loafers', 'oxfords', 'brogues', 'flats', 'ballet flats',
+                    'espadrilles', 'mary janes', 'slingbacks', 'kitten heels'
+                ]):
+                    category = "Footwear"
+                    specific_type = "Shoes"
+            
+            # Detect category using CLIP
             categories = [
-                "white blouse shirt top tee", "dress evening gown maxi", "pants jeans trousers", "jacket coat sweater",
-                "headphones earbuds", "smartphone phone", "laptop computer",
-                "chair seating", "table desk", "sofa couch",
-                "bag purse handbag", "shoes footwear sneakers"
+                "blouse shirt top camisole tank", "dress gown maxi midi", "pants jeans trousers leggings", 
+                "skirt mini midi pleated", "jacket coat blazer cardigan sweater", "jumpsuit romper overall",
+                "bag purse handbag tote clutch", "shoes heels boots sneakers sandals",
+                "shorts bermuda cutoffs", "hoodie sweatshirt pullover"
             ]
             
             response = requests.post(
@@ -978,40 +1158,134 @@ class QuickListAI:
                 timeout=20
             )
             
-            category = "Apparel & Fashion"
-            specific_type = "Dress"
-            
-            if response.status_code == 200:
+            # Only override user input if CLIP is very confident AND user didn't specify
+            if response.status_code == 200 and not prod_lower:
                 result = response.json()
                 if isinstance(result, list) and len(result) > 0:
                     detected = result[0].get('label', '').lower()
                     
-                    # Check specific items FIRST before generic ones
-                    if "shirt" in detected or "top" in detected or "blouse" in detected or "shirt" in prod_lower or "blouse" in prod_lower:
-                        category, specific_type = "Apparel & Fashion", "Top"
-                    elif "dress" in detected or "dress" in prod_lower:
-                        category, specific_type = "Apparel & Fashion", "Dress"
-                    elif "pants" in detected or "jeans" in detected or "pants" in prod_lower:
-                        category, specific_type = "Apparel & Fashion", "Pants"
-                    elif "headphone" in detected or "headphone" in prod_lower:
-                        category, specific_type = "Electronics", "Headphones"
-                    elif "phone" in detected or "phone" in prod_lower:
-                        category, specific_type = "Electronics", "Smartphone"
-                    elif "laptop" in detected or "laptop" in prod_lower:
-                        category, specific_type = "Electronics", "Laptop"
+                    if "shirt" in detected or "top" in detected or "blouse" in detected or "camisole" in detected or "tank" in detected:
+                        specific_type = "Top"
+                    elif "jacket" in detected or "coat" in detected or "blazer" in detected or "sweater" in detected or "cardigan" in detected:
+                        specific_type = "Jacket"
+                    elif "hoodie" in detected or "sweatshirt" in detected or "pullover" in detected:
+                        specific_type = "Sweater"
+                    elif "dress" in detected or "gown" in detected:
+                        specific_type = "Dress"
+                    elif "skirt" in detected:
+                        specific_type = "Skirt"
+                    elif "pants" in detected or "jeans" in detected or "trousers" in detected or "leggings" in detected:
+                        specific_type = "Pants"
+                    elif "shorts" in detected:
+                        specific_type = "Shorts"
+                    elif "jumpsuit" in detected or "romper" in detected or "overall" in detected:
+                        specific_type = "Jumpsuit"
+                    elif "bag" in detected or "purse" in detected or "handbag" in detected or "tote" in detected or "clutch" in detected:
+                        category, specific_type = "Bags & Accessories", "Bag"
+                    elif "shoes" in detected or "heels" in detected or "boots" in detected or "sneakers" in detected or "sandals" in detected:
+                        category, specific_type = "Footwear", "Shoes"
             
-            # Get color
+            # Get color - check product name first for color keywords
             dominant_color = QuickListAI._extract_dominant_color(image)
-            if "black" in prod_lower:
-                dominant_color = "black"
             
-            # Materials and style based on category
-            if category == "Apparel & Fashion":
-                materials = ["Silk", "Premium Fabric"]
-                style = "Elegant"
-            else:
-                materials = ["Premium", "Quality"]
-                style = "Modern"
+            # COMPREHENSIVE COLOR DETECTION from product name
+            color_keywords = {
+                'black': ['black', 'noir', 'ebony', 'jet', 'onyx'],
+                'white': ['white', 'ivory', 'cream', 'off-white', 'ecru', 'pearl', 'snow'],
+                'gray': ['gray', 'grey', 'charcoal', 'slate', 'ash', 'silver', 'dove'],
+                'red': ['red', 'crimson', 'scarlet', 'ruby', 'burgundy', 'wine', 'maroon', 'cherry'],
+                'pink': ['pink', 'rose', 'blush', 'coral', 'salmon', 'fuchsia', 'magenta', 'hot pink'],
+                'orange': ['orange', 'tangerine', 'peach', 'apricot', 'rust', 'terracotta'],
+                'yellow': ['yellow', 'gold', 'mustard', 'canary', 'lemon', 'butter', 'saffron'],
+                'green': ['green', 'olive', 'sage', 'mint', 'emerald', 'forest', 'lime', 'jade', 'teal'],
+                'blue': ['blue', 'navy', 'cobalt', 'royal', 'sky', 'azure', 'turquoise', 'cerulean', 'sapphire', 'indigo'],
+                'purple': ['purple', 'violet', 'lavender', 'lilac', 'plum', 'mauve', 'orchid', 'amethyst'],
+                'brown': ['brown', 'tan', 'beige', 'camel', 'chocolate', 'mocha', 'taupe', 'khaki', 'cognac'],
+                'multicolor': ['multicolor', 'rainbow', 'tie-dye', 'ombre', 'color block', 'print', 'floral', 'striped']
+            }
+            
+            for color_name, keywords in color_keywords.items():
+                if any(keyword in prod_lower for keyword in keywords):
+                    dominant_color = color_name
+                    break
+            
+            # COMPREHENSIVE STYLE & AESTHETIC DETECTION
+            style = "Classic"
+            style_keywords = {
+                'Cottagecore': ['cottagecore', 'prairie', 'cottage', 'floral', 'romantic', 'whimsical', 'pastoral'],
+                'Dark Academia': ['dark academia', 'academic', 'preppy', 'scholarly', 'vintage', 'tweed'],
+                'Y2K': ['y2k', 'early 2000s', '2000s', 'low rise', 'butterfly', 'velour', 'juicy'],
+                'Streetwear': ['streetwear', 'urban', 'oversized', 'graphic', 'hypebeast', 'skate'],
+                'Minimalist': ['minimalist', 'minimal', 'simple', 'clean', 'monochrome', 'sleek'],
+                'Boho': ['boho', 'bohemian', 'hippie', 'free spirit', 'ethnic', 'festival', 'fringe'],
+                'Grunge': ['grunge', 'edgy', 'distressed', 'ripped', 'punk', 'rock', 'alternative'],
+                'Preppy': ['preppy', 'classic', 'ivy league', 'nautical', 'collegiate', 'country club'],
+                'Glamorous': ['glamorous', 'glam', 'sequin', 'sparkle', 'metallic', 'luxe', 'statement'],
+                'Athleisure': ['athleisure', 'sporty', 'athletic', 'activewear', 'gym', 'performance'],
+                'Vintage': ['vintage', 'retro', 'throwback', '70s', '80s', '90s', 'antique'],
+                'Modern': ['modern', 'contemporary', 'trendy', 'fashion-forward', 'chic'],
+                'Elegant': ['elegant', 'sophisticated', 'formal', 'evening', 'cocktail', 'classy'],
+                'Casual': ['casual', 'everyday', 'comfortable', 'relaxed', 'effortless'],
+                'Edgy': ['edgy', 'bold', 'statement', 'daring', 'unconventional'],
+                'Romantic': ['romantic', 'feminine', 'delicate', 'soft', 'dreamy', 'lace'],
+                'Western': ['western', 'cowboy', 'cowgirl', 'rodeo', 'ranch', 'denim'],
+                'Coastal': ['coastal', 'beach', 'nautical', 'resort', 'vacation', 'summer'],
+                'Goth': ['goth', 'gothic', 'dark', 'black', 'victorian', 'alternative'],
+                'Mod': ['mod', 'retro', '60s', 'geometric', 'bold'],
+                'Artsy': ['artsy', 'artistic', 'creative', 'avant-garde', 'unique', 'quirky']
+            }
+            
+            for style_name, keywords in style_keywords.items():
+                if any(keyword in prod_lower for keyword in keywords):
+                    style = style_name
+                    break
+            
+            # COMPREHENSIVE MATERIAL & TEXTURE DETECTION
+            materials = ["Quality", "Fabric"]
+            
+            material_keywords = {
+                ('Silk', 'Luxurious'): ['silk', 'satin', 'charmeuse'],
+                ('Cotton', 'Breathable'): ['cotton', 'organic cotton', 'supima'],
+                ('Linen', 'Natural'): ['linen', 'flax'],
+                ('Wool', 'Warm'): ['wool', 'cashmere', 'merino', 'angora', 'mohair'],
+                ('Leather', 'Premium'): ['leather', 'genuine leather', 'suede', 'nubuck'],
+                ('Denim', 'Durable'): ['denim', 'chambray'],
+                ('Velvet', 'Plush'): ['velvet', 'velour', 'crushed velvet'],
+                ('Chiffon', 'Lightweight'): ['chiffon', 'georgette', 'organza'],
+                ('Knit', 'Cozy'): ['knit', 'sweater knit', 'cable knit', 'ribbed'],
+                ('Polyester', 'Wrinkle-resistant'): ['polyester', 'poly blend'],
+                ('Spandex', 'Stretch'): ['spandex', 'lycra', 'elastane', 'stretch'],
+                ('Rayon', 'Soft'): ['rayon', 'viscose', 'modal', 'tencel'],
+                ('Sequin', 'Sparkling'): ['sequin', 'glitter', 'sparkle'],
+                ('Lace', 'Delicate'): ['lace', 'crochet', 'eyelet'],
+                ('Mesh', 'Sheer'): ['mesh', 'net', 'tulle'],
+                ('Corduroy', 'Textured'): ['corduroy', 'cord'],
+                ('Tweed', 'Sophisticated'): ['tweed', 'boucle'],
+                ('Fleece', 'Warm'): ['fleece', 'sherpa', 'teddy'],
+                ('Faux Fur', 'Cozy'): ['faux fur', 'fur', 'shearling', 'fuzzy']
+            }
+            
+            for (material, descriptor), keywords in material_keywords.items():
+                if any(keyword in prod_lower for keyword in keywords):
+                    materials = [material, descriptor]
+                    break
+            
+            # TEXTURE & DETAIL DETECTION (for style enhancement)
+            texture_keywords = [
+                'ruffled', 'ruffle', 'pleated', 'smocked', 'gathered', 'embroidered',
+                'beaded', 'studded', 'distressed', 'frayed', 'raw hem', 'puff sleeve',
+                'bishop sleeve', 'bell sleeve', 'off shoulder', 'one shoulder', 'halter',
+                'v-neck', 'scoop neck', 'crew neck', 'turtleneck', 'cowl neck',
+                'wrap', 'tie front', 'button front', 'zip front', 'asymmetric',
+                'high waist', 'low rise', 'mid rise', 'cropped', 'ankle length',
+                'floor length', 'backless', 'cutout', 'slit', 'tiered',
+                'quilted', 'padded', 'structured', 'oversized', 'fitted', 'relaxed'
+            ]
+            
+            # Enhance style if texture keywords found
+            if any(keyword in prod_lower for keyword in texture_keywords):
+                if style == "Classic":
+                    style = "Detailed"
             
             return ProductAnalysis(
                 category=category,
@@ -1023,13 +1297,61 @@ class QuickListAI:
             )
             
         except Exception as e:
+            # Fallback with comprehensive detection based on product name
+            prod_lower = product_name.lower()
+            specific_type = "Clothing"
+            category = "Apparel & Fashion"
+            materials = ["Quality", "Fabric"]
+            style = "Classic"
+            color = "neutral"
+            
+            # Garment detection
+            if any(term in prod_lower for term in ['blouse', 'shirt', 'top', 'tee', 'tank', 'cami']):
+                specific_type = "Top"
+            elif any(term in prod_lower for term in ['jacket', 'coat', 'blazer', 'sweater', 'cardigan', 'hoodie']):
+                specific_type = "Jacket"
+            elif any(term in prod_lower for term in ['dress', 'gown', 'maxi', 'midi']):
+                specific_type = "Dress"
+            elif any(term in prod_lower for term in ['pants', 'jeans', 'leggings', 'trousers']):
+                specific_type = "Pants"
+            elif any(term in prod_lower for term in ['skirt']):
+                specific_type = "Skirt"
+            elif any(term in prod_lower for term in ['shorts']):
+                specific_type = "Shorts"
+            elif any(term in prod_lower for term in ['bag', 'purse', 'tote', 'clutch']):
+                category, specific_type = "Bags & Accessories", "Bag"
+            elif any(term in prod_lower for term in ['shoes', 'heels', 'boots', 'sneakers']):
+                category, specific_type = "Footwear", "Shoes"
+            
+            # Color detection
+            if any(c in prod_lower for c in ['black', 'noir']):
+                color = "black"
+            elif any(c in prod_lower for c in ['white', 'ivory', 'cream']):
+                color = "white"
+            elif any(c in prod_lower for c in ['gray', 'grey', 'silver']):
+                color = "gray"
+            elif any(c in prod_lower for c in ['red', 'burgundy', 'wine']):
+                color = "red"
+            elif any(c in prod_lower for c in ['blue', 'navy', 'cobalt']):
+                color = "blue"
+            
+            # Material detection
+            if any(m in prod_lower for m in ['silk', 'satin']):
+                materials = ["Silk", "Luxurious"]
+            elif any(m in prod_lower for m in ['cotton']):
+                materials = ["Cotton", "Breathable"]
+            elif any(m in prod_lower for m in ['leather', 'suede']):
+                materials = ["Leather", "Premium"]
+            elif any(m in prod_lower for m in ['denim']):
+                materials = ["Denim", "Durable"]
+            
             return ProductAnalysis(
-                category="Apparel & Fashion",
-                materials=["Silk", "Quality Fabric"],
-                colors=['black', '#000000'],
-                style='Elegant',
-                confidence=0.75,
-                specific_type="Dress"
+                category=category,
+                materials=materials,
+                colors=[color, '#000000'],
+                style=style,
+                confidence=0.65,
+                specific_type=specific_type
             )
     
     @staticmethod
