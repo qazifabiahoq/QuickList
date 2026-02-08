@@ -97,12 +97,13 @@ st.markdown("""
         position: absolute;
         top: 0;
         left: 0;
-        width: 100%;
+        width: 60%;
         height: 100%;
         background: linear-gradient(
-            135deg,
-            rgba(250, 248, 243, 0.92) 0%,
-            rgba(240, 247, 243, 0.88) 100%
+            90deg,
+            rgba(250, 248, 243, 0.95) 0%,
+            rgba(250, 248, 243, 0.85) 70%,
+            rgba(250, 248, 243, 0) 100%
         );
     }
     
@@ -113,9 +114,10 @@ st.markdown("""
         display: flex;
         flex-direction: column;
         justify-content: center;
-        align-items: center;
-        text-align: center;
-        padding: 4rem 2rem;
+        align-items: flex-start;
+        text-align: left;
+        padding: 4rem 2rem 4rem 6rem;
+        max-width: 55%;
     }
     
     .brand-logo {
@@ -161,11 +163,11 @@ st.markdown("""
         display: inline-flex;
         align-items: center;
         gap: 0.75rem;
-        background: white;
-        border: 2px solid var(--secondary);
+        background: #C8E6C9;
+        border: 2px solid #C8E6C9;
         padding: 1rem 2rem;
         border-radius: 50px;
-        color: var(--primary) !important;
+        color: #1A1A1A !important;
         font-weight: 600;
         font-size: 1rem;
         letter-spacing: 0.05em;
@@ -317,7 +319,7 @@ st.markdown("""
     .section-title {
         font-family: 'Playfair Display', serif;
         font-size: 2.8rem;
-        color: var(--primary) !important;
+        color: #1A1A1A !important;
         font-weight: 700;
         margin-bottom: 0.75rem;
     }
@@ -531,12 +533,16 @@ st.markdown("""
     .feature-step {
         text-align: center;
         padding: 2rem;
+        min-height: 280px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
     }
     
     .step-number {
         font-family: 'Playfair Display', serif;
         font-size: 4rem;
-        color: var(--secondary) !important;
+        color: #1A1A1A !important;
         font-weight: 700;
         margin-bottom: 1rem;
     }
@@ -551,7 +557,7 @@ st.markdown("""
     }
     
     .step-description {
-        color: #666 !important;
+        color: #1A1A1A !important;
         font-size: 0.95rem;
         line-height: 1.6;
     }
@@ -567,6 +573,22 @@ st.markdown("""
             height: 60vh;
             margin: -1rem -1rem 2rem -1rem;
             border-radius: 0 0 32px 32px;
+        }
+        
+        .hero-overlay {
+            width: 100%;
+            background: linear-gradient(
+                180deg,
+                rgba(250, 248, 243, 0.95) 0%,
+                rgba(250, 248, 243, 0.85) 100%
+            );
+        }
+        
+        .hero-content {
+            align-items: center;
+            text-align: center;
+            padding: 4rem 2rem;
+            max-width: 100%;
         }
         
         .brand-logo {
@@ -1815,43 +1837,6 @@ def main():
             </p>
         </div>
         """, unsafe_allow_html=True)
-        
-        # Before/After Example Section
-        st.markdown("""
-        <div class="section-divider" style="margin-top: 4rem;">
-            <div class="section-title">Quality Comparison</div>
-            <div class="section-subtitle">Standard vs AI-generated listings</div>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.markdown("""
-            <div class="content-card">
-                <h3 style="color: #999;">Before</h3>
-                <p style="color: #666;">
-                    "Black dress for sale. Used condition. Size M. $30."
-                </p>
-                <p style="font-size: 0.85rem; color: #999; font-style: italic;">
-                    Minimal details • No optimization • Limited appeal
-                </p>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        with col2:
-            st.markdown("""
-            <div class="content-card">
-                <h3 style="color: var(--secondary);">After</h3>
-                <p style="color: var(--charcoal);">
-                    "Elegant Black Silk Evening Dress. Timeless sophistication meets sustainable style. 
-                    This stunning dress features premium silk construction..."
-                </p>
-                <p style="font-size: 0.85rem; color: var(--secondary); font-weight: 600;">
-                    SEO optimized • Professional copy • Platform ready
-                </p>
-            </div>
-            """, unsafe_allow_html=True)
         
         st.markdown("""
         <div class="info-banner" style="margin-top: 2rem; background: linear-gradient(135deg, #E8F5ED 0%, #D4EDE0 100%); border-left-color: var(--secondary);">
