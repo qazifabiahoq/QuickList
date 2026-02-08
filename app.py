@@ -817,41 +817,49 @@ class QuickListAI:
     
     @staticmethod
     def _parse_google_vision(labels: List[str], objects: List[str], product_name: str) -> tuple:
-        """Parse Google Vision labels to category"""
-        all_tags = labels + objects
+        """Parse Google Vision labels to category with improved accuracy"""
+        all_tags = ' '.join(labels + objects).lower()
         prod_lower = product_name.lower()
+        combined = all_tags + ' ' + prod_lower
         
-        # Clothing
-        if any(tag in all_tags or tag in prod_lower for tag in ['dress', 'gown', 'frock']):
-            return "Apparel & Fashion", "Dress"
-        elif any(tag in all_tags or tag in prod_lower for tag in ['shirt', 'blouse', 'top']):
+        # Clothing - check specific items BEFORE generic ones
+        # Check blouse/shirt/top FIRST before dress
+        if any(term in combined for term in ['blouse', 'shirt', 'top', 'tee', 't-shirt', 'tank']):
             return "Apparel & Fashion", "Top"
-        elif any(tag in all_tags or tag in prod_lower for tag in ['pants', 'jeans', 'trousers']):
+        elif any(term in combined for term in ['dress', 'gown', 'frock', 'maxi']):
+            return "Apparel & Fashion", "Dress"
+        elif any(term in combined for term in ['skirt', 'mini skirt']):
+            return "Apparel & Fashion", "Skirt"
+        elif any(term in combined for term in ['pants', 'jeans', 'trousers', 'slacks', 'leggings']):
             return "Apparel & Fashion", "Pants"
-        elif any(tag in all_tags or tag in prod_lower for tag in ['jacket', 'coat', 'blazer']):
+        elif any(term in combined for term in ['jacket', 'coat', 'blazer', 'cardigan', 'sweater']):
             return "Apparel & Fashion", "Jacket"
         
         # Electronics
-        elif any(tag in all_tags or tag in prod_lower for tag in ['headphones', 'earbuds', 'earphones']):
+        elif any(term in combined for term in ['headphones', 'earbuds', 'earphones']):
             return "Electronics", "Headphones"
-        elif any(tag in all_tags or tag in prod_lower for tag in ['phone', 'smartphone', 'mobile']):
+        elif any(term in combined for term in ['phone', 'smartphone', 'mobile']):
             return "Electronics", "Smartphone"
-        elif any(tag in all_tags or tag in prod_lower for tag in ['laptop', 'computer', 'notebook']):
+        elif any(term in combined for term in ['laptop', 'computer', 'notebook']):
             return "Electronics", "Laptop"
         
         # Furniture
-        elif any(tag in all_tags or tag in prod_lower for tag in ['chair', 'seat']):
+        elif any(term in combined for term in ['chair', 'seat']):
             return "Furniture", "Chair"
-        elif any(tag in all_tags or tag in prod_lower for tag in ['table', 'desk']):
+        elif any(term in combined for term in ['table', 'desk']):
             return "Furniture", "Table"
-        elif any(tag in all_tags or tag in prod_lower for tag in ['sofa', 'couch']):
+        elif any(term in combined for term in ['sofa', 'couch']):
             return "Furniture", "Sofa"
         
         # Accessories
-        elif any(tag in all_tags or tag in prod_lower for tag in ['bag', 'purse', 'handbag']):
+        elif any(term in combined for term in ['bag', 'purse', 'handbag', 'tote']):
             return "Bags & Luggage", "Bag"
-        elif any(tag in all_tags or tag in prod_lower for tag in ['shoes', 'sneakers', 'boots']):
+        elif any(term in combined for term in ['shoes', 'sneakers', 'boots', 'heels', 'sandals']):
             return "Footwear", "Shoes"
+        
+        # If clothing-related but no specific match, default to clothing
+        elif any(term in combined for term in ['clothing', 'apparel', 'fashion', 'wear']):
+            return "Apparel & Fashion", "Clothing"
         
         # Default
         return "Product", "Item"
@@ -863,19 +871,44 @@ class QuickListAI:
     
     @staticmethod
     def _rgb_to_color_name(r: int, g: int, b: int) -> str:
-        """Convert RGB to color name"""
+        """Convert RGB to color name with improved accuracy"""
+        # Check for black/very dark
         if r < 50 and g < 50 and b < 50:
             return "black"
-        elif r > 200 and g > 200 and b > 200:
+        
+        # Check for white/off-white - improved threshold
+        # If all RGB values are high and close to each other, it's white
+        if min(r, g, b) > 180 and max(r, g, b) - min(r, g, b) < 30:
             return "white"
-        elif r > g and r > b:
-            return "red"
+        
+        # Check for gray (RGB values close to each other but not too light or dark)
+        if max(r, g, b) - min(r, g, b) < 30 and min(r, g, b) > 50 and max(r, g, b) < 180:
+            return "gray"
+        
+        # For actual colors, need significant dominance
+        # Calculate how much one channel dominates
+        values = sorted([r, g, b], reverse=True)
+        dominance = values[0] - values[1]
+        
+        # Need at least 30 point difference to call it a specific color
+        if dominance < 30:
+            return "neutral"
+        
+        # Now check which color dominates
+        if r > g and r > b:
+            if r > 150 and g < 100 and b < 100:
+                return "red"
+            elif r > 150 and g > 100 and b < 100:
+                return "brown"
+            else:
+                return "pink"
         elif g > r and g > b:
             return "green"
         elif b > r and b > g:
-            return "blue"
-        elif r > 150 and g > 100 and b < 100:
-            return "brown"
+            if b > 150 and r < 100 and g < 100:
+                return "blue"
+            else:
+                return "light blue"
         elif r > 150 and g > 150 and b < 100:
             return "yellow"
         else:
@@ -931,10 +964,10 @@ class QuickListAI:
             
             # Detect category
             categories = [
-                "dress evening gown", "shirt blouse top", "pants jeans", "jacket coat",
+                "white blouse shirt top tee", "dress evening gown maxi", "pants jeans trousers", "jacket coat sweater",
                 "headphones earbuds", "smartphone phone", "laptop computer",
                 "chair seating", "table desk", "sofa couch",
-                "bag purse", "shoes footwear"
+                "bag purse handbag", "shoes footwear sneakers"
             ]
             
             response = requests.post(
@@ -953,10 +986,11 @@ class QuickListAI:
                 if isinstance(result, list) and len(result) > 0:
                     detected = result[0].get('label', '').lower()
                     
-                    if "dress" in detected or "dress" in prod_lower:
-                        category, specific_type = "Apparel & Fashion", "Dress"
-                    elif "shirt" in detected or "top" in detected or "shirt" in prod_lower:
+                    # Check specific items FIRST before generic ones
+                    if "shirt" in detected or "top" in detected or "blouse" in detected or "shirt" in prod_lower or "blouse" in prod_lower:
                         category, specific_type = "Apparel & Fashion", "Top"
+                    elif "dress" in detected or "dress" in prod_lower:
+                        category, specific_type = "Apparel & Fashion", "Dress"
                     elif "pants" in detected or "jeans" in detected or "pants" in prod_lower:
                         category, specific_type = "Apparel & Fashion", "Pants"
                     elif "headphone" in detected or "headphone" in prod_lower:
