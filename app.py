@@ -507,6 +507,15 @@ st.markdown("""
         box-shadow: 0 0 0 3px rgba(108, 191, 0, 0.1) !important;
     }
     
+    /* Review Panel */
+    .review-panel {
+        background: linear-gradient(135deg, #F0F7F3 0%, #E8F5ED 100%);
+        border: 3px solid #C8E6C9;
+        border-radius: 24px;
+        padding: 2rem;
+        margin: 2rem 0;
+    }
+    
     .stSelectbox div[data-baseweb="select"] {
         background: white !important;
         border: 2px solid rgba(45, 95, 63, 0.15) !important;
@@ -1959,8 +1968,8 @@ def main():
         
         product_name = st.text_input(
             "Product Name (Optional)",
-            placeholder="e.g., Vintage Silk Dress",
-            help="AI will detect if left blank"
+            placeholder="e.g., white silk blouse, grey teddy coat, burgundy midi dress",
+            help="AI will detect type, color, material & style if left blank"
         )
         
         col1, col2 = st.columns([1, 1])
@@ -2059,9 +2068,97 @@ def main():
                     progress.empty()
                 
                 st.session_state.keywords = keywords
-                st.session_state.show_results = True
+                st.session_state.needs_review = True
+                st.session_state.show_results = False
                 
                 st.success("Listing generated successfully")
+        
+        # Edit/Review Panel
+        if ('needs_review' in st.session_state and st.session_state.needs_review and 
+            'description' in st.session_state and 'analysis' in st.session_state and 
+            'keywords' in st.session_state):
+            
+            description = st.session_state.description
+            keywords = st.session_state.keywords
+            product_name = st.session_state.product_name
+            
+            st.markdown("""
+            <div class="section-divider">
+                <div class="section-title">✨ Review & Edit Your Listing</div>
+                <div class="section-subtitle">Make any changes before finalizing</div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            st.markdown('<div class="review-panel">', unsafe_allow_html=True)
+            
+            # Editable fields
+            edited_title = st.text_input(
+                "Product Title",
+                value=description.title,
+                help="Edit the AI-generated title",
+                key="edit_title"
+            )
+            
+            edited_description = st.text_area(
+                "Description",
+                value=description.description,
+                height=200,
+                help="Edit the AI-generated description",
+                key="edit_description"
+            )
+            
+            edited_features = st.text_area(
+                "Key Features",
+                value='\n'.join([f"• {point}" for point in description.bullet_points]),
+                height=150,
+                help="Edit the key features (one per line with •)",
+                key="edit_features"
+            )
+            
+            edited_primary_keywords = st.text_input(
+                "Primary Keywords",
+                value=', '.join(keywords['primary']),
+                help="Edit primary SEO keywords (comma-separated)",
+                key="edit_primary_keywords"
+            )
+            
+            edited_longtail_keywords = st.text_input(
+                "Long-tail Keywords",
+                value=', '.join(keywords['long_tail']),
+                help="Edit long-tail SEO keywords (comma-separated)",
+                key="edit_longtail_keywords"
+            )
+            
+            st.markdown("<br>", unsafe_allow_html=True)
+            
+            col1, col2, col3 = st.columns([1, 1, 1])
+            
+            with col1:
+                if st.button("↺ Regenerate", use_container_width=True):
+                    st.session_state.needs_review = False
+                    st.session_state.show_results = False
+                    st.rerun()
+            
+            with col3:
+                if st.button("✓ Approve & Finalize", use_container_width=True, type="primary"):
+                    # Update session state with edited values
+                    st.session_state.description = ProductDescription(
+                        title=edited_title,
+                        description=edited_description,
+                        bullet_points=[line.strip().lstrip('• ').strip() for line in edited_features.split('\n') if line.strip()],
+                        meta_description=description.meta_description
+                    )
+                    
+                    st.session_state.keywords = {
+                        'primary': [kw.strip() for kw in edited_primary_keywords.split(',') if kw.strip()],
+                        'long_tail': [kw.strip() for kw in edited_longtail_keywords.split(',') if kw.strip()]
+                    }
+                    
+                    st.session_state.needs_review = False
+                    st.session_state.show_results = True
+                    st.rerun()
+            
+            st.markdown('</div>', unsafe_allow_html=True)
         
         # Display results
         if ('show_results' in st.session_state and st.session_state.show_results and 
